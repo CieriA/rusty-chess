@@ -187,3 +187,54 @@ fn starting_queen() {
         ])
     )
 }
+
+// `linear` tests
+
+#[test]
+fn bishop_linearity() {
+    let mut board = Board::empty();
+    let pos = Point::new(3, 7);
+    let bishop = Bishop::new(Color::Black, pos);
+    board[pos] = Some(Box::new(bishop));
+    
+    for mov in board.filtered_move_set(pos) {
+        assert!(mov.linear())
+    }
+}
+
+#[test]
+fn rook_linearity() {
+    let mut board = Board::empty();
+    let pos = Point::new(5, 1);
+    let rook = Rook::new(Color::White, pos);
+    board[pos] = Some(Box::new(rook));
+
+    for mov in board.filtered_move_set(pos) {
+        assert!(mov.linear())
+    }
+}
+
+#[test]
+fn queen_linearity() {
+    let mut board = Board::empty();
+    let pos = Point::new(7, 4);
+    let queen = Queen::new(Color::White, pos);
+    board[pos] = Some(Box::new(queen));
+
+    for mov in board.filtered_move_set(pos) {
+        assert!(mov.linear())
+    }
+}
+
+#[test]
+#[should_panic]
+fn knight_non_linearity() {
+    let mut board = Board::empty();
+    let pos = Point::new(3, 7);
+    let knight = Knight::new(Color::Black, pos);
+    board[pos] = Some(Box::new(knight));
+
+    for mov in board.filtered_move_set(pos) {
+        assert!(mov.linear())
+    }
+}

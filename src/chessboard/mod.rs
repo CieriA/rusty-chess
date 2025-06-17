@@ -320,12 +320,18 @@ impl Board {
         unreachable!("There should be a King");
     }
     /// Is the `color` player in check?
-    pub(crate) fn check(&self, color: Color) -> bool { // TODO tests
+    pub(crate) fn check(&self, color: Color) -> Option<Movement> { // TODO tests
         let king_pos = self.find_king(color);
         self
             .all_moves(color.opposite())
             .into_iter()
-            .any(|mov| mov.to == king_pos)
+            .find(|mov| mov.to == king_pos)
+    }
+    /// Can the player block the Check moving a piece?
+    /// `color` is the current player
+    pub(crate) fn is_check_stoppable(&self, color: Color) -> bool {
+        let check_move = self.check(color).unwrap();
+        false
     }
     pub(crate) fn checks_around(&self, color: Color) -> bool { // TODO tests
         self
@@ -334,7 +340,7 @@ impl Board {
             .all(|mov| {
                 let mut new_board = self.clone();
                 new_board.do_move(mov);
-                new_board.check(color)
+                new_board.check(color).is_some()
             })
         
     }
@@ -343,11 +349,11 @@ impl Board {
         // TODO check for possible blocks of the check
         let _king_pos = self.find_king(color);
         
-        self.check(color) && self.checks_around(color)
+        self.check(color).is_some() && self.checks_around(color)
     }
     #[inline(always)]
     pub(crate) fn stalemate(&self, color: Color) -> bool { // TODO tests
         // No moves available and not check
-        (!self.check(color)) && self.all_moves(color).is_empty()
+        self.check(color).is_none() && self.all_moves(color).is_empty()
     }
 }

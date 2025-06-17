@@ -1,6 +1,5 @@
 use crate::geomath::Point;
 use crate::geomath::rotation::Direction;
-use crate::pieces::types::Color;
 
 /// Moves that can happen under special circumstances
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -45,5 +44,11 @@ impl Movement {
     #[inline]
     pub(crate) const fn new(from: Point, to: Point, special: Option<SpecialMove>, direction: Option<Direction>) -> Self {
         Self { from, to, special, direction }
+    }
+    #[inline]
+    pub(crate) fn linear(&self) -> bool {
+        let step = self.to - self.from;
+        println!("STEP: {}", step);
+        step.x == 0 || step.y == 0 || step.x.abs() == step.y.abs()
     }
 }
