@@ -52,7 +52,7 @@ impl Default for Board {
             ));
         }
         
-        // Other pieces println
+        // Other pieces
         for x in 0..Self::SIZE as isize {
             board[Point::new(x, 0)] =
                 Some(placement(x, Color::White));
