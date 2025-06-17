@@ -15,7 +15,7 @@ pub(crate) struct Queen {
 
 impl Display for Queen {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "Q";
+        let c = "♕"; // Q
         write!(f, "{}", self.to_colored_string(c))
     }
 }

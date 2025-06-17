@@ -14,7 +14,7 @@ pub(crate) struct Bishop {
 
 impl Display for Bishop {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "B";
+        let c = "♗"; // B
         write!(f, "{}", self.to_colored_string(c))
     }
 }

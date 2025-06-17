@@ -331,7 +331,7 @@ fn king_no_castle() {
     let king_pos = Point::new(4, 0);
     let color = Color::White;
     let mut king = King::new(color, king_pos);
-    king.set_state(PieceState::Already);
+    king.set_state(PieceState::Already.into());
     board[king_pos] = Some(Box::new(king.clone()));
     
     let rooks = [(0, 0), (7, 0)].map(Point::from);
@@ -366,4 +366,261 @@ fn knights_moves() {
     for mov in movements {
         assert!(board.do_move(mov));
     }
+}
+
+// `.check()` tests
+#[test]
+fn rook_check() {
+    let mut board = Board::empty();
+    let color = Color::White;
+    let king = King::new(color, Point::new(3, 7));
+    let rook = Rook::new(color.opposite(), Point::new(5, 7));
+
+    board[Point::new(3, 7)] = Some(Box::new(king));
+    board[Point::new(5, 7)] = Some(Box::new(rook));
+    
+    assert!(board.check(color).is_some());
+}
+
+#[test]
+fn bishop_check() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let king = King::new(color, Point::new(1, 0));
+    let bishop = Bishop::new(color.opposite(), Point::new(7, 6));
+
+    board[Point::new(1, 0)] = Some(Box::new(king));
+    board[Point::new(7, 6)] = Some(Box::new(bishop));
+
+    assert!(board.check(color).is_some());
+}
+
+#[test]
+fn knight_check() {
+    let mut board = Board::empty();
+    let color = Color::White;
+    let king = King::new(color, Point::new(4, 5));
+    let knight = Knight::new(color.opposite(), Point::new(6, 4));
+
+    board[Point::new(4, 5)] = Some(Box::new(king));
+    board[Point::new(6, 4)] = Some(Box::new(knight));
+
+    assert!(board.check(color).is_some());
+}
+
+#[test]
+fn queen_check() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let king = King::new(color, Point::new(0, 0));
+    let queen = Queen::new(color.opposite(), Point::new(7, 7));
+
+    board[Point::new(0, 0)] = Some(Box::new(king));
+    board[Point::new(7, 7)] = Some(Box::new(queen));
+
+    assert!(board.check(color).is_some());
+}
+
+#[test]
+fn pawn_check() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let king = King::new(color, Point::new(2, 2));
+    let pawn = Pawn::new(color.opposite(), Point::new(3, 1));
+    
+    board[Point::new(2, 2)] = Some(Box::new(king));
+    board[Point::new(3, 1)] = Some(Box::new(pawn));
+    
+    assert!(board.check(color).is_some());
+}
+
+// `.is_check_stoppable()` tests
+#[test]
+fn rook_stoppable() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let king_pos = Point::new(0, 0);
+    let rook_pos = Point::new(7, 0);
+    let pawn_eat = Point::new(6, 1);
+    
+    let king = King::new(color, king_pos);
+    let rook = Rook::new(color.opposite(), rook_pos);
+    let pawn = Pawn::new(color, pawn_eat);
+    
+    board[king_pos] = Some(Box::new(king));
+    board[rook_pos] = Some(Box::new(rook));
+    board[pawn_eat] = Some(Box::new(pawn));
+    
+    assert!(!board.is_check_stoppable(color).is_empty());
+}
+
+#[test]
+fn bishop_stoppable() {
+    let mut board = Board::empty();
+    let color = Color::White;
+    let king_pos = Point::new(7, 7);
+    let bishop_pos = Point::new(0, 0);
+    let knight_eat = Point::new(2, 1);
+    
+    let king = King::new(color, king_pos);
+    let bishop = Bishop::new(color.opposite(), bishop_pos);
+    let knight = Knight::new(color, knight_eat);
+    
+    board[king_pos] = Some(Box::new(king));
+    board[bishop_pos] = Some(Box::new(bishop));
+    board[knight_eat] = Some(Box::new(knight));
+    
+    assert!(!board.is_check_stoppable(color).is_empty());
+}
+
+#[test]
+fn queen_stoppable() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let king_pos = Point::new(7, 0);
+    let queen_pos = Point::new(0, 7);
+    let rook_eat = Point::new(0, 1);
+    
+    let king = King::new(color, king_pos);
+    let queen = Queen::new(color.opposite(), queen_pos);
+    let rook = Rook::new(color, rook_eat);
+    
+    board[king_pos] = Some(Box::new(king));
+    board[queen_pos] = Some(Box::new(queen));
+    board[rook_eat] = Some(Box::new(rook));
+    
+    assert!(!board.is_check_stoppable(color).is_empty());
+}
+#[test]
+fn not_stoppable() {
+    let mut board = Board::empty();
+    let color = Color::White;
+    let king_pos = Point::new(7, 0);
+    let queen_pos = Point::new(0, 7);
+    let pawn_pos = Point::new(3, 1);
+
+    let king = King::new(color, king_pos);
+    let queen = Queen::new(color.opposite(), queen_pos);
+    let pawn = Pawn::new(color, pawn_pos);
+
+    board[king_pos] = Some(Box::new(king));
+    board[queen_pos] = Some(Box::new(queen));
+    board[pawn_pos] = Some(Box::new(pawn));
+    
+    assert!(board.is_check_stoppable(color).is_empty());
+}
+
+// `.checkmate()` tests
+#[test]
+fn rook_mate() {
+    let mut board = Board::empty();
+    let color = Color::White;
+    let first_pos = Point::new(6, 5);
+    let second_pos = Point::new(7, 7);
+    let rook_pos = Point::new(5, 7);
+    
+    let first = King::new(color.opposite(), first_pos);
+    let second = King::new(color, second_pos);
+    let rook = Rook::new(color.opposite(), rook_pos);
+
+    board[first_pos] = Some(Box::new(first));
+    board[second_pos] = Some(Box::new(second));
+    board[rook_pos] = Some(Box::new(rook));
+    
+    assert!(board.checkmate(color));
+}
+
+#[test]
+fn bishops_mate() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let first_pos = Point::new(1, 5);
+    let second_pos = Point::new(0, 7);
+    let bishop_pos = Point::new(2, 5);
+    let bishop_pos2 = Point::new(2, 6);
+
+    let first = King::new(color.opposite(), first_pos);
+    let second = King::new(color, second_pos);
+    let bishop = Bishop::new(color.opposite(), bishop_pos);
+    let bishop2 = Bishop::new(color.opposite(), bishop_pos2);
+
+    board[first_pos] = Some(Box::new(first));
+    board[second_pos] = Some(Box::new(second));
+    board[bishop_pos] = Some(Box::new(bishop));
+    board[bishop_pos2] = Some(Box::new(bishop2));
+
+    assert!(board.checkmate(color));
+}
+
+#[test]
+fn queen_mate() {
+    let mut board = Board::empty();
+    let color = Color::White;
+    let first_pos = Point::new(4, 5);
+    let second_pos = Point::new(5, 7);
+    let queen_pos = Point::new(5, 6);
+
+    let first = King::new(color.opposite(), first_pos);
+    let second = King::new(color, second_pos);
+    let queen = Queen::new(color.opposite(), queen_pos);
+
+    board[first_pos] = Some(Box::new(first));
+    board[second_pos] = Some(Box::new(second));
+    board[queen_pos] = Some(Box::new(queen));
+
+    println!("{}", board);
+    assert!(board.checkmate(color));
+}
+
+#[test]
+fn bishop_knight_mate() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let first_pos = Point::new(6, 5);
+    let second_pos = Point::new(7, 7);
+    let bishop_pos = Point::new(5, 5);
+    let knight_pos = Point::new(7, 5);
+
+    let first = King::new(color.opposite(), first_pos);
+    let second = King::new(color, second_pos);
+    let bishop = Bishop::new(color.opposite(), bishop_pos);
+    let knight = Knight::new(color.opposite(), knight_pos);
+
+    board[first_pos] = Some(Box::new(first));
+    board[second_pos] = Some(Box::new(second));
+    board[bishop_pos] = Some(Box::new(bishop));
+    board[knight_pos] = Some(Box::new(knight));
+
+    assert!(board.checkmate(color));
+}
+
+#[test]
+fn two_rooks() {
+    let mut board = Board::empty();
+    let color = Color::Black;
+    let king_pos = Point::new(7, 7);
+    let rook_pos = Point::new(7, 0);
+    let rook_pos2 = Point::new(6, 0);
+
+    let king = King::new(color, king_pos);
+    let rook = Rook::new(color.opposite(), rook_pos);
+    let rook2 = Rook::new(color.opposite(), rook_pos2);
+
+    board[king_pos] = Some(Box::new(king));
+    board[rook_pos] = Some(Box::new(rook));
+    board[rook_pos2] = Some(Box::new(rook2));
+
+    assert!(board.checkmate(color));
+}
+
+#[test]
+fn base() { // .checkmate() doesn't work if the board is empty
+    let board = Board::default();
+    assert!(!board.checkmate(Color::White));
+    assert!(!board.checkmate(Color::Black));
+    let mut board = Board::empty();
+    board[Point::default()] = Some(Box::new(King::new(Color::White, Point::default())));
+    board[Point::new(7, 2)] = Some(Box::new(King::new(Color::Black, Point::new(7, 2))));
+    assert!(!board.checkmate(Color::White));
+    assert!(!board.checkmate(Color::Black));
 }

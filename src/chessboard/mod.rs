@@ -14,7 +14,6 @@ use std::{
     slice::Iter,
 };
 use indexmap::IndexSet;
-use crate::pieces::types;
 
 pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
 pub(crate) type Row = [Square; Board::SIZE];
@@ -53,13 +52,13 @@ impl Default for Board {
             ));
         }
         
-        // Other pieces
+        // Other pieces println
         for x in 0..Self::SIZE as isize {
             board[Point::new(x, 0)] =
-                Some(types::placement(x, Color::White));
+                Some(placement(x, Color::White));
             
             board[Point::new(x, Self::SIZE as isize - 1)] = 
-                Some(types::placement(x, Color::Black));
+                Some(placement(x, Color::Black));
         }
         
         board
@@ -214,6 +213,9 @@ impl Board {
                     
                     SpecialMove::ShortCastle => {
                         let rook_pos = mov.from + Point::new(3, 0);
+                        if !Board::in_bounds(rook_pos) {
+                            return false;
+                        }
                         let Some(rook) = self[rook_pos].as_ref() else {
                             return false;
                         };
@@ -230,6 +232,9 @@ impl Board {
                     
                     SpecialMove::LongCastle => {
                         let rook_pos = mov.from + Point::new(-4, 0);
+                        if !Board::in_bounds(rook_pos) {
+                            return false;
+                        }
                         let Some(rook) = self[rook_pos].as_ref() else {
                             return false;
                         };
@@ -246,15 +251,23 @@ impl Board {
             })
             .collect()
     }
+    fn all_pieces(&self, color: Color) -> HashSet<Point> {
+        let mut set = HashSet::new();
+        for (y, row) in self.iter().enumerate() {
+            for (x, square) in row.iter().enumerate() {
+                if square.as_ref().is_some_and(|p| p.color() == color) {
+                    set.insert(Point::new(x as isize, y as isize));
+                }
+            }
+        }
+        set
+    }
     /// Returns all the moves a player (`color`) can do.
     fn all_moves(&self, color: Color) -> HashSet<Movement> {
         let mut set = HashSet::new();
-        for (y, row) in self.iter().enumerate() {
-            for (x, square) in row.iter().enumerate() { 
-                if !square.as_ref().is_some_and(|p| p.color() == color) {
-                    continue;
-                }
-                set.extend(self.filtered_move_set(Point::new(x as isize, y as isize)));
+        for coord in self.all_pieces(color) {
+            if self[coord].as_ref().is_some_and(|piece| piece.color() == color) {
+                set.extend(self.filtered_move_set(Point::new(coord.x, coord.y)));
             }
         }
         set
@@ -266,18 +279,47 @@ impl Board {
         if !self.filtered_move_set(mov.from).contains(&mov) {
             false
         } else {
-            self.apply_move(mov);
+            let piece = self[mov.from].as_ref().unwrap();
+            let color = piece.color();
+            // -----------------------------
+            // simulation
+            if piece.is_king() {
+                let mut board_clone = self.clone();
+                let moves = board_clone.is_check_stoppable(color);
+                if !moves.contains(&mov) {
+                    return false;
+                } else {
+                    let piece = board_clone[mov.from].take().unwrap();
+                    board_clone[mov.to] = Some(piece);
+                    if board_clone.check(color).is_some() {
+                        return false;
+                    }
+                }
+            }
+            // -----------------------------
+            
+            self.apply_move(mov.clone());
+            let set: HashSet<_> = self
+                .all_pieces(self[mov.to].as_ref().unwrap().color())
+                .into_iter()
+                .filter(|coord|
+                    self[*coord].as_ref().is_some_and(|piece| piece.is_state(PawnState::JustDouble.into()))
+                )
+                .collect();
+            for coord in set {
+                self[coord].as_mut().unwrap().set_state(PawnState::Already.into());
+            }
             true
         }
     }
     /// Without checking errors, move a piece.
     fn apply_move(&mut self, mov: Movement) {
-        let mut piece = self[mov.from].take().unwrap(); // .unwrap() to ensure the piece exists
-        let upgraded = piece.set_pos_upgrade(mov.to);
-        if let Some(upgraded) = upgraded {
-            self[mov.to] = Some(upgraded);
+        let piece = self[mov.from].as_mut().unwrap();
+        if mov.special.as_ref().is_some_and(|sm| sm == &SpecialMove::DoublePawn) {
+            piece.set_state(PawnState::JustDouble.into());
         }
-        self[mov.to] = Some(piece);
+        
+        let upgraded = piece.set_pos_upgrade(mov.to);
         match mov.special {
             Some(SpecialMove::ShortCastle) => {
                 let mut rook = self[mov.from + Point::new(3, 0)].take().unwrap();
@@ -301,10 +343,15 @@ impl Board {
             }
             _ => {}
         }
+        let piece = self[mov.from].take().unwrap(); // .unwrap() to ensure it still exists.
+        if let Some(upgraded) = upgraded {
+            self[mov.to] = Some(upgraded);
+        } else {
+            self[mov.to] = Some(piece);
+        }
     }
     /// Returns the coordinates of the King of the given color.
-    /// TODO: maybe change this to returning a reference
-    fn find_king(&self, color: Color) -> Point { // TODO tests
+    fn find_king(&self, color: Color) -> Point {
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
                 if square
@@ -319,21 +366,45 @@ impl Board {
         }
         unreachable!("There should be a King");
     }
-    /// Is the `color` player in check?
-    pub(crate) fn check(&self, color: Color) -> Option<Movement> { // TODO tests
+    /// `color` is the color of the king about to be captured
+    pub(crate) fn check(&self, color: Color) -> Option<Movement> {
         let king_pos = self.find_king(color);
         self
             .all_moves(color.opposite())
             .into_iter()
             .find(|mov| mov.to == king_pos)
     }
-    /// Can the player block the Check moving a piece?
-    /// `color` is the current player
-    pub(crate) fn is_check_stoppable(&self, color: Color) -> bool {
+    /// Can the player block the Check moving a piece? Returns the Movements that stops the check
+    /// 
+    /// Returns an HashSet of all the moves with which the player can block the piece by
+    /// eating it or putting a piece between it and the king.
+    /// 
+    /// Doesn't check for the king moving itself (TODO might be added?)
+    /// 
+    /// `color` is the color of the king about to be captured
+    pub(crate) fn is_check_stoppable(&self, color: Color) -> HashSet<Movement> {
+        let mut stop_cells = HashSet::new();
         let check_move = self.check(color).unwrap();
-        false
+        // Adding to stop_cells
+        stop_cells.insert(check_move.from);
+        // Add more (bishop/rook/queen)
+        if let Some(linearity) = check_move.linear() {
+            let mut step = check_move.from + linearity;
+            while step != check_move.to {
+                stop_cells.insert(step);
+                step += linearity;
+            }
+        }
+        
+        // Can be stopped?
+        self
+            .all_moves(color)
+            .into_iter()
+            .filter(|mov| !self[mov.from].as_ref().unwrap().is_king() && stop_cells.contains(&mov.to))
+            .collect()
     }
-    pub(crate) fn checks_around(&self, color: Color) -> bool { // TODO tests
+    /// `color` is the color of the king about to be captured
+    pub(crate) fn checks_around(&self, color: Color) -> bool {
         self
             .filtered_move_set(self.find_king(color))
             .into_iter()
@@ -344,15 +415,14 @@ impl Board {
             })
         
     }
-    pub(crate) fn checkmate(&self, color: Color) -> bool { // TODO tests
-        // Return is check and all around check
-        // TODO check for possible blocks of the check
-        let _king_pos = self.find_king(color);
-        
-        self.check(color).is_some() && self.checks_around(color)
+    /// `color` is the color of the king about to be captured
+    #[inline]
+    pub(crate) fn checkmate(&self, color: Color) -> bool {
+        // Return is check, all around check and if check is not stoppable
+        self.check(color).is_some() && self.checks_around(color) && self.is_check_stoppable(color).is_empty()
     }
     #[inline(always)]
-    pub(crate) fn stalemate(&self, color: Color) -> bool { // TODO tests
+    pub(crate) fn stalemate(&self, color: Color) -> bool {
         // No moves available and not check
         self.check(color).is_none() && self.all_moves(color).is_empty()
     }

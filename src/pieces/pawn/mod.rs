@@ -1,7 +1,8 @@
 use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, PawnState, Piece, SpecialMove, State};
+use super::types::{Color, Movement, PawnState, Piece, SpecialMove, State, piece_from_char};
 use crate::geomath::Point;
 use crate::geomath::rotation::Direction;
+use crate::game::ask_upgrade;
 use indexmap::IndexSet;
 
 /// ## Pawn piece
@@ -22,7 +23,7 @@ pub(crate) struct Pawn {
 
 impl Display for Pawn {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "P";
+        let c = "♙"; // P
         write!(f, "{}", self.to_colored_string(c))
     }
 }
@@ -39,13 +40,16 @@ impl Piece for Pawn {
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
     }
-    #[inline(always)]
     fn set_pos_upgrade(&mut self, pos: Point) -> Option<Box<dyn Piece>> {
+        self.set_pos(pos);
         if pos.y == self.color().opposite().first_row() as isize {
-            let new_piece: Box<dyn Piece> = todo!("ask for piece change");
-            // TODO in the func asking parse it to a Piece
-            // TODO checks for valid piece
-            Some(new_piece)
+            loop {
+                let Ok(c) = ask_upgrade() else {
+                    println!("Invalid input.");
+                    continue;
+                };
+                return Some(piece_from_char(c, self.color(), self.pos()));
+            }
         } else {
             None
         }
@@ -94,7 +98,7 @@ impl Piece for Pawn {
         if let State::PawnState(ps) = new_state {
             self.state = ps;
         } else {
-            panic!("Invalid state");
+            panic!("Invalid pawn state");
         }
     }
     #[inline(always)]

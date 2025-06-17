@@ -7,6 +7,7 @@ pub(crate) mod rotation;
 use std::fmt::{Display, Formatter};
 use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub};
 use std::collections::HashSet;
+use std::error::Error;
 use crate::chessboard::Board;
 use crate::geomath::rotation::Direction;
 
@@ -144,26 +145,41 @@ impl From<(isize, isize)> for Point {
         Self::new(x, y)
     }
 }
-impl From<&str> for Point {
-    fn from(s: &str) -> Self {
+impl TryFrom<&str> for Point {
+    type Error = Box<dyn Error>;
+    fn try_from(s: &str) -> Result<Self, Self::Error> {
         let s: Vec<char> = s.chars().collect();
-        assert_eq!(s.len(), 2);
+
+        if s.len() != 2 {
+            return Err("invalid length".into());
+        }
+
         let x = s[0].to_ascii_uppercase();
         let y = s[1].to_ascii_uppercase();
-        assert!(
-            x.is_ascii_alphabetic() &&
-            y.is_ascii_alphanumeric() &&
-            y.is_numeric(),
-            "Invalid coords: {:?}", s
-        );
-        let x = ('A'..='Z')
+
+        if !x.is_ascii_alphabetic() ||
+            !y.is_ascii_alphanumeric() ||
+            !y.is_numeric()
+        {
+            return Err("Invalid coords".into());
+        }
+
+        let Some(x) = ('A'..='Z')
             .take(Board::SIZE)
             .enumerate()
-            .find(|(_, c)| *c == x)
-            .unwrap().0 as isize;
-        let y = format!("{}", y).parse::<isize>().unwrap() - 1;
-        assert!(y < Board::SIZE as isize);
-        Point::new(x, y)
+            .find(|(_, c)| *c == x) else {
+            return Err("Invalid coords".into());
+        };
+
+        let x = x.0 as isize;
+        let Ok(y) = format!("{}", y).parse::<isize>() else {
+            return Err("Invalid coords".into());
+        };
+        let y = y - 1;
+        if y >= Board::SIZE as isize {
+            return Err("Coords out of bounds".into());
+        }
+        Ok(Point::new(x, y))
     }
 }
 

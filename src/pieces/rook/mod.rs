@@ -15,7 +15,7 @@ pub(crate) struct Rook {
 
 impl Display for Rook {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "R";
+        let c = "♖"; // R
         write!(f, "{}", self.to_colored_string(c))
     }
 }
@@ -29,6 +29,7 @@ impl Piece for Rook {
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
+        self.set_state(PieceState::Already.into());
     }
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)
@@ -50,7 +51,7 @@ impl Piece for Rook {
         if let State::PieceState(ps) = new_state {
             self.state = ps;
         } else {
-            panic!("Invalid state");
+            panic!("Invalid rook state");
         }
     }
     #[inline(always)]

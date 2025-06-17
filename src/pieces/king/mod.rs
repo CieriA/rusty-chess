@@ -34,7 +34,7 @@ pub(crate) struct King {
 
 impl Display for King {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "K";
+        let c = "♔"; // K
         write!(f, "{}", self.to_colored_string(c))
     }
 }
@@ -50,6 +50,7 @@ impl Piece for King {
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
+        self.set_state(PieceState::Already.into());
     }
     fn is_king(&self) -> bool { true }
     fn is_state(&self, state: State) -> bool {
@@ -85,7 +86,7 @@ impl Piece for King {
         if let State::PieceState(ps) = new_state {
             self.state = ps;
         } else {
-            panic!("Invalid state");
+            panic!("Invalid king state");
         }
     }
     #[inline(always)]
@@ -99,9 +100,5 @@ impl King {
     #[inline]
     pub(crate) fn new(color: Color, pos: Point) -> Self {
         Self { color, pos, state: PieceState::default() }
-    }
-    #[inline]
-    pub(crate) const fn set_state(&mut self, new_state: PieceState) {
-        self.state = new_state;
     }
 }

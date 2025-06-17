@@ -3,7 +3,7 @@ use indexmap::IndexSet;
 
 #[test]
 fn pawn() {
-    let pawn = Pawn::new(Color::Black, Point::from("e7"));
+    let pawn = Pawn::new(Color::Black, Point::try_from("e7").unwrap());
     assert_eq!(
         pawn.move_set(),
         IndexSet::from([
@@ -17,7 +17,7 @@ fn pawn() {
 
 #[test]
 fn bishop() {
-    let bishop = Bishop::new(Color::White, Point::from("b2"));
+    let bishop = Bishop::new(Color::White, Point::try_from("b2").unwrap());
     let start = Point::new(1, 1);
     assert_eq!(
         bishop.move_set(),
@@ -37,7 +37,7 @@ fn bishop() {
 }
 #[test]
 fn bishop_reverse() {
-    let bishop = Bishop::new(Color::Black, Point::from("g6"));
+    let bishop = Bishop::new(Color::Black, Point::try_from("g6").unwrap());
     let start = Point::new(6, 5);
     assert_eq!(
         bishop.move_set(),
@@ -58,7 +58,7 @@ fn bishop_reverse() {
 
 #[test]
 fn rook() {
-    let rook = Rook::new(Color::Black, Point::from("h8"));
+    let rook = Rook::new(Color::Black, Point::try_from("h8").unwrap());
     let start = Point::new(7, 7);
     assert_eq!(
         rook.move_set(),
@@ -84,7 +84,7 @@ fn rook() {
 
 #[test]
 fn knight() {
-    let knight = Knight::new(Color::White, Point::from("d4"));
+    let knight = Knight::new(Color::White, Point::try_from("d4").unwrap());
     let start = Point::new(3, 3);
     assert_eq!(
         knight.move_set(),
@@ -102,7 +102,7 @@ fn knight() {
 }
 #[test]
 fn starting_knight() {
-    let knight = Knight::new(Color::White, Point::from("b1"));
+    let knight = Knight::new(Color::White, Point::try_from("b1").unwrap());
     let start = Point::new(1, 0);
     assert_eq!(
         knight.move_set(),
@@ -116,7 +116,7 @@ fn starting_knight() {
 
 #[test]
 fn starting_king() {
-    let king = King::new(Color::Black, Point::from("e8"));
+    let king = King::new(Color::Black, Point::try_from("e8").unwrap());
     let start = Point::new(4, 7);
     assert_eq!(
         king.move_set(),
@@ -154,7 +154,7 @@ fn king_around() {
 
 #[test]
 fn starting_queen() {
-    let queen = Queen::new(Color::White, Point::from("d1"));
+    let queen = Queen::new(Color::White, Point::try_from("d1").unwrap());
     let start = Point::new(3, 0);
     assert_eq!(
         queen.move_set(),
@@ -198,7 +198,7 @@ fn bishop_linearity() {
     board[pos] = Some(Box::new(bishop));
     
     for mov in board.filtered_move_set(pos) {
-        assert!(mov.linear())
+        assert!(mov.linear().is_some())
     }
 }
 
@@ -210,7 +210,7 @@ fn rook_linearity() {
     board[pos] = Some(Box::new(rook));
 
     for mov in board.filtered_move_set(pos) {
-        assert!(mov.linear())
+        assert!(mov.linear().is_some())
     }
 }
 
@@ -222,12 +222,11 @@ fn queen_linearity() {
     board[pos] = Some(Box::new(queen));
 
     for mov in board.filtered_move_set(pos) {
-        assert!(mov.linear())
+        assert!(mov.linear().is_some())
     }
 }
 
 #[test]
-#[should_panic]
 fn knight_non_linearity() {
     let mut board = Board::empty();
     let pos = Point::new(3, 7);
@@ -235,6 +234,6 @@ fn knight_non_linearity() {
     board[pos] = Some(Box::new(knight));
 
     for mov in board.filtered_move_set(pos) {
-        assert!(mov.linear())
+        assert!(mov.linear().is_none())
     }
 }

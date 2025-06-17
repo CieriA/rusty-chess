@@ -1,19 +1,12 @@
 mod piece;
 mod movement;
 
+#[allow(unused_imports)]
 pub use piece::*;
+#[allow(unused_imports)]
 pub use movement::*;
 
-use std::{
-    collections::HashSet,
-    fmt::Display,
-    ops::Not,
-};
-use colored::{ColoredString, Colorize};
-use crate::{
-    geomath::{Point, rotation::Direction},
-    chessboard::Board,
-};
+use crate::chessboard::Board;
 
 /// "Team" of a piece
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
@@ -32,14 +25,6 @@ impl Color {
         }
     }
 
-    /// Depending on the turn, returns the index of the second row from the player perspective
-    #[inline]
-    pub(crate) const fn second_row(&self) -> usize {
-        match self {
-            Self::White => 1,
-            Self::Black => Board::SIZE - 2,
-        }
-    }
     #[inline]
     pub(crate) const fn opposite(&self) -> Self {
         match self {

@@ -13,7 +13,7 @@ pub(crate) struct Knight {
 
 impl Display for Knight {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "N";
+        let c = "♘"; // N
         write!(f, "{}", self.to_colored_string(c))
     }
 }

@@ -44,54 +44,50 @@ fn point_from_tuple() {
 #[test]
 fn point_from_str() {
     assert_eq!( // first
-        Point::from("a1"),
+        Point::try_from("a1").unwrap(),
         Point::new(0, 0)
     );
     assert_eq!( // last
-        Point::from("h8"),
+        Point::try_from("h8").unwrap(),
         Point::new(7, 7)
     );
     
     assert_eq!(
-        Point::from("e4"),
+        Point::try_from("e4").unwrap(),
         Point::new(4, 3)
     );
     assert_eq!(
-        Point::from("B7"),
+        Point::try_from("B7").unwrap(),
         Point::new(1, 6)
     );
     assert_eq!(
-        Point::from("h5"),
+        Point::try_from("h5").unwrap(),
         Point::new(7, 4)
     );
     assert_eq!(
-        Point::from(String::from("A3").as_str()),
+        Point::try_from(String::from("A3").as_str()).unwrap(),
         Point::new(0, 2)
     )
 }
 #[test]
 #[should_panic]
 fn p_from_str_num_out_of_bounds() {
-    let v = Point::from("B9");
-    println!("Value that mustn't exist: {}", v)
+    let _ = Point::try_from("B9").unwrap();
 }
 #[test]
 #[should_panic]
 fn point_from_str_letter_out_of_bounds() {
-    let v = Point::from("j3");
-    println!("Value that mustn't exist: {}", v)
+    let _ = Point::try_from("j3").unwrap();
 }
 #[test]
 #[should_panic]
 fn point_from_str_invalid_syntax() {
-    let v = Point::from("c");
-    println!("Value that mustn't exist: {}", v)
+    let _ = Point::try_from("c").unwrap();
 }
 #[test]
 #[should_panic]
 fn point_from_str_empty() {
-    let v = Point::from("");
-    println!("Value that mustn't exist: {}", v)
+    let _ = Point::try_from("").unwrap();
 }
 
 #[test]

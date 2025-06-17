@@ -4,7 +4,6 @@ use crate::chessboard::Board;
 use crate::geomath::Point;
 use crate::pieces::{
     types::{Color, Movement},
-    pawn::Pawn,
     bishop::Bishop,
     knight::Knight,
     rook::Rook,
@@ -14,17 +13,6 @@ use crate::pieces::{
 use crate::geomath::rotation::Direction;
 use super::movement::SpecialMove;
 use indexmap::IndexSet;
-
-/* todo NEW PIECES:
-    "♙" P
-    "♗" B
-    "♘" N
-    "♖" R
-    "♕" Q
-    "♔" K
-*/
-
-
 
 /// A trait representing a Chess Piece.
 pub(crate) trait Piece: Display + Debug {
@@ -44,9 +32,11 @@ pub(crate) trait Piece: Display + Debug {
     #[must_use]
     fn is_king(&self) -> bool { false }
     
+    
     /// Returns `true` if the piece has the given state or `false` otherwise.
     /// If the piece has no state at all, `true` is returned.
     #[must_use]
+    #[allow(unused_variables)]
     fn is_state(&self, state: State) -> bool { true }
     /// Returns the actual color if the direction is important for the piece,
     /// or Color::default() if it is not. 
@@ -106,6 +96,15 @@ pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
         3 => Box::new(Queen::new(color, pos)),
         4 => Box::new(King::new(color, pos)),
         _ => panic!("Impossible case"),
+    }
+}
+pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Box<dyn Piece> { // TODO tests
+    match c.to_ascii_uppercase() {
+        'B' => Box::new(Bishop::new(color, pos)),
+        'N' => Box::new(Knight::new(color, pos)),
+        'R' => Box::new(Rook::new(color, pos)),
+        'Q' => Box::new(Queen::new(color, pos)),
+        _ => panic!("Invalid char"),
     }
 }
 

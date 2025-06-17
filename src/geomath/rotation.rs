@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use crate::geomath::Point;
 
 /// 90 degrees rotations

@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use crate::geomath::Point;
 use crate::geomath::rotation::Direction;
 
@@ -45,10 +46,23 @@ impl Movement {
     pub(crate) const fn new(from: Point, to: Point, special: Option<SpecialMove>, direction: Option<Direction>) -> Self {
         Self { from, to, special, direction }
     }
-    #[inline]
-    pub(crate) fn linear(&self) -> bool {
+    
+    pub(crate) fn linear(&self) -> Option<Point> {
         let step = self.to - self.from;
-        println!("STEP: {}", step);
-        step.x == 0 || step.y == 0 || step.x.abs() == step.y.abs()
+        if step.x == 0 || step.y == 0 || step.x.abs() == step.y.abs() {
+            let x = match step.x.cmp(&0) {
+                Ordering::Less => -1,
+                Ordering::Equal => 0,
+                Ordering::Greater => 1,
+            };
+            let y = match step.y.cmp(&0) {
+                Ordering::Less => -1,
+                Ordering::Equal => 0,
+                Ordering::Greater => 1,
+            };
+            Some(Point::new(x, y))
+        } else {
+            None
+        }
     }
 }
