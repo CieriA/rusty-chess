@@ -1,0 +1,12 @@
+[package]
+name = "rusty-chess"
+version = "0.1.0"
+edition = "2024"
+authors = ["CieriA"]
+license = "ISC"
+repository = "hhtps://github.com/CieriA/rusty-chess"
+readme = "README.md"
+
+[dependencies]
+colored = "3.0.0"
+indexmap = "2.9.0"

@@ -1,0 +1,68 @@
+use std::fmt::{Display, Formatter};
+use crate::chessboard::Board;
+use super::types::{Color, Movement, Piece, PieceState, State};
+use crate::geomath::Point;
+use indexmap::IndexSet;
+
+/// ## Rook piece
+/// It moves and eats in any direction (not diagonally) as far as it doesn't encounter another piece.
+#[derive(Clone, PartialEq, Debug)]
+pub(crate) struct Rook {
+    color: Color,
+    pos: Point,
+    state: PieceState,
+}
+
+impl Display for Rook {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let c = "R";
+        write!(f, "{}", self.to_colored_string(c))
+    }
+}
+impl Piece for Rook {
+    fn color(&self) -> Color {
+        self.color
+    }
+    fn pos(&self) -> Point {
+        self.pos
+    }
+    #[inline(always)]
+    fn set_pos(&mut self, pos: Point) {
+        self.pos = pos;
+    }
+    fn is_state(&self, state: State) -> bool {
+        matches!(state, State::PieceState(ps) if ps == self.state)
+    }
+    fn move_set(&self) -> IndexSet<Movement> {
+        (1..Board::SIZE as isize)
+            .flat_map(|i| Point::new(0, i).rotations())
+            .flat_map(|(point, dir)|
+                self.to_movement(point, None, dir)
+            )
+            .collect()
+    }
+    fn do_move(&mut self, mov: Movement) {
+        assert_eq!(self.pos, mov.from);
+        self.pos = mov.to;
+    }
+    #[inline]
+    fn set_state(&mut self, new_state: State) {
+        if let State::PieceState(ps) = new_state {
+            self.state = ps;
+        } else {
+            panic!("Invalid state");
+        }
+    }
+    #[inline(always)]
+    fn clone_box(&self) -> Box<dyn Piece> {
+        Box::new(self.clone())
+    }
+}
+
+impl Rook {
+    /// Constructor of Rook
+    #[inline]
+    pub(crate) fn new(color: Color, pos: Point) -> Self {
+        Self { color, pos, state: PieceState::default() }
+    }
+}
