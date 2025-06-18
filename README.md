@@ -11,6 +11,7 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 - En passant
 - Pawn upgrade
 - Check, Checkmate and Stalemate
+- Every normal feature of chess not cited in the [future features](#features-to-implement-coming-soon)
 
 ## Features to implement (Coming soon!)
 - Tie for repeated moves (3 or 5)
