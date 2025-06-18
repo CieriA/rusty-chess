@@ -113,7 +113,7 @@ pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
 
 fn print_instructions() {
     println!("Chess!\n");
-    println!("To play, write the letter of the piece you want to move and then the cell you want it to go");
+    println!("To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go");
     println!("Example:\nPiece coords: E2\nTo: E4\n\n");
     println!("To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)")
 }
