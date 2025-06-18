@@ -26,7 +26,7 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 Clone the repository and build it in release mode:
 ```bash
 git clone https://github.com/CieriA/rusty-chess
-cd rusty-chess-test
+cd rusty-chess
 cargo build --release
 ```
 
