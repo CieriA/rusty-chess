@@ -17,6 +17,7 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 - Tie by repeated moves (3 or 5)
 - Tie by missing material
 - Tie by 50 moves rules
+- Minimax for implementing a bot
 
 ## Requirements
 - **Rust** (stable) — install via [rustup](https://rustup.rs)
