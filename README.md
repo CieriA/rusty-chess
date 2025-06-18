@@ -14,9 +14,9 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 - Every normal feature of chess not cited in the [future features](#features-to-implement-coming-soon)
 
 ## Features to implement (Coming soon!)
-- Tie for repeated moves (3 or 5)
-- Tie for missing material
-- Tie for 50 moves rules
+- Tie by repeated moves (3 or 5)
+- Tie by missing material
+- Tie by 50 moves rules
 
 ## Requirements
 - **Rust** (stable) — install via [rustup](https://rustup.rs)
