@@ -2,18 +2,20 @@
 A Chess implementation on the terminal (pass-to-play), written in [Rust](https://www.rust-lang.org).
 
 ## Features
-- Grid display
+- Grid display on the terminal
 - 2 players
 - I/O to play the game
 - Every piece of Chess
-- Double move for the pawn the first time
+- Double pawn push
 - Castle
 - En passant
+- Pawn upgrade
+- Check, Checkmate and Stalemate
 
 ## Features to implement (Coming soon!)
-- Check
-- Checkmate
-- Stalemate
+- Tie for repeated moves (3 or 5)
+- Tie for missing material
+- Tie for 50 moves rules
 
 ## Requirements
 - **Rust** (stable) — install via [rustup](https://rustup.rs)
