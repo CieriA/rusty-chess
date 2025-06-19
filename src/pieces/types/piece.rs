@@ -67,12 +67,6 @@ pub(crate) trait Piece: Display + Debug {
     #[must_use]
     fn move_set(&self) -> IndexSet<Movement>;
 
-    /// Moves the piece to another square.
-    ///
-    /// DO NOT USE outside board.
-    ///
-    /// Must do all the checks (and change the state).
-    fn do_move(&mut self, mov: Movement);
     /// Sets the state of the piece to something else, if it has it.
     /// 
     /// Panics if the state is not of tha valid type.

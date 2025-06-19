@@ -39,10 +39,6 @@ impl Piece for Bishop {
             )
             .collect()
     }
-    fn do_move(&mut self, mov: Movement) {
-        assert_eq!(self.pos, mov.from);
-        self.pos = mov.to;
-    }
     #[inline(always)]
     fn clone_box(&self) -> Box<dyn Piece> {
         Box::new(self.clone())

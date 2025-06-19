@@ -37,10 +37,6 @@ impl Piece for Knight {
             .flat_map(|(p, dir)| self.to_movement(p, None, dir))
             .collect()
     }
-    fn do_move(&mut self, mov: Movement) {
-        assert_eq!(self.pos, mov.from);
-        self.pos = mov.to;
-    }
     #[inline(always)]
     fn clone_box(&self) -> Box<dyn Piece> {
         Box::new(self.clone())

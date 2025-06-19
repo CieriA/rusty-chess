@@ -89,10 +89,6 @@ impl Piece for Pawn {
             .flatten()
             .collect()
     }
-    fn do_move(&mut self, mov: Movement) {
-        assert_eq!(self.pos, mov.from);
-        self.pos = mov.to;
-    }
     #[inline]
     fn set_state(&mut self, new_state: State) {
         if let State::PawnState(ps) = new_state {

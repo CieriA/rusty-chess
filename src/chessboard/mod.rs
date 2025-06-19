@@ -160,7 +160,7 @@ impl Board {
         
         // .unwrap() checks that the piece exists
         let piece = self[from].as_ref().unwrap();
-
+        
         piece
             .move_set()
             .into_iter()
@@ -186,8 +186,16 @@ impl Board {
                     return true;
                 };
                 match special {
-                    SpecialMove::DoublePawn => 
-                        piece.is_state(State::PawnState(PawnState::NotYet)),
+                    SpecialMove::DoublePawn => {
+                        assert_eq!(mov.from.x, mov.to.x);
+                        
+                        let range = if piece.color().into() { 1..3 } else { -2..0 };
+                        
+                        range
+                                .map(|y| mov.from + Point::new(0, y))
+                                .all(|p| self[p].is_none()) &&
+                        piece.is_state(State::PawnState(PawnState::NotYet))
+                    }
                     
                     SpecialMove::PawnEat => {
                         let to = mov.to;
@@ -222,12 +230,21 @@ impl Board {
 
                         let start = mov.from.x as usize + 1;
                         let end = rook_pos.x as usize;
+                        
                         let slice = 
                             &self[piece.color().first_row()][start..end];
                         
-                        slice.iter().all(Option::is_none) &&
                         piece.is_state(State::PieceState(PieceState::NotYet)) &&
-                        rook.is_state(State::PieceState(PieceState::NotYet))
+                        rook.is_state(State::PieceState(PieceState::NotYet)) &&
+                        slice.iter().all(Option::is_none) &&
+                        !self
+                            .all_moves(piece.color().opposite())
+                            .into_iter()
+                            .any(|mov| {
+                                (0..2)
+                                    .map(|i| piece.pos() + Point::new(i, 0))
+                                    .any(|p| mov.to == p)
+                            })
                     }
                     
                     SpecialMove::LongCastle => {
@@ -243,9 +260,17 @@ impl Board {
                         let slice =
                             &self[piece.color().first_row()][start..end];
                         
-                        slice.iter().all(Option::is_none) &&
                         piece.is_state(State::PieceState(PieceState::NotYet)) &&
-                        rook.is_state(State::PieceState(PieceState::NotYet))
+                        rook.is_state(State::PieceState(PieceState::NotYet)) &&
+                        slice.iter().all(Option::is_none)&&
+                            !self
+                                .all_moves(piece.color().opposite())
+                                .into_iter()
+                                .any(|mov| {
+                                    (-2..0)
+                                        .map(|i| piece.pos() + Point::new(i, 0))
+                                        .any(|p| mov.to == p)
+                                })
                     }
                 }
             })

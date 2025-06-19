@@ -60,9 +60,9 @@ pub(super) fn run() -> Result<(), Box<dyn Error>> {
             println!("Not your piece.");
             continue;
         }
-        /*if board[to].as_ref().is_some_and(|piece| piece.color() == color) {
+        if board[to].as_ref().is_some_and(|piece| piece.color() == color) {
             println!("Can't overlap two pieces.");
-        }*/
+        }
         let Some(movement) = board
             .filtered_move_set(from)
             .into_iter()
@@ -70,24 +70,31 @@ pub(super) fn run() -> Result<(), Box<dyn Error>> {
             println!("Invalid move.");
             continue;
         };
+        
+        { // control if the move would lead to a check
+            let mut board = board.clone();
+            board.do_move(movement.clone());
+
+            if board.check(color).is_some() {
+                println!("Invalid move.");
+                continue;
+            }
+            
+            if board.checkmate(color.opposite()) {
+                println!("{}", board);
+                println!("{} lost.", p_name(color.opposite()));
+                break;
+            }
+            if board.stalemate(color.opposite()) {
+                println!("{}", board);
+                println!("It's a tie.");
+                break;
+            }
+        }
 
         // do move
         board.do_move(movement);
         color = color.opposite();
-
-        // instant check for checkmate after the move
-        if board.check(color).is_some() {
-            if board.checkmate(color) {
-                println!("{}", board);
-                println!("{} lost.", p_name(color));
-                break;
-            }
-        }
-        if board.stalemate(color) {
-            println!("{}", board);
-            println!("It's a tie.");
-            break;
-        }
     }
 
     Ok(())
@@ -108,7 +115,7 @@ pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
         return Err("Invalid input.".into());
     }
 
-    Ok(input.chars().nth(0).unwrap())
+    Ok(input.chars().next().unwrap())
 }
 
 fn print_instructions() {

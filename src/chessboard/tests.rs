@@ -339,15 +339,58 @@ fn king_no_castle() {
         board[rook] = Some(Box::new(Rook::new(color, rook)));
     }
     
-    assert_eq!(
-        board.filtered_move_set(king_pos),
-        IndexSet::from([
-            Movement::new(king_pos, Point::new(3, 0), None, Some(Direction::Left)),
-            Movement::new(king_pos, Point::new(5, 0), None, Some(Direction::Right)),
-            Movement::new(king_pos, Point::new(4, 1), None, Some(Direction::Up)),
-            Movement::new(king_pos, Point::new(3, 1), None, Some(Direction::UpLeft)),
-            Movement::new(king_pos, Point::new(5, 1), None, Some(Direction::UpRight)),
-        ])
+    assert!(
+        board
+            .filtered_move_set(king_pos)
+            .into_iter()
+            .all(|mov| mov.special.is_none())
+    )
+}
+#[test]
+fn moved_rooks() {
+    let mut board = Board::empty();
+    let king_pos = Point::new(4, 0);
+    let color = Color::White;
+    let king = King::new(color, king_pos);
+    board[king_pos] = Some(Box::new(king.clone()));
+
+    let rooks = [(0, 0), (7, 0)].map(Point::from);
+    for rook_pos in rooks {
+        let mut rook = Rook::new(color, rook_pos);
+        rook.set_state(PieceState::Already.into());
+        board[rook_pos] = Some(Box::new(rook));
+    }
+
+    assert!(
+        board
+            .filtered_move_set(king_pos)
+            .into_iter()
+            .all(|mov| mov.special.is_none())
+    )
+}
+#[test]
+fn castle_blocked() {
+    let mut board = Board::empty();
+    let king_pos = Point::new(4, 0);
+    let color = Color::White;
+    let king = King::new(color, king_pos);
+    board[king_pos] = Some(Box::new(king.clone()));
+
+    let rooks = [(0, 0), (7, 0)].map(Point::from);
+    for rook in rooks {
+        board[rook] = Some(Box::new(Rook::new(color, rook)));
+    }
+    let bishop_pos = Point::new(3, 2); // blocking short castles
+    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos)));
+
+    let rook_pos = Point::new(2, 7); // blocking long castle
+    board[rook_pos] = Some(Box::new(Rook::new(color.opposite(), rook_pos)));
+
+    assert!(
+        board
+            .filtered_move_set(king_pos)
+            .into_iter()
+            .all(|mov| mov.special.is_none())
     )
 }
 
