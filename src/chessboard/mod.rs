@@ -186,6 +186,8 @@ impl Board {
                     return true;
                 };
                 match special {
+                    SpecialMove::CannotEat => self[mov.to].is_none(),
+                    
                     SpecialMove::DoublePawn => {
                         assert_eq!(mov.from.x, mov.to.x);
                         

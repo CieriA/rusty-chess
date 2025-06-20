@@ -66,7 +66,7 @@ impl Piece for Pawn {
         [
             self.to_movement(
                 Point::new(0, 1),
-                None,
+                Some(SpecialMove::CannotEat),
                 Some(Direction::Up),
             ),
             self.to_movement(

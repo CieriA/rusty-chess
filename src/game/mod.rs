@@ -60,9 +60,6 @@ pub(super) fn run() -> Result<(), Box<dyn Error>> {
             println!("Not your piece.");
             continue;
         }
-        if board[to].as_ref().is_some_and(|piece| piece.color() == color) {
-            println!("Can't overlap two pieces.");
-        }
         let Some(movement) = board
             .filtered_move_set(from)
             .into_iter()

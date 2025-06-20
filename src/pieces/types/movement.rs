@@ -5,6 +5,9 @@ use crate::geomath::rotation::Direction;
 /// Moves that can happen under special circumstances
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub(crate) enum SpecialMove {
+    /// When the pawn cannot eat by going straight (it never can).
+    CannotEat,
+    
     /// A pawn can eat in diagonal only.
     ///
     /// En Passant is a sub-category of this

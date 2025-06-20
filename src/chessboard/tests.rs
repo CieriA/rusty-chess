@@ -14,7 +14,7 @@ fn pawn_alone() {
         [
             piece.to_movement(
                 Point::new(0, 1),
-                None,
+                Some(SpecialMove::CannotEat),
                 Some(Direction::Up),
             ),
             piece.to_movement(
@@ -42,7 +42,7 @@ fn pawn_moved() {
         [
             piece.to_movement(
                 Point::new(0, 1),
-                None,
+                Some(SpecialMove::CannotEat),
                 Some(Direction::Up),
             ),
         ]
@@ -131,6 +131,26 @@ fn pawn_stuck() {
     board[Point::new(0, 1)] = Some(Box::new(piece.clone()));
     board[Point::default()] = Some(Box::new(piece));
     assert!(board.filtered_move_set(Point::default()).is_empty());
+}
+#[test]
+fn cannot_eat_straight() {
+    let mut board = Board::empty();
+    let pawn_pos = Point::new(3, 1);
+    let bishop_pos = Point::new(3, 2);
+    let color = Color::White;
+    
+    board[pawn_pos] = Some(Box::new(Pawn::new(color, pawn_pos)));
+    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos)));
+    
+    let movements = [
+        Movement::new(pawn_pos, Point::new(3, 2), None, Some(Direction::Up)),
+        Movement::new(pawn_pos, Point::new(3, 3), Some(SpecialMove::DoublePawn), Some(Direction::Up)),
+    ];
+    for mov in movements {
+        assert!(
+            !board.filtered_move_set(pawn_pos).contains(&mov)
+        );
+    }
 }
 
 // Knights

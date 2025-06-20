@@ -7,7 +7,7 @@ fn pawn() {
     assert_eq!(
         pawn.move_set(),
         IndexSet::from([
-            Movement::new(Point::new(4, 6), Point::new(4, 5), None, Some(Direction::Up)),
+            Movement::new(Point::new(4, 6), Point::new(4, 5), Some(SpecialMove::CannotEat), Some(Direction::Up)),
             Movement::new(Point::new(4, 6), Point::new(4, 4), Some(SpecialMove::DoublePawn), Some(Direction::Up)),
             Movement::new(Point::new(4, 6), Point::new(3, 5), Some(SpecialMove::PawnEat), Some(Direction::UpRight)),
             Movement::new(Point::new(4, 6), Point::new(5, 5), Some(SpecialMove::PawnEat), Some(Direction::UpLeft))
