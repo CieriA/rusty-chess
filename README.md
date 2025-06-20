@@ -14,6 +14,7 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 - Every normal feature of chess not cited in the [future features](#features-to-implement-coming-soon)
 
 ## Features to implement (Coming soon!)
+- Treating the pawn promotion as a Movement instead of a totally different thing
 - Tie by repeated moves (3 or 5)
 - Tie by missing material
 - Tie by 50 moves rules
