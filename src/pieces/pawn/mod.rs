@@ -54,6 +54,7 @@ impl Piece for Pawn {
             None
         }
     }
+    fn is_pawn(&self) -> bool { true }
     #[inline(always)]
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PawnState(ps) if ps == self.state)

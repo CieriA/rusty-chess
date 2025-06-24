@@ -20,6 +20,8 @@ pub(super) fn run() -> Result<(), Box<dyn Error>> {
 
     let mut board = Board::default();
     let mut color = Color::default();
+    // If in 50 moves no pawn
+    let mut count = 0u8; // 50 moves
 
     loop {
         println!("It's {}'s turn", p_name(color));
@@ -88,7 +90,26 @@ pub(super) fn run() -> Result<(), Box<dyn Error>> {
                 break;
             }
         }
+        // Only kings on the board
+        if board.all_pieces().len() == 2 {
+            println!("{}", board);
+            println!("It's a tie.");
+            break;
+        }
 
+        // 50moves rule's count
+        if board[movement.from].as_ref().unwrap().is_pawn() || board[movement.to].is_some() {
+            count = 0;
+        } else {
+            count += 1;
+        }
+        // Tie by 50 moves rule
+        if count == 50 {
+            println!("{}", board);
+            println!("It's a tie.");
+            break;
+        }
+        
         // do move
         board.do_move(movement);
         color = color.opposite();

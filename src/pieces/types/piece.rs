@@ -31,6 +31,9 @@ pub(crate) trait Piece: Display + Debug {
     #[inline(always)]
     #[must_use]
     fn is_king(&self) -> bool { false }
+    #[inline(always)]
+    #[must_use]
+    fn is_pawn(&self) -> bool { false }
     
     
     /// Returns `true` if the piece has the given state or `false` otherwise.

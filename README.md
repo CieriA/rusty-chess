@@ -11,13 +11,14 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 - En passant
 - Pawn upgrade
 - Check, Checkmate and Stalemate
+- Tie by 50 moves rules
 - Every normal feature of chess not cited in the [future features](#features-to-implement-coming-soon)
 
 ## Features to implement (Coming soon!)
-- Treating the pawn promotion as a Movement instead of a totally different thing
+- Treat the pawn promotion as a Movement instead of a totally different thing
+- Change the game module to have a `Game` struct instead of only a `run` function
 - Tie by repeated moves (3 or 5)
-- Tie by missing material
-- Tie by 50 moves rules
+- Tie by missing material (Now it only works when kings are the only piece on the board)
 - Minimax for implementing a bot
 
 ## Requirements

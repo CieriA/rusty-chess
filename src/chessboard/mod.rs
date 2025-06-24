@@ -278,21 +278,33 @@ impl Board {
             })
             .collect()
     }
-    fn all_pieces(&self, color: Color) -> HashSet<Point> {
+    /// Coordinates of all pieces on the board
+    pub(crate) fn all_pieces(&self) -> HashSet<Point> {
         let mut set = HashSet::new();
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
-                if square.as_ref().is_some_and(|p| p.color() == color) {
+                if square.is_some() {
                     set.insert(Point::new(x as isize, y as isize));
                 }
             }
         }
         set
     }
+    /// Coordinates of all pieces with a given color on the board
+    fn all_color_pieces(&self, color: Color) -> HashSet<Point> {
+        self
+            .all_pieces()
+            .into_iter()
+            // by using `.unwrap()` instead of `.is_some_and()` I assure `.all_pieces()` works too,
+            // and if it doesn't this fn will panic
+            // but maybe `.is_some_and()` was more safe and better in this case.
+            .filter(|point| self[*point].as_ref().unwrap().color() == color)
+            .collect()
+    }
     /// Returns all the moves a player (`color`) can do.
     fn all_moves(&self, color: Color) -> HashSet<Movement> {
         let mut set = HashSet::new();
-        for coord in self.all_pieces(color) {
+        for coord in self.all_color_pieces(color) {
             if self[coord].as_ref().is_some_and(|piece| piece.color() == color) {
                 set.extend(self.filtered_move_set(Point::new(coord.x, coord.y)));
             }
@@ -327,7 +339,7 @@ impl Board {
             
             self.apply_move(mov.clone());
             let set: HashSet<_> = self
-                .all_pieces(self[mov.to].as_ref().unwrap().color())
+                .all_color_pieces(self[mov.to].as_ref().unwrap().color())
                 .into_iter()
                 .filter(|coord|
                     self[*coord].as_ref().is_some_and(|piece| piece.is_state(PawnState::JustDouble.into()))
