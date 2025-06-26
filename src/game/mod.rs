@@ -15,107 +15,164 @@ fn p_name(color: Color) -> &'static str {
     if color.into() { P1 } else { P2 }
 }
 
-pub(super) fn run() -> Result<(), Box<dyn Error>> {
-    print_instructions();
+/// Engine of the game
+#[derive(Default)]
+pub(super) struct Game {
+    /// Score of pieces eaten by white
+    w_score: u8,
+    /// Score of pieces eaten by black
+    b_score: u8,
+    /// Count for the 50 moves rule
+    move_count: u8,
+    /// Chessboard
+    board: Board,
+    /// Turn of the game (White / Black)
+    turn: Color,
+}
 
-    let mut board = Board::default();
-    let mut color = Color::default();
-    // If in 50 moves no pawn
-    let mut count = 0u8; // 50 moves
-
-    loop {
-        println!("It's {}'s turn", p_name(color));
-        println!("{}", board);
-
-        let mut from = String::new();
-        print!("Piece coords: ");
-        io::stdout().flush().unwrap();
-        io::stdin().read_line(&mut from)?;
-
-
-        let mut to = String::new();
-        print!("To: ");
-        io::stdout().flush().unwrap();
-        io::stdin().read_line(&mut to)?;
-
-        let from_cell = from.trim();
-        let to_cell = to.trim();
-        if from_cell.len() != 2 || to_cell.len() != 2 {
-            println!("Invalid input.\n");
-            continue;
+impl Game {
+    /// How to play the game.
+    #[inline]
+    fn print_instructions() {
+        println!("Chess!\n");
+        println!("To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go");
+        println!("Example:\nPiece coords: E2\nTo: E4\n\n");
+        println!("To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)")
+    }
+    /// Real score of white
+    #[inline(always)]
+    const fn white_score(&self) -> i8 {
+        self.w_score as i8 - self.b_score as i8
+    }
+    /// Real score of black
+    #[inline(always)]
+    const fn black_score(&self) -> i8 {
+        self.b_score as i8 - self.w_score as i8
+    }
+    /// A string of the scores to be printed
+    fn score_str(&self) -> String {
+        format!(
+            "[{}: {} | {}: {}]",
+            p_name(Color::default()),
+            self.white_score(),
+            p_name(Color::default().opposite()),
+            self.black_score(),
+        )
+    }
+    #[inline]
+    fn get_score(&mut self, color: Color) -> &mut u8 {
+        if color.into() {
+            &mut self.w_score
+        } else {
+            &mut self.b_score
         }
-        let Ok(from) = Point::try_from(from_cell) else {
-            println!("Invalid input.\n");
-            continue;
-        };
-        let Ok(to) = Point::try_from(to_cell) else {
-            println!("Invalid input.\n");
-            continue;
-        };
+    }
+    pub(super) fn run(&mut self) -> Result<(), Box<dyn Error>> {
+        Self::print_instructions();
 
-        let Some(piece) = board[from].as_ref() else {
-            println!("Empty cell.");
-            continue;
-        };
+        loop {
+            println!("It's {}'s turn", p_name(self.turn));
+            println!("{}", self.score_str());
+            println!("{}", self.board);
 
-        if piece.color() != color {
-            println!("Not your piece.");
-            continue;
-        }
-        let Some(movement) = board
-            .filtered_move_set(from)
-            .into_iter()
-            .find(|mov| mov.from == from && mov.to == to) else {
-            println!("Invalid move.");
-            continue;
-        };
-        
-        { // control if the move would lead to a check
-            let mut board = board.clone();
-            board.do_move(movement.clone());
+            let mut from = String::new();
+            print!("Piece coords: ");
+            io::stdout().flush().unwrap();
+            io::stdin().read_line(&mut from)?;
 
-            if board.check(color).is_some() {
-                println!("Invalid move.");
+
+            let mut to = String::new();
+            print!("To: ");
+            io::stdout().flush().unwrap();
+            io::stdin().read_line(&mut to)?;
+
+            let from_cell = from.trim();
+            let to_cell = to.trim();
+            if from_cell.len() != 2 || to_cell.len() != 2 {
+                println!("Invalid input.\n");
                 continue;
             }
-            
-            if board.checkmate(color.opposite()) {
-                println!("{}", board);
-                println!("{} lost.", p_name(color.opposite()));
-                break;
+            let Ok(from) = Point::try_from(from_cell) else {
+                println!("Invalid input.\n");
+                continue;
+            };
+            let Ok(to) = Point::try_from(to_cell) else {
+                println!("Invalid input.\n");
+                continue;
+            };
+
+            let Some(piece) = self.board[from].as_ref() else {
+                println!("Empty cell.");
+                continue;
+            };
+
+            if piece.color() != self.turn {
+                println!("Not your piece.");
+                continue;
             }
-            if board.stalemate(color.opposite()) {
-                println!("{}", board);
+            let Some(movement) = self.board
+                .filtered_move_set(from)
+                .into_iter()
+                .find(|mov| mov.from == from && mov.to == to) else {
+                println!("Invalid move.");
+                continue;
+            };
+
+            { // control if the move would lead to a check
+                let mut board = self.board.clone();
+                board.do_move(movement.clone()).unwrap(); // TODO remove unwrap()
+
+                if board.check(self.turn).is_some() {
+                    println!("Invalid move.");
+                    continue;
+                }
+
+                if board.checkmate(self.turn.opposite()) {
+                    println!("{}", board);
+                    println!("{} lost.", p_name(self.turn.opposite()));
+                    break;
+                }
+                if board.stalemate(self.turn.opposite()) {
+                    println!("{}", board);
+                    println!("It's a tie.");
+                    break;
+                }
+            }
+            // Only kings on the board
+            if self.board.all_pieces().len() == 2 {
+                println!("{}", self.score_str());
+                println!("{}", self.board);
                 println!("It's a tie.");
                 break;
             }
-        }
-        // Only kings on the board
-        if board.all_pieces().len() == 2 {
-            println!("{}", board);
-            println!("It's a tie.");
-            break;
+
+            // 50moves rule's count
+            if self.board[movement.from].as_ref().unwrap().is_pawn() || self.board[movement.to].is_some() {
+                self.move_count = 0;
+            } else {
+                self.move_count += 1;
+            }
+            // Tie by 50 moves rule
+            if self.move_count == 50 {
+                println!("{}", self.score_str());
+                println!("{}", self.board);
+                println!("It's a tie.");
+                break;
+            }
+
+            // TODO: maybe remove all previous controls cause they are inside .do_move()
+            // do move
+            match self.board.do_move(movement) {
+                Ok(Some((score, color))) => *self.get_score(color) += score,
+                Err(_) => unreachable!(), // can never happen but always better to prevent it
+                _ => {}
+            }
+            
+            self.turn = self.turn.opposite();
         }
 
-        // 50moves rule's count
-        if board[movement.from].as_ref().unwrap().is_pawn() || board[movement.to].is_some() {
-            count = 0;
-        } else {
-            count += 1;
-        }
-        // Tie by 50 moves rule
-        if count == 50 {
-            println!("{}", board);
-            println!("It's a tie.");
-            break;
-        }
-        
-        // do move
-        board.do_move(movement);
-        color = color.opposite();
+        Ok(())
     }
-
-    Ok(())
 }
 
 pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
@@ -134,11 +191,4 @@ pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     }
 
     Ok(input.chars().next().unwrap())
-}
-
-fn print_instructions() {
-    println!("Chess!\n");
-    println!("To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go");
-    println!("Example:\nPiece coords: E2\nTo: E4\n\n");
-    println!("To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)")
 }

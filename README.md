@@ -15,8 +15,6 @@ A Chess implementation on the terminal (pass-to-play), written in [Rust](https:/
 - Every normal feature of chess not cited in the [future features](#features-to-implement-coming-soon)
 
 ## Features to implement (Coming soon!)
-- Treat the pawn promotion as a Movement instead of a totally different thing
-- Change the game module to have a `Game` struct instead of only a `run` function
 - Tie by repeated moves (3 or 5)
 - Tie by missing material (Now it only works when kings are the only piece on the board)
 - Minimax for implementing a bot

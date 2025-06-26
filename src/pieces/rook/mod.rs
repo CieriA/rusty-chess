@@ -31,6 +31,8 @@ impl Piece for Rook {
         self.pos = pos;
         self.set_state(PieceState::Already.into());
     }
+    #[inline(always)]
+    fn score(&self) -> u8 { 5 }
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)
     }

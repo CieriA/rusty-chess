@@ -427,7 +427,7 @@ fn knights_moves() {
     ];
     
     for mov in movements {
-        assert!(board.do_move(mov));
+        assert!(board.do_move(mov).is_ok());
     }
 }
 

@@ -32,6 +32,8 @@ impl Piece for Queen {
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
     }
+    #[inline(always)]
+    fn score(&self) -> u8 { 9 }
     fn move_set(&self) -> IndexSet<Movement> {
         let rook = Rook::new(self.color, self.pos);
         let bishop = Bishop::new(self.color, self.pos);

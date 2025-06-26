@@ -30,6 +30,8 @@ impl Piece for Knight {
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
     }
+    #[inline(always)]
+    fn score(&self) -> u8 { 3 }
     fn move_set(&self) -> IndexSet<Movement> {
         Point::new(1, 2)
             .rotations()

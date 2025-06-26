@@ -13,6 +13,7 @@ use std::{
     fmt::Display,
     slice::Iter,
 };
+use std::error::Error;
 use indexmap::IndexSet;
 
 pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
@@ -313,10 +314,12 @@ impl Board {
     }
     /// Do a move, checking if it is possible.
     ///
-    /// Returns `true` if all went right, `false` otherwise
-    pub(crate) fn do_move(&mut self, mov: Movement) -> bool {
+    /// Returns `Ok` if all went right, `Err` otherwise
+    /// 
+    /// Inside the `Ok(Some)` there are the points (`usize`) added to the score to the `Color` player
+    pub(crate) fn do_move(&mut self, mov: Movement) -> Result<Option<(u8, Color)>, Box<dyn Error>> {
         if !self.filtered_move_set(mov.from).contains(&mov) {
-            false
+            Err("".into())
         } else {
             let piece = self[mov.from].as_ref().unwrap();
             let color = piece.color();
@@ -326,16 +329,17 @@ impl Board {
                 let mut board_clone = self.clone();
                 let moves = board_clone.is_check_stoppable(color);
                 if !moves.contains(&mov) {
-                    return false;
+                    return Err("".into());
                 } else {
                     let piece = board_clone[mov.from].take().unwrap();
                     board_clone[mov.to] = Some(piece);
                     if board_clone.check(color).is_some() {
-                        return false;
+                        return Err("".into());
                     }
                 }
             }
             // -----------------------------
+            let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
             
             self.apply_move(mov.clone());
             let set: HashSet<_> = self
@@ -348,7 +352,7 @@ impl Board {
             for coord in set {
                 self[coord].as_mut().unwrap().set_state(PawnState::Already.into());
             }
-            true
+            Ok(res)
         }
     }
     /// Without checking errors, move a piece.
@@ -449,7 +453,9 @@ impl Board {
             .into_iter()
             .all(|mov| {
                 let mut new_board = self.clone();
-                new_board.do_move(mov);
+                if new_board.do_move(mov).is_err() {
+                    return true; // TODO Still trying to get why but will fix this later
+                }
                 new_board.check(color).is_some()
             })
     }

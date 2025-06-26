@@ -31,6 +31,8 @@ impl Piece for Bishop {
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
     }
+    #[inline(always)]
+    fn score(&self) -> u8 { 3 }
     fn move_set(&self) -> IndexSet<Movement> {
         (1..Board::SIZE as isize)
             .flat_map(|i| Point::new(i, i).rotations())
