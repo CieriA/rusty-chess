@@ -452,7 +452,6 @@ impl Board {
                 new_board.do_move(mov);
                 new_board.check(color).is_some()
             })
-        
     }
     /// `color` is the color of the king about to be captured
     #[inline]

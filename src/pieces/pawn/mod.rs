@@ -38,7 +38,7 @@ impl Piece for Pawn {
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
-        self.pos = pos;
+        self.pos = pos;   
     }
     fn set_pos_upgrade(&mut self, pos: Point) -> Option<Box<dyn Piece>> {
         self.set_pos(pos);
