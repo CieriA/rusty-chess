@@ -414,23 +414,6 @@ fn castle_blocked() {
     )
 }
 
-// `.do_move()` tests
-#[test]
-fn knights_moves() {
-    let mut board = Board::default();
-    
-    let movements = [
-        Movement::new(Point::new(1, 0), Point::new(2, 2), None, None),
-        Movement::new(Point::new(6, 0), Point::new(5, 2), None, None),
-        Movement::new(Point::new(5, 2), Point::new(3, 3), None, None),
-        Movement::new(Point::new(1, 7), Point::new(0, 5), None, None),
-    ];
-    
-    for mov in movements {
-        assert!(board.do_move(mov).is_ok());
-    }
-}
-
 // `.check()` tests
 #[test]
 fn rook_check() {

@@ -35,7 +35,6 @@ pub(crate) trait Piece: Display + Debug {
     #[must_use]
     fn is_pawn(&self) -> bool { false }
     
-    #[inline(always)]
     #[must_use]
     fn score(&self) -> u8;
     

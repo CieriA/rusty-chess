@@ -52,19 +52,25 @@ impl Game {
     /// A string of the scores to be printed
     fn score_str(&self) -> String {
         format!(
-            "[{}: {} | {}: {}]",
-            p_name(Color::default()),
-            self.white_score(),
-            p_name(Color::default().opposite()),
-            self.black_score(),
+            "[{}: {}]",
+            p_name(self.turn),
+            self.get_printable_score(self.turn),
         )
     }
     #[inline]
-    fn get_score(&mut self, color: Color) -> &mut u8 {
+    fn get_mut_score(&mut self, color: Color) -> &mut u8 {
         if color.into() {
             &mut self.w_score
         } else {
             &mut self.b_score
+        }
+    }
+    #[inline]
+    fn get_printable_score(&self, color: Color) -> i8 {
+        if color.into() {
+            self.white_score()
+        } else {
+            self.black_score()
         }
     }
     pub(super) fn run(&mut self) -> Result<(), Box<dyn Error>> {
@@ -120,7 +126,10 @@ impl Game {
 
             { // control if the move would lead to a check
                 let mut board = self.board.clone();
-                board.do_move(movement.clone()).unwrap(); // TODO remove unwrap()
+                let mut score = self.get_printable_score(self.turn); // score clone
+                if let Some((new_score, ..)) = board.do_move(movement.clone()) {
+                    score += new_score as i8;
+                }
 
                 if board.check(self.turn).is_some() {
                     println!("Invalid move.");
@@ -128,6 +137,7 @@ impl Game {
                 }
 
                 if board.checkmate(self.turn.opposite()) {
+                    println!("[{}: {}]", p_name(self.turn), score);
                     println!("{}", board);
                     println!("{} lost.", p_name(self.turn.opposite()));
                     break;
@@ -160,12 +170,8 @@ impl Game {
                 break;
             }
 
-            // TODO: maybe remove all previous controls cause they are inside .do_move()
-            // do move
-            match self.board.do_move(movement) {
-                Ok(Some((score, color))) => *self.get_score(color) += score,
-                Err(_) => unreachable!(), // can never happen but always better to prevent it
-                _ => {}
+            if let Some((score, color)) = self.board.do_move(movement) {
+                *self.get_mut_score(color) += score;
             }
             
             self.turn = self.turn.opposite();

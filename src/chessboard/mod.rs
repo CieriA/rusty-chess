@@ -13,7 +13,6 @@ use std::{
     fmt::Display,
     slice::Iter,
 };
-use std::error::Error;
 use indexmap::IndexSet;
 
 pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
@@ -312,48 +311,27 @@ impl Board {
         }
         set
     }
-    /// Do a move, checking if it is possible.
-    ///
-    /// Returns `Ok` if all went right, `Err` otherwise
+    /// `Some` contains the points (`usize`) added to the score to the `Color` player.
     /// 
-    /// Inside the `Ok(Some)` there are the points (`usize`) added to the score to the `Color` player
-    pub(crate) fn do_move(&mut self, mov: Movement) -> Result<Option<(u8, Color)>, Box<dyn Error>> {
-        if !self.filtered_move_set(mov.from).contains(&mov) {
-            Err("".into())
-        } else {
-            let piece = self[mov.from].as_ref().unwrap();
-            let color = piece.color();
-            // -----------------------------
-            // simulation
-            if piece.is_king() {
-                let mut board_clone = self.clone();
-                let moves = board_clone.is_check_stoppable(color);
-                if !moves.contains(&mov) {
-                    return Err("".into());
-                } else {
-                    let piece = board_clone[mov.from].take().unwrap();
-                    board_clone[mov.to] = Some(piece);
-                    if board_clone.check(color).is_some() {
-                        return Err("".into());
-                    }
-                }
-            }
-            // -----------------------------
-            let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
-            
-            self.apply_move(mov.clone());
-            let set: HashSet<_> = self
-                .all_color_pieces(self[mov.to].as_ref().unwrap().color())
-                .into_iter()
-                .filter(|coord|
-                    self[*coord].as_ref().is_some_and(|piece| piece.is_state(PawnState::JustDouble.into()))
-                )
-                .collect();
-            for coord in set {
-                self[coord].as_mut().unwrap().set_state(PawnState::Already.into());
-            }
-            Ok(res)
+    /// Also change the state of all pawns already moved.
+    pub(crate) fn do_move(&mut self, mov: Movement) -> Option<(u8, Color)> {
+        let piece = self[mov.from].as_ref().unwrap();
+        let color = piece.color();
+        
+        let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
+        
+        self.apply_move(mov.clone());
+        let set: HashSet<_> = self
+            .all_color_pieces(self[mov.to].as_ref().unwrap().color())
+            .into_iter()
+            .filter(|coord|
+                self[*coord].as_ref().is_some_and(|piece| piece.is_state(PawnState::JustDouble.into()))
+            )
+            .collect();
+        for coord in set {
+            self[coord].as_mut().unwrap().set_state(PawnState::Already.into());
         }
+        res
     }
     /// Without checking errors, move a piece.
     fn apply_move(&mut self, mov: Movement) {
@@ -453,9 +431,8 @@ impl Board {
             .into_iter()
             .all(|mov| {
                 let mut new_board = self.clone();
-                if new_board.do_move(mov).is_err() {
-                    return true; // TODO Still trying to get why but will fix this later
-                }
+                new_board.do_move(mov);
+                
                 new_board.check(color).is_some()
             })
     }
