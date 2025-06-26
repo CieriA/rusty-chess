@@ -126,9 +126,9 @@ impl Game {
 
             { // control if the move would lead to a check
                 let mut board = self.board.clone();
-                let mut score = self.get_printable_score(self.turn); // score clone
+                let mut score = self.get_printable_score(self.turn.opposite()); // score clone
                 if let Some((new_score, ..)) = board.do_move(movement.clone()) {
-                    score += new_score as i8;
+                    score -= new_score as i8; // this will be seen by the losing player
                 }
 
                 if board.check(self.turn).is_some() {
@@ -137,7 +137,7 @@ impl Game {
                 }
 
                 if board.checkmate(self.turn.opposite()) {
-                    println!("[{}: {}]", p_name(self.turn), score);
+                    println!("[{}: {}]", p_name(self.turn.opposite()), score);
                     println!("{}", board);
                     println!("{} lost.", p_name(self.turn.opposite()));
                     break;
