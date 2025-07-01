@@ -29,14 +29,14 @@ impl Point {
     
     pub(crate) fn rotations(self) -> HashSet<(Self, Option<Direction>)> {
         let Point { x, y } = self;
-        let iter = [(x, y), (-x, y)].map(Point::from).into_iter();
+        let iter = [(x, y), (-x, y)].map(Self::from).into_iter();
         let iter = iter
             .clone()
             .chain(iter.map(Neg::neg));
         
         let set: HashSet<Self> = iter
             .clone()
-            .chain(iter.map(|Point { x, y }| Point::new(y, x)))
+            .chain(iter.map(|Point { x, y }| Self::new(y, x)))
             .collect();
         
         set
