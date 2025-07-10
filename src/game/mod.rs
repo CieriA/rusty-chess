@@ -1,10 +1,11 @@
 use std::{
     io::{self, Write},
     error::Error,
+    any::Any,
 };
 use std::collections::HashSet;
 use crate::chessboard::Board;
-use crate::pieces::types::Color;
+use crate::pieces::{types::Color, pawn::Pawn};
 use crate::geomath::Point;
 
 const P1: &str = "White";
@@ -138,12 +139,12 @@ impl Game {
 
                 if board.checkmate(self.turn.opposite()) {
                     println!("[{}: {}]", p_name(self.turn.opposite()), score);
-                    println!("{}", board);
+                    println!("{board}");
                     println!("{} lost.", p_name(self.turn.opposite()));
                     break;
                 }
                 if board.stalemate(self.turn.opposite()) {
-                    println!("{}", board);
+                    println!("{board}");
                     println!("It's a tie.");
                     break;
                 }
@@ -155,9 +156,15 @@ impl Game {
                 println!("It's a tie.");
                 break;
             }
-
+            
             // 50moves rule's count
-            if self.board[movement.from].as_ref().unwrap().is_pawn() || self.board[movement.to].is_some() {
+            let from_piece = (
+                &**self.board[movement.from]
+                    .as_ref()
+                    .unwrap()
+            ) as &dyn Any;
+            
+            if from_piece.is::<Pawn>() || self.board[movement.to].is_some() {
                 self.move_count = 0;
             } else {
                 self.move_count += 1;

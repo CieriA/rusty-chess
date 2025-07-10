@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::fmt::{Debug, Display};
 use colored::{ColoredString, Colorize};
 use crate::chessboard::Board;
@@ -15,7 +16,7 @@ use super::movement::SpecialMove;
 use indexmap::IndexSet;
 
 /// A trait representing a Chess Piece.
-pub(crate) trait Piece: Display + Debug {
+pub(crate) trait Piece: Display + Debug + Any {
     #[must_use]
     fn color(&self) -> Color;
     #[must_use]
@@ -28,12 +29,6 @@ pub(crate) trait Piece: Display + Debug {
         self.set_pos(pos);
         None
     }
-    #[inline(always)]
-    #[must_use]
-    fn is_king(&self) -> bool { false }
-    #[inline(always)]
-    #[must_use]
-    fn is_pawn(&self) -> bool { false }
     
     #[must_use]
     fn score(&self) -> u8;

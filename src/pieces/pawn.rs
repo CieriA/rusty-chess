@@ -12,7 +12,7 @@ use indexmap::IndexSet;
 ///
 /// **En passant**: When an **opponent's Pawn** moves by 2 squares arriving next to yours,
 /// your Pawn can move **1 square diagonally** behind that Pawn and eat it.
-/// 
+///
 /// When it arrives to the last row, it can **upgrade** to a **Knight / Rook / Bishop / Queen**.
 #[derive(Clone, PartialEq, Debug)]
 pub(crate) struct Pawn {
@@ -54,8 +54,6 @@ impl Piece for Pawn {
             None
         }
     }
-    #[inline(always)]
-    fn is_pawn(&self) -> bool { true }
     #[inline(always)]
     fn score(&self) -> u8 { 1 }
     #[inline(always)]

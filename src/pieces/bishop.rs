@@ -1,25 +1,24 @@
 use std::fmt::{Display, Formatter};
 use super::types::{Color, Movement, Piece};
 use crate::geomath::Point;
-use crate::pieces::bishop::Bishop;
-use crate::pieces::rook::Rook;
+use crate::chessboard::Board;
 use indexmap::IndexSet;
 
-/// ## Queen piece
-/// It moves and eats like the `Rook` and the `Bishop` combined.
+/// ## Bishop piece
+/// It moves and eats, diagonally, in any direction as far as it doesn't encounter another piece.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Queen {
+pub(crate) struct Bishop {
     color: Color,
     pos: Point,
 }
 
-impl Display for Queen {
+impl Display for Bishop {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "♕"; // Q
+        let c = "♗"; // B
         write!(f, "{}", self.to_colored_string(c))
     }
 }
-impl Piece for Queen {
+impl Piece for Bishop {
     #[inline(always)]
     fn color(&self) -> Color {
         self.color
@@ -33,16 +32,14 @@ impl Piece for Queen {
         self.pos = pos;
     }
     #[inline(always)]
-    fn score(&self) -> u8 { 9 }
+    fn score(&self) -> u8 { 3 }
     fn move_set(&self) -> IndexSet<Movement> {
-        let rook = Rook::new(self.color, self.pos);
-        let bishop = Bishop::new(self.color, self.pos);
-        
-        rook.move_set()
-            .into_iter()
-            .chain(bishop.move_set())
+        (1..Board::SIZE as isize)
+            .flat_map(|i| Point::new(i, i).rotations())
+            .flat_map(|(point, dir)|
+                self.to_movement(point, None, dir)
+            )
             .collect()
-        
     }
     #[inline(always)]
     fn clone_box(&self) -> Box<dyn Piece> {
@@ -50,8 +47,8 @@ impl Piece for Queen {
     }
 }
 
-impl Queen {
-    /// Constructor of Queen
+impl Bishop {
+    /// Constructor of Bishop
     #[inline]
     pub(crate) const fn new(color: Color, pos: Point) -> Self {
         Self { color, pos }

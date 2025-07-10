@@ -13,6 +13,7 @@ use std::{
     fmt::Display,
     slice::Iter,
 };
+use std::any::Any;
 use indexmap::IndexSet;
 
 pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
@@ -70,7 +71,7 @@ impl Index<Point> for Board {
     fn index(&self, index: Point) -> &Self::Output {
         assert!(
             Self::in_bounds(index),
-            "(x, y): {}", index
+            "(x, y): {index}"
         );
         &self.0[index.y as usize][index.x as usize]
     }
@@ -80,7 +81,7 @@ impl IndexMut<Point> for Board {
     fn index_mut(&mut self, index: Point) -> &mut Self::Output {
         assert!(
             Self::in_bounds(index),
-            "(x, y): {}", index
+            "(x, y): {index}"
         );
         &mut self.0[index.y as usize][index.x as usize]
     }
@@ -104,19 +105,19 @@ impl Display for Board {
             write!(f, "{} ", Board::SIZE - i)?;
             for (j, cell) in row.iter().enumerate() {
                 let colored = match cell {
-                    Some(piece) if (i + j) % 2 == 0 => format!(" {} ", piece).normal(),
-                    Some(piece) => format!(" {} ", piece).on_cyan(),
+                    Some(piece) if (i + j) % 2 == 0 => format!(" {piece} ").normal(),
+                    Some(piece) => format!(" {piece} ").on_cyan(),
                     None if (i + j) % 2 == 0 => "   ".normal(),
                     None => "   ".on_cyan(),
                 };
-                write!(f, "{}", colored)?;
+                write!(f, "{colored}")?;
             }
             writeln!(f)?;
         }
         write!(f, "  ")?;
         let chs = ('a'..='h').collect::<Vec<char>>();
         for c in chs.iter().take(Board::SIZE) { // Just to be sure: take
-            write!(f, " {} ", c)?;
+            write!(f, " {c} ")?;
         }
         Ok(())
     }
@@ -378,7 +379,7 @@ impl Board {
                 if square
                     .as_ref()
                     .is_some_and(|piece| 
-                        piece.is_king() && piece.color() == color
+                        ((&**piece) as &dyn Any).is::<King>() && piece.color() == color
                     ) 
                 {
                     return Point::new(x as isize, y as isize);
@@ -421,7 +422,10 @@ impl Board {
         self
             .all_moves(color)
             .into_iter()
-            .filter(|mov| !self[mov.from].as_ref().unwrap().is_king() && stop_cells.contains(&mov.to))
+            .filter(|mov| 
+                !((&**self[mov.from].as_ref().unwrap()) as &dyn Any).is::<King>() &&
+                stop_cells.contains(&mov.to)
+            )
             .collect()
     }
     /// `color` is the color of the king about to be captured

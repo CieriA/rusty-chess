@@ -172,7 +172,7 @@ impl TryFrom<&str> for Point {
         };
 
         let x = x.0 as isize;
-        let Ok(y) = format!("{}", y).parse::<isize>() else {
+        let Ok(y) = format!("{y}").parse::<isize>() else {
             return Err("Invalid coords".into());
         };
         let y = y - 1;
