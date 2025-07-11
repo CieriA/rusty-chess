@@ -17,8 +17,32 @@ use indexmap::IndexSet;
 
 /// A trait representing a Chess Piece.
 pub(crate) trait Piece: Display + Debug + Any {
+    /// Color of a given piece
+    ///
+    /// > This enforces the definition of a type that implements `Piece`
+    /// > to have a `color` field, returned by this function.
+    /// > 
+    /// > Typical `Piece::color` implementations look like
+    /// > ```Rust
+    /// > #[inline]
+    /// > fn color(&self) -> Point {
+    /// >     self.color
+    /// > }
+    /// > ```
     #[must_use]
     fn color(&self) -> Color;
+    /// Position of a given piece on the board
+    /// 
+    /// > This enforces the definition of a type that implements `Piece`
+    /// > to have a `pos` field, returned by this function.
+    /// > 
+    /// > Typical `Piece::pos` implementations look like
+    /// > ```Rust
+    /// > #[inline]
+    /// > fn pos(&self) -> Point {
+    /// >     self.pos
+    /// > }
+    /// > ```
     #[must_use]
     fn pos(&self) -> Point;
     
@@ -30,6 +54,7 @@ pub(crate) trait Piece: Display + Debug + Any {
         None
     }
     
+    /// In chess, each piece has a value. This method returns that value.
     #[must_use]
     fn score(&self) -> u8;
     
@@ -73,15 +98,34 @@ pub(crate) trait Piece: Display + Debug + Any {
     /// Panics if the state is not of tha valid type.
     #[allow(unused_variables)]
     fn set_state(&mut self, state: State) {}
-    /// Given a &str, returns the &str colored based on self.color().
+    /// Given a &str, returns the &str colored based on [`Piece::color`].
     #[inline]
     #[must_use]
     fn to_colored_string(&self, c: &str) -> ColoredString {
         if self.color().into() { c.bright_white() } else { c.bright_blue() }
     }
+    
+    /// Clones self into a `Box<dyn Piece>`.
+    ///
+    /// This method exists because the [`Clone`] trait
+    /// is not [`dyn compatible`](https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility),
+    /// meaning you can't call [`Clone::clone`] on a `Box<dyn Piece>` or `&dyn Piece`.
+    ///
+    /// As a result, every type that implements [`Piece`] must also implement [`CLone`],
+    /// even though this constraint cannot be expressed directly in the [`Piece`] definition.
+    ///
+    /// > Typical `Piece::clone_box` implementations look like
+    /// > ```Rust
+    /// > #[inline]
+    /// > fn clone_box(&self) -> Box<dyn Piece> {
+    /// >     Box::new(self.clone())
+    /// > }
+    /// > ```
     #[must_use]
     fn clone_box(&self) -> Box<dyn Piece>;
 }
+/// Given an offset from the start of the board, returns
+/// the correct piece which should be in that spot.
 pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
     let pos = Point::new(x, color.first_row() as isize);
     match x {
@@ -93,7 +137,14 @@ pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
         _ => panic!("Impossible case"),
     }
 }
-pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Box<dyn Piece> { // TODO tests
+/// Returns a `Box<dyn Piece>` from its [`char`] representation.
+/// 
+/// Only works for [`Bishop`], [`Knight`], [`Rook`] and [`Queen`], which are the
+/// pieces that a [`Pawn`](crate::pieces::pawn::Pawn) can promote to.
+/// 
+/// All other pieces will make this
+/// associated function panic.
+pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Box<dyn Piece> {
     match c.to_ascii_uppercase() {
         'B' => Box::new(Bishop::new(color, pos)),
         'N' => Box::new(Knight::new(color, pos)),
