@@ -13,7 +13,6 @@ use std::{
     fmt::Display,
     slice::Iter,
 };
-use std::any::Any;
 use indexmap::IndexSet;
 
 pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
@@ -379,7 +378,7 @@ impl Board {
                 if square
                     .as_ref()
                     .is_some_and(|piece| 
-                        ((&**piece) as &dyn Any).is::<King>() && piece.color() == color
+                        piece.as_any().is::<King>() && piece.color() == color
                     ) 
                 {
                     return Point::new(x as isize, y as isize);
@@ -422,8 +421,8 @@ impl Board {
         self
             .all_moves(color)
             .into_iter()
-            .filter(|mov| 
-                !((&**self[mov.from].as_ref().unwrap()) as &dyn Any).is::<King>() &&
+            .filter(|mov|
+                !self[mov.from].as_ref().unwrap().as_any().is::<King>() &&
                 stop_cells.contains(&mov.to)
             )
             .collect()

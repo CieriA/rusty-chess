@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::fmt::{Display, Formatter};
 use crate::chessboard::Board;
 use super::types::{Color, Movement, Piece, PieceState, State};
@@ -30,6 +31,10 @@ impl Piece for Rook {
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
         self.set_state(PieceState::Already.into());
+    }
+    #[inline]
+    fn as_any(&self) -> &dyn Any {
+        self as &dyn Any
     }
     #[inline(always)]
     fn score(&self) -> u8 { 5 }

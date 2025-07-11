@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::fmt::{Display, Formatter};
 use super::types::{Color, Movement, Piece};
 use crate::geomath::Point;
@@ -30,6 +31,10 @@ impl Piece for Bishop {
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
+    }
+    #[inline]
+    fn as_any(&self) -> &dyn Any {
+        self as &dyn Any
     }
     #[inline(always)]
     fn score(&self) -> u8 { 3 }

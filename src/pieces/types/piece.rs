@@ -10,10 +10,12 @@ use crate::pieces::{
     rook::Rook,
     queen::Queen,
     king::King,
+    pawn::Pawn,
 };
 use crate::geomath::rotation::Direction;
 use super::movement::SpecialMove;
 use indexmap::IndexSet;
+use crate::game::ask_upgrade;
 
 /// A trait representing a Chess Piece.
 pub(crate) trait Piece: Display + Debug + Any {
@@ -21,7 +23,7 @@ pub(crate) trait Piece: Display + Debug + Any {
     ///
     /// > This enforces the definition of a type that implements `Piece`
     /// > to have a `color` field, returned by this function.
-    /// > 
+    /// >
     /// > Typical `Piece::color` implementations look like
     /// > ```Rust
     /// > #[inline]
@@ -32,10 +34,10 @@ pub(crate) trait Piece: Display + Debug + Any {
     #[must_use]
     fn color(&self) -> Color;
     /// Position of a given piece on the board
-    /// 
+    ///
     /// > This enforces the definition of a type that implements `Piece`
     /// > to have a `pos` field, returned by this function.
-    /// > 
+    /// >
     /// > Typical `Piece::pos` implementations look like
     /// > ```Rust
     /// > #[inline]
@@ -47,13 +49,38 @@ pub(crate) trait Piece: Display + Debug + Any {
     fn pos(&self) -> Point;
     
     fn set_pos(&mut self, pos: Point);
-    #[inline(always)]
+    /// Returns self as `&dyn Any`.
+    /// 
+    /// This method exists because a trait object is not [`Sized`],
+    /// and so you can't cast `Box<dyn Piece>` to `&dyn Any` using `as`.
+    /// 
+    /// As a result, this method serve as a helper to cast `Box<dyn Piece>` to `&dyn Any`.
+    ///
+    /// > Typical `Piece::as_any` implementations look like
+    /// > ```Rust
+    /// > #[inline]
+    /// > fn as_any(&self) -> &dyn Any {
+    /// >     self as &dyn Any
+    /// > }
+    fn as_any(&self) -> &dyn Any;
+    #[inline]
     #[must_use]
     fn set_pos_upgrade(&mut self, pos: Point) -> Option<Box<dyn Piece>> {
         self.set_pos(pos);
+        if self.as_any().is::<Pawn>() &&
+            pos.y == self.color().opposite().first_row() as isize
+        {
+            loop {
+                let Ok(c) = ask_upgrade() else {
+                    println!("Invalid input.");
+                    continue;
+                };
+                return Some(piece_from_char(c, self.color(), self.pos()));
+            }
+        }
         None
     }
-    
+
     /// In chess, each piece has a value. This method returns that value.
     #[must_use]
     fn score(&self) -> u8;
@@ -66,7 +93,7 @@ pub(crate) trait Piece: Display + Debug + Any {
     fn is_state(&self, state: State) -> bool { true }
     /// Returns the actual color if the direction is important for the piece,
     /// or Color::default() if it is not. 
-    #[inline(always)]
+    #[inline]
     #[must_use]
     fn color_if_has_direction(&self) -> Color {
         Color::default()
@@ -104,7 +131,7 @@ pub(crate) trait Piece: Display + Debug + Any {
     fn to_colored_string(&self, c: &str) -> ColoredString {
         if self.color().into() { c.bright_white() } else { c.bright_blue() }
     }
-    
+
     /// Clones self into a `Box<dyn Piece>`.
     ///
     /// This method exists because the [`Clone`] trait
@@ -138,10 +165,10 @@ pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
     }
 }
 /// Returns a `Box<dyn Piece>` from its [`char`] representation.
-/// 
+///
 /// Only works for [`Bishop`], [`Knight`], [`Rook`] and [`Queen`], which are the
-/// pieces that a [`Pawn`](crate::pieces::pawn::Pawn) can promote to.
-/// 
+/// pieces that a [`Pawn`] can promote to.
+///
 /// All other pieces will make this
 /// associated function panic.
 pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Box<dyn Piece> {
@@ -160,13 +187,13 @@ pub(crate) enum State {
     PieceState(PieceState),
 }
 impl From<PawnState> for State {
-    #[inline(always)]
+    #[inline]
     fn from(value: PawnState) -> Self {
         Self::PawnState(value)
     }
 }
 impl From<PieceState> for State {
-    #[inline(always)]
+    #[inline]
     fn from(value: PieceState) -> Self {
         Self::PieceState(value)
     }

@@ -1,8 +1,8 @@
+use std::any::Any;
 use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, PawnState, Piece, SpecialMove, State, piece_from_char};
+use super::types::{Color, Movement, PawnState, Piece, SpecialMove, State};
 use crate::geomath::Point;
 use crate::geomath::rotation::Direction;
-use crate::game::ask_upgrade;
 use indexmap::IndexSet;
 
 /// ## Pawn piece
@@ -40,19 +40,9 @@ impl Piece for Pawn {
     fn set_pos(&mut self, pos: Point) {
         self.pos = pos;
     }
-    fn set_pos_upgrade(&mut self, pos: Point) -> Option<Box<dyn Piece>> {
-        self.set_pos(pos);
-        if pos.y == self.color().opposite().first_row() as isize {
-            loop {
-                let Ok(c) = ask_upgrade() else {
-                    println!("Invalid input.");
-                    continue;
-                };
-                return Some(piece_from_char(c, self.color(), self.pos()));
-            }
-        } else {
-            None
-        }
+    #[inline]
+    fn as_any(&self) -> &dyn Any {
+        self as &dyn Any
     }
     #[inline(always)]
     fn score(&self) -> u8 { 1 }
