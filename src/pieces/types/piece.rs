@@ -1,21 +1,15 @@
-use std::any::Any;
-use std::fmt::{Debug, Display};
-use colored::{ColoredString, Colorize};
-use crate::chessboard::Board;
-use crate::geomath::Point;
-use crate::pieces::{
-    types::{Color, Movement},
-    bishop::Bishop,
-    knight::Knight,
-    rook::Rook,
-    queen::Queen,
-    king::King,
-    pawn::Pawn,
+use crate::{
+    chessboard::Board,
+    game::ask_upgrade,
+    geomath::{rotation::Direction, Point},
+    pieces::*,
 };
-use crate::geomath::rotation::Direction;
-use super::movement::SpecialMove;
+use colored::{ColoredString, Colorize};
 use indexmap::IndexSet;
-use crate::game::ask_upgrade;
+use std::{
+    any::Any,
+    fmt::{Debug, Display},
+};
 
 /// A trait representing a Chess Piece.
 pub(crate) trait Piece: Display + Debug + Any {
@@ -47,13 +41,13 @@ pub(crate) trait Piece: Display + Debug + Any {
     /// > ```
     #[must_use]
     fn pos(&self) -> Point;
-    
+
     fn set_pos(&mut self, pos: Point);
     /// Returns self as `&dyn Any`.
-    /// 
+    ///
     /// This method exists because a trait object is not [`Sized`],
     /// and so you can't cast `Box<dyn Piece>` to `&dyn Any` using `as`.
-    /// 
+    ///
     /// As a result, this method serve as a helper to cast `Box<dyn Piece>` to `&dyn Any`.
     ///
     /// > Typical `Piece::as_any` implementations look like
@@ -67,9 +61,7 @@ pub(crate) trait Piece: Display + Debug + Any {
     #[must_use]
     fn set_pos_upgrade(&mut self, pos: Point) -> Option<Box<dyn Piece>> {
         self.set_pos(pos);
-        if self.as_any().is::<Pawn>() &&
-            pos.y == self.color().opposite().first_row() as isize
-        {
+        if self.as_any().is::<Pawn>() && pos.y == self.color().opposite().first_row() as isize {
             loop {
                 let Ok(c) = ask_upgrade() else {
                     println!("Invalid input.");
@@ -84,15 +76,16 @@ pub(crate) trait Piece: Display + Debug + Any {
     /// In chess, each piece has a value. This method returns that value.
     #[must_use]
     fn score(&self) -> u8;
-    
-    
+
     /// Returns `true` if the piece has the given state or `false` otherwise.
     /// If the piece has no state at all, `true` is returned.
     #[must_use]
     #[allow(unused_variables)]
-    fn is_state(&self, state: State) -> bool { true }
+    fn is_state(&self, state: State) -> bool {
+        true
+    }
     /// Returns the actual color if the direction is important for the piece,
-    /// or Color::default() if it is not. 
+    /// or Color::default() if it is not.
     #[inline]
     #[must_use]
     fn color_if_has_direction(&self) -> Color {
@@ -104,18 +97,16 @@ pub(crate) trait Piece: Display + Debug + Any {
     }
     /// From an offset (and Self) returns a new Movement.
     fn to_movement(
-        &self, offset: Point, special: Option<SpecialMove>, direction: Option<Direction>
+        &self,
+        offset: Point,
+        special: Option<SpecialMove>,
+        direction: Option<Direction>,
     ) -> Result<Movement, ()> {
         let to = self.pos() + (offset * self.color_if_has_direction().sign());
         if !Board::in_bounds(to) {
             return Err(());
         }
-        Ok(Movement::new(
-            self.pos(),
-            to,
-            special,
-            direction,
-        ))
+        Ok(Movement::new(self.pos(), to, special, direction))
     }
 
     /// An HashSet of all the possible moves of a piece,
@@ -125,7 +116,7 @@ pub(crate) trait Piece: Display + Debug + Any {
     fn move_set(&self) -> IndexSet<Movement>;
 
     /// Sets the state of the piece to something else, if it has it.
-    /// 
+    ///
     /// Panics if the state is not of tha valid type.
     #[allow(unused_variables)]
     fn set_state(&mut self, state: State) {}
@@ -133,7 +124,11 @@ pub(crate) trait Piece: Display + Debug + Any {
     #[inline]
     #[must_use]
     fn to_colored_string(&self, c: &str) -> ColoredString {
-        if self.color().into() { c.bright_white() } else { c.bright_blue() }
+        if self.color().into() {
+            c.bright_white()
+        } else {
+            c.bright_blue()
+        }
     }
 
     /// Clones self into a `Box<dyn Piece>`.
@@ -142,7 +137,7 @@ pub(crate) trait Piece: Display + Debug + Any {
     /// is not [`dyn compatible`](https://doc.rust-lang.org/reference/items/traits.html#dyn-compatibility),
     /// meaning you can't call [`Clone::clone`] on a `Box<dyn Piece>` or `&dyn Piece`.
     ///
-    /// As a result, every type that implements [`Piece`] must also implement [`CLone`],
+    /// As a result, every type that implements [`Piece`] must also implement [`Clone`],
     /// even though this constraint cannot be expressed directly in the [`Piece`] definition.
     ///
     /// > Typical `Piece::clone_box` implementations look like

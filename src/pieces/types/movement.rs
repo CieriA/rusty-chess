@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
-use crate::geomath::Point;
 use crate::geomath::rotation::Direction;
+use crate::geomath::Point;
+use std::cmp::Ordering;
 
 /// Moves that can happen under special circumstances
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -28,7 +28,6 @@ pub(crate) enum SpecialMove {
     ShortCastle,
 }
 
-
 /// A movement of a piece
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub(crate) struct Movement {
@@ -46,10 +45,20 @@ pub(crate) struct Movement {
 }
 impl Movement {
     #[inline]
-    pub(crate) const fn new(from: Point, to: Point, special: Option<SpecialMove>, direction: Option<Direction>) -> Self {
-        Self { from, to, special, direction }
+    pub(crate) const fn new(
+        from: Point,
+        to: Point,
+        special: Option<SpecialMove>,
+        direction: Option<Direction>,
+    ) -> Self {
+        Self {
+            from,
+            to,
+            special,
+            direction,
+        }
     }
-    
+
     pub(crate) fn linear(&self) -> Option<Point> {
         let step = self.to - self.from;
         if step.x == 0 || step.y == 0 || step.x.abs() == step.y.abs() {

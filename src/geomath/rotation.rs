@@ -6,25 +6,25 @@ pub(crate) enum Direction {
     /// `Up` (**0deg**)
     #[default]
     Up,
-    
+
     /// `Up-right` (**45deg**)
     UpRight,
-    
+
     /// `Right` (**90deg**)
     Right,
-    
+
     /// `Down-right` (**135deg**)
     DownRight,
-    
+
     /// `Down` (**180deg**)
     Down,
-    
+
     /// `Down-left` (**225deg**)
     DownLeft,
-    
+
     /// `Left` (**270deg**)
     Left,
-    
+
     /// `Up-left` (**315deg**)
     UpLeft,
 }
@@ -58,22 +58,34 @@ impl Direction {
 impl From<Point> for Option<Direction> {
     fn from(value: Point) -> Self {
         let Point { x, y } = value;
-        
+
         match (x, y) {
             (0, 0) => None, // We need to check first that both aren't 0 or next arms won't work
-            
-            (0, y) => // x is 0
-                Some(Direction::Up.opposite_if(y.is_negative())),
-            
-            (x, 0) => // y is 0
-                Some(Direction::Right.opposite_if(x.is_negative())),
-            
-            (x, y) if x == y => // Both same and we check the signs
-                Some(Direction::UpRight.opposite_if(x.is_negative())),
-            
-            (x, y) if x.abs() == y.abs() => // Both different signs because of the previous arm
-                Some(Direction::DownRight.opposite_if(x.is_negative())),
-            
+
+            (0, y) =>
+            // x is 0
+            {
+                Some(Direction::Up.opposite_if(y.is_negative()))
+            }
+
+            (x, 0) =>
+            // y is 0
+            {
+                Some(Direction::Right.opposite_if(x.is_negative()))
+            }
+
+            (x, y) if x == y =>
+            // Both same and we check the signs
+            {
+                Some(Direction::UpRight.opposite_if(x.is_negative()))
+            }
+
+            (x, y) if x.abs() == y.abs() =>
+            // Both different signs because of the previous arm
+            {
+                Some(Direction::DownRight.opposite_if(x.is_negative()))
+            }
+
             _ => None, // We don't need directions for the knight
         }
     }

@@ -1,19 +1,25 @@
-use std::{
-    io::{self, Write},
-    error::Error,
-    any::Any,
+use crate::{
+    chessboard::Board,
+    geomath::Point,
+    pieces::{Color, Pawn},
 };
-use std::collections::HashSet;
-use crate::chessboard::Board;
-use crate::pieces::{types::Color, pawn::Pawn};
-use crate::geomath::Point;
+use std::{
+    any::Any,
+    collections::HashSet,
+    error::Error,
+    io::{self, Write},
+};
 
 const P1: &str = "White";
 const P2: &str = "Black";
 
 #[inline(always)]
 fn p_name(color: Color) -> &'static str {
-    if color.into() { P1 } else { P2 }
+    if color.into() {
+        P1
+    } else {
+        P2
+    }
 }
 
 /// Engine of the game
@@ -38,7 +44,9 @@ impl Game {
         println!("Chess!\n");
         println!("To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go");
         println!("Example:\nPiece coords: E2\nTo: E4\n\n");
-        println!("To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)")
+        println!(
+            "To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)"
+        )
     }
     /// Real score of white
     #[inline(always)]
@@ -87,7 +95,6 @@ impl Game {
             io::stdout().flush().unwrap();
             io::stdin().read_line(&mut from)?;
 
-
             let mut to = String::new();
             print!("To: ");
             io::stdout().flush().unwrap();
@@ -117,15 +124,18 @@ impl Game {
                 println!("Not your piece.");
                 continue;
             }
-            let Some(movement) = self.board
+            let Some(movement) = self
+                .board
                 .filtered_move_set(from)
                 .into_iter()
-                .find(|mov| mov.from == from && mov.to == to) else {
+                .find(|mov| mov.from == from && mov.to == to)
+            else {
                 println!("Invalid move.");
                 continue;
             };
 
-            { // control if the move would lead to a check
+            {
+                // control if the move would lead to a check
                 let mut board = self.board.clone();
                 let mut score = self.get_printable_score(self.turn.opposite()); // score clone
                 if let Some((new_score, ..)) = board.do_move(movement.clone(), false) {
@@ -156,14 +166,10 @@ impl Game {
                 println!("It's a tie.");
                 break;
             }
-            
+
             // 50moves rule's count
-            let from_piece = (
-                &**self.board[movement.from]
-                    .as_ref()
-                    .unwrap()
-            ) as &dyn Any;
-            
+            let from_piece = (&**self.board[movement.from].as_ref().unwrap()) as &dyn Any;
+
             if from_piece.is::<Pawn>() || self.board[movement.to].is_some() {
                 self.move_count = 0;
             } else {
@@ -180,7 +186,7 @@ impl Game {
             if let Some((score, color)) = self.board.do_move(movement, true) {
                 *self.get_mut_score(color) += score;
             }
-            
+
             self.turn = self.turn.opposite();
         }
 

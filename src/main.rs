@@ -1,12 +1,12 @@
-use std::error::Error;
 use crate::game::Game;
+use std::error::Error;
 
-#[cfg(test)]
-pub(crate) mod prelude;
-mod game;
 mod chessboard;
+mod game;
 mod geomath;
 mod pieces;
+#[cfg(test)]
+pub(crate) mod prelude;
 
 fn main() -> Result<(), Box<dyn Error>> {
     Game::default().run()

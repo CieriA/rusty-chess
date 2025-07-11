@@ -1,10 +1,10 @@
-mod piece;
 mod movement;
+mod piece;
 
 #[allow(unused_imports)]
-pub use piece::*;
-#[allow(unused_imports)]
 pub use movement::*;
+#[allow(unused_imports)]
+pub use piece::*;
 
 use crate::chessboard::Board;
 

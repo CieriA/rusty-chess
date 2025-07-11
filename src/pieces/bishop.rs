@@ -1,9 +1,10 @@
-use std::any::Any;
-use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, Piece};
-use crate::geomath::Point;
-use crate::chessboard::Board;
+use super::{Color, Movement, Piece};
+use crate::{chessboard::Board, geomath::Point};
 use indexmap::IndexSet;
+use std::{
+    any::Any,
+    fmt::{Display, Formatter},
+};
 
 /// ## Bishop piece
 /// It moves and eats, diagonally, in any direction as far as it doesn't encounter another piece.
@@ -37,13 +38,13 @@ impl Piece for Bishop {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { 3 }
+    fn score(&self) -> u8 {
+        3
+    }
     fn move_set(&self) -> IndexSet<Movement> {
         (1..Board::SIZE as isize)
             .flat_map(|i| Point::new(i, i).rotations())
-            .flat_map(|(point, dir)|
-                self.to_movement(point, None, dir)
-            )
+            .flat_map(|(point, dir)| self.to_movement(point, None, dir))
             .collect()
     }
     #[inline(always)]

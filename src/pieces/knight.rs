@@ -1,8 +1,12 @@
-use std::any::Any;
-use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, Piece};
-use crate::geomath::Point;
+use crate::{
+    geomath::Point,
+    pieces::{Color, Movement, Piece},
+};
 use indexmap::IndexSet;
+use std::{
+    any::Any,
+    fmt::{Display, Formatter},
+};
 
 /// ## Knight piece
 /// (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2) or (-1, 2)
@@ -36,7 +40,9 @@ impl Piece for Knight {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { 3 }
+    fn score(&self) -> u8 {
+        3
+    }
     fn move_set(&self) -> IndexSet<Movement> {
         Point::new(1, 2)
             .rotations()

@@ -1,9 +1,13 @@
-use std::any::Any;
-use std::fmt::{Display, Formatter};
-use crate::chessboard::Board;
-use super::types::{Color, Movement, Piece, PieceState, State};
-use crate::geomath::Point;
+use crate::{
+    chessboard::Board,
+    geomath::Point,
+    pieces::{Color, Movement, Piece, PieceState, State},
+};
 use indexmap::IndexSet;
+use std::{
+    any::Any,
+    fmt::{Display, Formatter},
+};
 
 /// ## Rook piece
 /// It moves and eats in any direction (not diagonally) as far as it doesn't encounter another piece.
@@ -37,16 +41,16 @@ impl Piece for Rook {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { 5 }
+    fn score(&self) -> u8 {
+        5
+    }
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)
     }
     fn move_set(&self) -> IndexSet<Movement> {
         (1..Board::SIZE as isize)
             .flat_map(|i| Point::new(0, i).rotations())
-            .flat_map(|(point, dir)|
-                self.to_movement(point, None, dir)
-            )
+            .flat_map(|(point, dir)| self.to_movement(point, None, dir))
             .collect()
     }
     #[inline]
@@ -67,6 +71,10 @@ impl Rook {
     /// Constructor of Rook
     #[inline]
     pub(crate) fn new(color: Color, pos: Point) -> Self {
-        Self { color, pos, state: PieceState::default() }
+        Self {
+            color,
+            pos,
+            state: PieceState::default(),
+        }
     }
 }

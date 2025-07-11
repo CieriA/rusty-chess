@@ -1,9 +1,12 @@
-use std::any::Any;
-use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, Piece, PieceState, State, SpecialMove};
-use crate::geomath::Point;
+use crate::{
+    geomath::{rotation::Direction, Point},
+    pieces::types::*,
+};
 use indexmap::IndexSet;
-use crate::geomath::rotation::Direction;
+use std::{
+    any::Any,
+    fmt::{Display, Formatter},
+};
 
 /// If the inside `bool` is `false`, it means that the `King` has never been moved.
 /// ## King piece
@@ -58,16 +61,16 @@ impl Piece for King {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { unreachable!() } // should not be called
+    fn score(&self) -> u8 {
+        unreachable!()
+    } // should not be called
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)
     }
     fn move_set(&self) -> IndexSet<Movement> {
         Point::all_around(1)
             .into_iter()
-            .map(|(point, dir)|
-                self.to_movement(point, None, dir)
-            )
+            .map(|(point, dir)| self.to_movement(point, None, dir))
             .chain([
                 self.to_movement(
                     Point::new(-2, 0),
@@ -101,6 +104,10 @@ impl King {
     /// Constructor of King
     #[inline]
     pub(crate) fn new(color: Color, pos: Point) -> Self {
-        Self { color, pos, state: PieceState::default() }
+        Self {
+            color,
+            pos,
+            state: PieceState::default(),
+        }
     }
 }

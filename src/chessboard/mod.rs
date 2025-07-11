@@ -1,19 +1,20 @@
 //! 8*8 classic Chessboard
-#[cfg(test)]
-mod tests;
 
 use crate::{
-    pieces::{types::{Piece, Movement, SpecialMove, Color}, prelude::*},
-    geomath::{Point, rotation::Direction},
+    geomath::{rotation::Direction, Point},
+    pieces::*,
 };
 use colored::Colorize;
+use indexmap::IndexSet;
 use std::{
     collections::HashSet,
-    ops::{Index, IndexMut},
     fmt::Display,
+    ops::{Index, IndexMut},
     slice::Iter,
 };
-use indexmap::IndexSet;
+
+#[cfg(test)]
+mod tests;
 
 pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
 pub(crate) type Row = [Square; Board::SIZE];
@@ -38,29 +39,26 @@ impl Clone for Board {
 impl Default for Board {
     fn default() -> Self {
         let mut board = Self::empty();
-        
+
         // White pawns
         for (x, cell) in board[1].iter_mut().enumerate() {
-            *cell = Some(Box::new(
-                Pawn::new(Color::White, Point::new(x as isize, 1))
-            ));
+            *cell = Some(Box::new(Pawn::new(Color::White, Point::new(x as isize, 1))));
         }
         // Black pawns
         for (x, cell) in board[Self::SIZE - 2].iter_mut().enumerate() {
-            *cell = Some(Box::new(
-                Pawn::new(Color::Black, Point::new(x as isize, Self::SIZE as isize - 2))
-            ));
+            *cell = Some(Box::new(Pawn::new(
+                Color::Black,
+                Point::new(x as isize, Self::SIZE as isize - 2),
+            )));
         }
-        
+
         // Other pieces
         for x in 0..Self::SIZE as isize {
-            board[Point::new(x, 0)] =
-                Some(placement(x, Color::White));
-            
-            board[Point::new(x, Self::SIZE as isize - 1)] = 
-                Some(placement(x, Color::Black));
+            board[Point::new(x, 0)] = Some(placement(x, Color::White));
+
+            board[Point::new(x, Self::SIZE as isize - 1)] = Some(placement(x, Color::Black));
         }
-        
+
         board
     }
 }
@@ -68,20 +66,14 @@ impl Index<Point> for Board {
     type Output = Square;
     #[inline]
     fn index(&self, index: Point) -> &Self::Output {
-        assert!(
-            Self::in_bounds(index),
-            "(x, y): {index}"
-        );
+        assert!(Self::in_bounds(index), "(x, y): {index}");
         &self.0[index.y as usize][index.x as usize]
     }
 }
 impl IndexMut<Point> for Board {
     #[inline]
     fn index_mut(&mut self, index: Point) -> &mut Self::Output {
-        assert!(
-            Self::in_bounds(index),
-            "(x, y): {index}"
-        );
+        assert!(Self::in_bounds(index), "(x, y): {index}");
         &mut self.0[index.y as usize][index.x as usize]
     }
 }
@@ -115,7 +107,8 @@ impl Display for Board {
         }
         write!(f, "  ")?;
         let chs = ('a'..='h').collect::<Vec<char>>();
-        for c in chs.iter().take(Board::SIZE) { // Just to be sure: take
+        for c in chs.iter().take(Board::SIZE) {
+            // Just to be sure: take
             write!(f, " {c} ")?;
         }
         Ok(())
@@ -132,10 +125,10 @@ impl Board {
     /// Checks if a `Point` is inside the Board.
     #[inline]
     pub(crate) const fn in_bounds(point: Point) -> bool {
-        point.x < Self::SIZE as isize &&
-        point.y < Self::SIZE as isize &&
-        point.x >= 0 &&
-        point.y >= 0
+        point.x < Self::SIZE as isize
+            && point.y < Self::SIZE as isize
+            && point.x >= 0
+            && point.y >= 0
     }
     #[inline]
     pub(crate) fn get(&self, point: Point) -> Option<&Square> {
@@ -153,22 +146,22 @@ impl Board {
     /// filtering:
     /// - Collisions (for bishops, pawns, rooks and queens)     **(1° .filter())**
     /// - Impossible SpecialMoves                               **(2° .filter())**
-    /// 
+    ///
     /// The `from` parameter is the `Movement.from` field.
     pub(crate) fn filtered_move_set(&self, from: Point) -> IndexSet<Movement> {
         let mut ignored: HashSet<Direction> = HashSet::new();
-        
+
         // .unwrap() checks that the piece exists
         let piece = self[from].as_ref().unwrap();
-        
+
         piece
             .move_set()
             .into_iter()
             .filter(|mov| {
                 let Some(direction) = mov.direction else {
-                    return self[mov.to].as_ref().is_none_or(|new_piece| 
-                        new_piece.color() != piece.color()
-                    );
+                    return self[mov.to]
+                        .as_ref()
+                        .is_none_or(|new_piece| new_piece.color() != piece.color());
                 };
                 if ignored.contains(&direction) {
                     return false;
@@ -187,30 +180,30 @@ impl Board {
                 };
                 match special {
                     SpecialMove::CannotEat => self[mov.to].is_none(),
-                    
+
                     SpecialMove::DoublePawn => {
                         assert_eq!(mov.from.x, mov.to.x);
-                        
+
                         let range = if piece.color().into() { 1..3 } else { -2..0 };
-                        
+
                         range
-                                .map(|y| mov.from + Point::new(0, y))
-                                .all(|p| self[p].is_none()) &&
-                        piece.is_state(State::PawnState(PawnState::NotYet))
+                            .map(|y| mov.from + Point::new(0, y))
+                            .all(|p| self[p].is_none())
+                            && piece.is_state(State::PawnState(PawnState::NotYet))
                     }
-                    
+
                     SpecialMove::PawnEat => {
                         let to = mov.to;
                         let new_piece = match &self[to] {
                             Some(new_piece) => new_piece,
                             None => {
                                 let Some(eat_square) =
-                                    self.get(to - Point::new(0, piece.color().sign())) else {
+                                    self.get(to - Point::new(0, piece.color().sign()))
+                                else {
                                     return false;
                                 };
-                                let Some(new_piece) = 
-                                    eat_square else {
-                                        return false;
+                                let Some(new_piece) = eat_square else {
+                                    return false;
                                 };
                                 if !new_piece.is_state(State::PawnState(PawnState::JustDouble)) {
                                     return false;
@@ -219,8 +212,8 @@ impl Board {
                             }
                         };
                         new_piece.color() != piece.color()
-                    },
-                    
+                    }
+
                     SpecialMove::ShortCastle => {
                         let rook_pos = mov.from + Point::new(3, 0);
                         if !Board::in_bounds(rook_pos) {
@@ -232,23 +225,22 @@ impl Board {
 
                         let start = mov.from.x as usize + 1;
                         let end = rook_pos.x as usize;
-                        
-                        let slice = 
-                            &self[piece.color().first_row()][start..end];
-                        
-                        piece.is_state(State::PieceState(PieceState::NotYet)) &&
-                        rook.is_state(State::PieceState(PieceState::NotYet)) &&
-                        slice.iter().all(Option::is_none) &&
-                        !self
-                            .all_moves(piece.color().opposite())
-                            .into_iter()
-                            .any(|mov| {
-                                (0..2)
-                                    .map(|i| piece.pos() + Point::new(i, 0))
-                                    .any(|p| mov.to == p)
-                            })
+
+                        let slice = &self[piece.color().first_row()][start..end];
+
+                        piece.is_state(State::PieceState(PieceState::NotYet))
+                            && rook.is_state(State::PieceState(PieceState::NotYet))
+                            && slice.iter().all(Option::is_none)
+                            && !self
+                                .all_moves(piece.color().opposite())
+                                .into_iter()
+                                .any(|mov| {
+                                    (0..2)
+                                        .map(|i| piece.pos() + Point::new(i, 0))
+                                        .any(|p| mov.to == p)
+                                })
                     }
-                    
+
                     SpecialMove::LongCastle => {
                         let rook_pos = mov.from + Point::new(-4, 0);
                         if !Board::in_bounds(rook_pos) {
@@ -259,13 +251,12 @@ impl Board {
                         };
                         let start = rook_pos.x as usize + 1;
                         let end = mov.from.x as usize;
-                        let slice =
-                            &self[piece.color().first_row()][start..end];
-                        
-                        piece.is_state(State::PieceState(PieceState::NotYet)) &&
-                        rook.is_state(State::PieceState(PieceState::NotYet)) &&
-                        slice.iter().all(Option::is_none)&&
-                            !self
+                        let slice = &self[piece.color().first_row()][start..end];
+
+                        piece.is_state(State::PieceState(PieceState::NotYet))
+                            && rook.is_state(State::PieceState(PieceState::NotYet))
+                            && slice.iter().all(Option::is_none)
+                            && !self
                                 .all_moves(piece.color().opposite())
                                 .into_iter()
                                 .any(|mov| {
@@ -292,8 +283,7 @@ impl Board {
     }
     /// Coordinates of all pieces with a given color on the board
     fn all_color_pieces(&self, color: Color) -> HashSet<Point> {
-        self
-            .all_pieces()
+        self.all_pieces()
             .into_iter()
             // by using `.unwrap()` instead of `.is_some_and()` I assure `.all_pieces()` works too,
             // and if it doesn't this fn will panic
@@ -305,44 +295,56 @@ impl Board {
     fn all_moves(&self, color: Color) -> HashSet<Movement> {
         let mut set = HashSet::new();
         for coord in self.all_color_pieces(color) {
-            if self[coord].as_ref().is_some_and(|piece| piece.color() == color) {
+            if self[coord]
+                .as_ref()
+                .is_some_and(|piece| piece.color() == color)
+            {
                 set.extend(self.filtered_move_set(Point::new(coord.x, coord.y)));
             }
         }
         set
     }
     /// `Some` contains the points (`usize`) added to the score to the `Color` player.
-    /// 
+    ///
     /// Also change the state of all pawns already moved.
-    /// 
+    ///
     /// `ask` is used to know if the method should ask
     /// input to the user to promote the pawn or not.
     pub(crate) fn do_move(&mut self, mov: Movement, ask: bool) -> Option<(u8, Color)> {
         let piece = self[mov.from].as_ref().unwrap();
         let color = piece.color();
-        
+
         let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
-        
+
         self.apply_move(mov.clone(), ask);
         let set: HashSet<_> = self
             .all_color_pieces(self[mov.to].as_ref().unwrap().color())
             .into_iter()
-            .filter(|coord|
-                self[*coord].as_ref().is_some_and(|piece| piece.is_state(PawnState::JustDouble.into()))
-            )
+            .filter(|coord| {
+                self[*coord]
+                    .as_ref()
+                    .is_some_and(|piece| piece.is_state(PawnState::JustDouble.into()))
+            })
             .collect();
         for coord in set {
-            self[coord].as_mut().unwrap().set_state(PawnState::Already.into());
+            self[coord]
+                .as_mut()
+                .unwrap()
+                .set_state(PawnState::Already.into());
         }
         res
     }
     /// Without checking errors, move a piece.
     fn apply_move(&mut self, mov: Movement, ask: bool) {
         let piece = self[mov.from].as_mut().unwrap();
-        if mov.special.as_ref().is_some_and(|sm| sm == &SpecialMove::DoublePawn) {
+        if mov
+            .special
+            .as_ref()
+            .is_some_and(|sm| sm == &SpecialMove::DoublePawn)
+        {
             piece.set_state(PawnState::JustDouble.into());
         }
-        
+
         // TODO change this. When called with `ask = false`,
         //  the Pawn will go to the last row without promoting.
         //  This can lead to errors if we add minimax or something like it.
@@ -355,27 +357,27 @@ impl Board {
             Some(SpecialMove::ShortCastle) => {
                 let mut rook = self[mov.from + Point::new(3, 0)].take().unwrap();
                 let new_pos = mov.to - Point::new(1, 0);
-                
+
                 rook.set_pos(new_pos);
                 self[new_pos] = Some(rook);
             }
             Some(SpecialMove::LongCastle) => {
                 let mut rook = self[mov.from - Point::new(4, 0)].take().unwrap();
                 let new_pos = mov.to + Point::new(1, 0);
-                
+
                 rook.set_pos(new_pos);
                 self[new_pos] = Some(rook);
             }
             Some(SpecialMove::PawnEat) if self[mov.to].is_none() => {
                 let color = self[mov.from].as_ref().unwrap().color();
                 let new_pos = mov.to - Point::new(0, color.sign());
-                
+
                 self[new_pos].take();
             }
             _ => {}
         }
         let piece = self[mov.from].take().unwrap(); // .unwrap() to ensure it still exists.
-        
+
         if let Some(upgraded) = upgraded {
             self[mov.to] = Some(upgraded);
         } else {
@@ -388,9 +390,7 @@ impl Board {
             for (x, square) in row.iter().enumerate() {
                 if square
                     .as_ref()
-                    .is_some_and(|piece| 
-                        piece.as_any().is::<King>() && piece.color() == color
-                    ) 
+                    .is_some_and(|piece| piece.as_any().is::<King>() && piece.color() == color)
                 {
                     return Point::new(x as isize, y as isize);
                 }
@@ -401,18 +401,17 @@ impl Board {
     /// `color` is the color of the king about to be captured
     pub(crate) fn check(&self, color: Color) -> Option<Movement> {
         let king_pos = self.find_king(color);
-        self
-            .all_moves(color.opposite())
+        self.all_moves(color.opposite())
             .into_iter()
             .find(|mov| mov.to == king_pos)
     }
     /// Can the player block the Check moving a piece? Returns the Movements that stops the check
-    /// 
+    ///
     /// Returns an HashSet of all the moves with which the player can block the piece by
     /// eating it or putting a piece between it and the king.
-    /// 
+    ///
     /// Doesn't check for the king moving itself (TODO might be added?)
-    /// 
+    ///
     /// `color` is the color of the king about to be captured
     pub(crate) fn is_check_stoppable(&self, color: Color) -> HashSet<Movement> {
         let mut stop_cells = HashSet::new();
@@ -427,26 +426,24 @@ impl Board {
                 step += linearity;
             }
         }
-        
+
         // Can be stopped?
-        self
-            .all_moves(color)
+        self.all_moves(color)
             .into_iter()
-            .filter(|mov|
-                !self[mov.from].as_ref().unwrap().as_any().is::<King>() &&
-                stop_cells.contains(&mov.to)
-            )
+            .filter(|mov| {
+                !self[mov.from].as_ref().unwrap().as_any().is::<King>()
+                    && stop_cells.contains(&mov.to)
+            })
             .collect()
     }
     /// `color` is the color of the king about to be captured
     pub(crate) fn checks_around(&self, color: Color) -> bool {
-        self
-            .filtered_move_set(self.find_king(color))
+        self.filtered_move_set(self.find_king(color))
             .into_iter()
             .all(|mov| {
                 let mut new_board = self.clone();
                 new_board.do_move(mov, false);
-                
+
                 new_board.check(color).is_some()
             })
     }
@@ -454,7 +451,9 @@ impl Board {
     #[inline]
     pub(crate) fn checkmate(&self, color: Color) -> bool {
         // Return is check, all around check and if check is not stoppable
-        self.check(color).is_some() && self.checks_around(color) && self.is_check_stoppable(color).is_empty()
+        self.check(color).is_some()
+            && self.checks_around(color)
+            && self.is_check_stoppable(color).is_empty()
     }
     #[inline(always)]
     pub(crate) fn stalemate(&self, color: Color) -> bool {

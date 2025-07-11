@@ -1,10 +1,12 @@
-use std::any::Any;
-use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, Piece};
-use crate::geomath::Point;
-use crate::pieces::bishop::Bishop;
-use crate::pieces::rook::Rook;
+use crate::{
+    geomath::Point,
+    pieces::{Bishop, Color, Movement, Piece, Rook},
+};
 use indexmap::IndexSet;
+use std::{
+    any::Any,
+    fmt::{Display, Formatter},
+};
 
 /// ## Queen piece
 /// It moves and eats like the `Rook` and the `Bishop` combined.
@@ -38,7 +40,9 @@ impl Piece for Queen {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { 9 }
+    fn score(&self) -> u8 {
+        9
+    }
     fn move_set(&self) -> IndexSet<Movement> {
         let rook = Rook::new(self.color, self.pos);
         let bishop = Bishop::new(self.color, self.pos);
@@ -47,7 +51,6 @@ impl Piece for Queen {
             .into_iter()
             .chain(bishop.move_set())
             .collect()
-
     }
     #[inline(always)]
     fn clone_box(&self) -> Box<dyn Piece> {

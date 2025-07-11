@@ -1,9 +1,12 @@
-use std::any::Any;
-use std::fmt::{Display, Formatter};
-use super::types::{Color, Movement, PawnState, Piece, SpecialMove, State};
-use crate::geomath::Point;
-use crate::geomath::rotation::Direction;
+use crate::{
+    geomath::{rotation::Direction, Point},
+    pieces::types::*,
+};
 use indexmap::IndexSet;
+use std::{
+    any::Any,
+    fmt::{Display, Formatter},
+};
 
 /// ## Pawn piece
 /// It moves by **1 square upwards** normally, or by **2 squares upwards** if it has never been moved.
@@ -45,7 +48,9 @@ impl Piece for Pawn {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { 1 }
+    fn score(&self) -> u8 {
+        1
+    }
     #[inline(always)]
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PawnState(ps) if ps == self.state)
@@ -73,9 +78,9 @@ impl Piece for Pawn {
                 Some(Direction::UpLeft),
             ),
         ]
-            .into_iter()
-            .flatten()
-            .collect()
+        .into_iter()
+        .flatten()
+        .collect()
     }
     #[inline]
     fn set_state(&mut self, new_state: State) {
@@ -95,6 +100,10 @@ impl Pawn {
     /// Constructor of Pawn
     #[inline]
     pub(crate) fn new(color: Color, pos: Point) -> Self {
-        Self { color, pos, state: PawnState::default() }
+        Self {
+            color,
+            pos,
+            state: PawnState::default(),
+        }
     }
 }

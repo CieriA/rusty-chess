@@ -7,10 +7,30 @@ fn pawn() {
     assert_eq!(
         pawn.move_set(),
         IndexSet::from([
-            Movement::new(Point::new(4, 6), Point::new(4, 5), Some(SpecialMove::CannotEat), Some(Direction::Up)),
-            Movement::new(Point::new(4, 6), Point::new(4, 4), Some(SpecialMove::DoublePawn), Some(Direction::Up)),
-            Movement::new(Point::new(4, 6), Point::new(3, 5), Some(SpecialMove::PawnEat), Some(Direction::UpRight)),
-            Movement::new(Point::new(4, 6), Point::new(5, 5), Some(SpecialMove::PawnEat), Some(Direction::UpLeft))
+            Movement::new(
+                Point::new(4, 6),
+                Point::new(4, 5),
+                Some(SpecialMove::CannotEat),
+                Some(Direction::Up)
+            ),
+            Movement::new(
+                Point::new(4, 6),
+                Point::new(4, 4),
+                Some(SpecialMove::DoublePawn),
+                Some(Direction::Up)
+            ),
+            Movement::new(
+                Point::new(4, 6),
+                Point::new(3, 5),
+                Some(SpecialMove::PawnEat),
+                Some(Direction::UpRight)
+            ),
+            Movement::new(
+                Point::new(4, 6),
+                Point::new(5, 5),
+                Some(SpecialMove::PawnEat),
+                Some(Direction::UpLeft)
+            )
         ])
     );
 }
@@ -28,7 +48,6 @@ fn bishop() {
             Movement::new(start, Point::new(5, 5), None, Some(Direction::UpRight)),
             Movement::new(start, Point::new(6, 6), None, Some(Direction::UpRight)),
             Movement::new(start, Point::new(7, 7), None, Some(Direction::UpRight)),
-
             Movement::new(start, Point::new(0, 2), None, Some(Direction::UpLeft)),
             Movement::new(start, Point::new(0, 0), None, Some(Direction::DownLeft)),
             Movement::new(start, Point::new(2, 0), None, Some(Direction::DownRight)),
@@ -47,7 +66,6 @@ fn bishop_reverse() {
             Movement::new(start, Point::new(3, 2), None, Some(Direction::DownLeft)),
             Movement::new(start, Point::new(2, 1), None, Some(Direction::DownLeft)),
             Movement::new(start, Point::new(1, 0), None, Some(Direction::DownLeft)),
-
             Movement::new(start, Point::new(4, 7), None, Some(Direction::UpLeft)),
             Movement::new(start, Point::new(5, 6), None, Some(Direction::UpLeft)),
             Movement::new(start, Point::new(7, 6), None, Some(Direction::UpRight)),
@@ -70,7 +88,6 @@ fn rook() {
             Movement::new(start, Point::new(2, 7), None, Some(Direction::Left)),
             Movement::new(start, Point::new(1, 7), None, Some(Direction::Left)),
             Movement::new(start, Point::new(0, 7), None, Some(Direction::Left)),
-
             Movement::new(start, Point::new(7, 6), None, Some(Direction::Down)),
             Movement::new(start, Point::new(7, 5), None, Some(Direction::Down)),
             Movement::new(start, Point::new(7, 4), None, Some(Direction::Down)),
@@ -126,8 +143,18 @@ fn starting_king() {
             Movement::new(start, Point::new(4, 6), None, Some(Direction::Down)),
             Movement::new(start, Point::new(3, 6), None, Some(Direction::DownLeft)),
             Movement::new(start, Point::new(5, 6), None, Some(Direction::DownRight)),
-            Movement::new(start, Point::new(2, 7), Some(SpecialMove::LongCastle), Some(Direction::Left)),
-            Movement::new(start, Point::new(6, 7), Some(SpecialMove::ShortCastle), Some(Direction::Right)),
+            Movement::new(
+                start,
+                Point::new(2, 7),
+                Some(SpecialMove::LongCastle),
+                Some(Direction::Left)
+            ),
+            Movement::new(
+                start,
+                Point::new(6, 7),
+                Some(SpecialMove::ShortCastle),
+                Some(Direction::Right)
+            ),
         ])
     )
 }
@@ -145,12 +172,8 @@ fn king_around() {
         .take_while(|mov| mov.special.is_none())
         .map(|mov| mov.to)
         .collect::<IndexSet<_>>();
-    assert_eq!(
-        king_moves,
-        moves
-    )
+    assert_eq!(king_moves, moves)
 }
-
 
 #[test]
 fn starting_queen() {
@@ -163,12 +186,10 @@ fn starting_queen() {
             Movement::new(start, Point::new(5, 0), None, Some(Direction::Right)),
             Movement::new(start, Point::new(6, 0), None, Some(Direction::Right)),
             Movement::new(start, Point::new(7, 0), None, Some(Direction::Right)),
-
             Movement::new(start, Point::new(4, 1), None, Some(Direction::UpRight)),
             Movement::new(start, Point::new(5, 2), None, Some(Direction::UpRight)),
             Movement::new(start, Point::new(6, 3), None, Some(Direction::UpRight)),
             Movement::new(start, Point::new(7, 4), None, Some(Direction::UpRight)),
-
             Movement::new(start, Point::new(3, 1), None, Some(Direction::Up)),
             Movement::new(start, Point::new(3, 2), None, Some(Direction::Up)),
             Movement::new(start, Point::new(3, 3), None, Some(Direction::Up)),
@@ -176,11 +197,9 @@ fn starting_queen() {
             Movement::new(start, Point::new(3, 5), None, Some(Direction::Up)),
             Movement::new(start, Point::new(3, 6), None, Some(Direction::Up)),
             Movement::new(start, Point::new(3, 7), None, Some(Direction::Up)),
-
             Movement::new(start, Point::new(2, 1), None, Some(Direction::UpLeft)),
             Movement::new(start, Point::new(1, 2), None, Some(Direction::UpLeft)),
             Movement::new(start, Point::new(0, 3), None, Some(Direction::UpLeft)),
-
             Movement::new(start, Point::new(2, 0), None, Some(Direction::Left)),
             Movement::new(start, Point::new(1, 0), None, Some(Direction::Left)),
             Movement::new(start, Point::new(0, 0), None, Some(Direction::Left)),
@@ -196,7 +215,7 @@ fn bishop_linearity() {
     let pos = Point::new(3, 7);
     let bishop = Bishop::new(Color::Black, pos);
     board[pos] = Some(Box::new(bishop));
-    
+
     for mov in board.filtered_move_set(pos) {
         assert!(mov.linear().is_some())
     }
@@ -244,7 +263,11 @@ fn promote1() {
     let mut board = Board::empty();
     let pos = Point::new(0, 6);
     board[pos] = Some(Box::new(Pawn::new(Color::White, pos)));
-    assert!(board[pos].as_mut().unwrap().set_pos_upgrade(pos + Point::new(0, 1)).is_some());
+    assert!(board[pos]
+        .as_mut()
+        .unwrap()
+        .set_pos_upgrade(pos + Point::new(0, 1))
+        .is_some());
 }
 
 // `piece_from_char` tests.
@@ -259,26 +282,28 @@ fn pieces_from_char() {
 
 #[test]
 fn char_rook() {
-    assert!(
-        piece_from_char('R', Color::White, Point::default()).as_any().is::<Rook>(),
-    );
+    assert!(piece_from_char('R', Color::White, Point::default())
+        .as_any()
+        .is::<Rook>(),);
 }
 #[test]
 fn char_bishop() {
-    assert!(
-        piece_from_char('B', Color::Black, Point::new(0, 2)).as_any().is::<Bishop>(),
-    );
+    assert!(piece_from_char('B', Color::Black, Point::new(0, 2))
+        .as_any()
+        .is::<Bishop>(),);
 }
 #[test]
 fn char_knight() {
-    assert!(
-        piece_from_char('N', Color::White, Point::new(10, 2)).as_any().is::<Knight>(),
-    );
+    assert!(piece_from_char('N', Color::White, Point::new(10, 2))
+        .as_any()
+        .is::<Knight>(),);
 }
 #[test]
 fn char_queen() {
     assert!(
-        piece_from_char('Q', Color::Black, Point::new(0xa5, isize::MIN)).as_any().is::<Queen>(),
+        piece_from_char('Q', Color::Black, Point::new(0xa5, isize::MIN))
+            .as_any()
+            .is::<Queen>(),
     );
 }
 
