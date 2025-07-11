@@ -237,3 +237,59 @@ fn knight_non_linearity() {
         assert!(mov.linear().is_none())
     }
 }
+
+// `set_pos_upgrade tests`
+#[test]
+fn promote1() {
+    let mut board = Board::empty();
+    let pos = Point::new(0, 6);
+    board[pos] = Some(Box::new(Pawn::new(Color::White, pos)));
+    assert!(board[pos].as_mut().unwrap().set_pos_upgrade(pos + Point::new(0, 1)).is_some());
+}
+
+// `piece_from_char` tests.
+// (also test Point limits and Piece::as_any)
+#[test]
+fn pieces_from_char() {
+    piece_from_char('R', Color::White, Point::new(1, 0));
+    piece_from_char('B', Color::Black, Point::new(9, 2));
+    piece_from_char('Q', Color::Black, Point::new(3, 1));
+    piece_from_char('N', Color::White, Point::new(12, -4));
+}
+
+#[test]
+fn char_rook() {
+    assert!(
+        piece_from_char('R', Color::White, Point::default()).as_any().is::<Rook>(),
+    );
+}
+#[test]
+fn char_bishop() {
+    assert!(
+        piece_from_char('B', Color::Black, Point::new(0, 2)).as_any().is::<Bishop>(),
+    );
+}
+#[test]
+fn char_knight() {
+    assert!(
+        piece_from_char('N', Color::White, Point::new(10, 2)).as_any().is::<Knight>(),
+    );
+}
+#[test]
+fn char_queen() {
+    assert!(
+        piece_from_char('Q', Color::Black, Point::new(0xa5, isize::MIN)).as_any().is::<Queen>(),
+    );
+}
+
+#[test]
+#[should_panic]
+fn piece_from_char_unknown() {
+    piece_from_char('A', Color::White, Point::new(isize::MAX, 0));
+}
+
+#[test]
+#[should_panic]
+fn piece_from_invalid_char() {
+    piece_from_char('K', Color::Black, Point::new(10, -2)); // King, but cannot upgrade to king
+}

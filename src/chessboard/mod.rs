@@ -314,13 +314,16 @@ impl Board {
     /// `Some` contains the points (`usize`) added to the score to the `Color` player.
     /// 
     /// Also change the state of all pawns already moved.
-    pub(crate) fn do_move(&mut self, mov: Movement) -> Option<(u8, Color)> {
+    /// 
+    /// `ask` is used to know if the method should ask
+    /// input to the user to promote the pawn or not.
+    pub(crate) fn do_move(&mut self, mov: Movement, ask: bool) -> Option<(u8, Color)> {
         let piece = self[mov.from].as_ref().unwrap();
         let color = piece.color();
         
         let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
         
-        self.apply_move(mov.clone());
+        self.apply_move(mov.clone(), ask);
         let set: HashSet<_> = self
             .all_color_pieces(self[mov.to].as_ref().unwrap().color())
             .into_iter()
@@ -334,13 +337,20 @@ impl Board {
         res
     }
     /// Without checking errors, move a piece.
-    fn apply_move(&mut self, mov: Movement) {
+    fn apply_move(&mut self, mov: Movement, ask: bool) {
         let piece = self[mov.from].as_mut().unwrap();
         if mov.special.as_ref().is_some_and(|sm| sm == &SpecialMove::DoublePawn) {
             piece.set_state(PawnState::JustDouble.into());
         }
         
-        let upgraded = piece.set_pos_upgrade(mov.to);
+        // TODO change this. When called with `ask = false`,
+        //  the Pawn will go to the last row without promoting.
+        //  This can lead to errors if we add minimax or something like it.
+        //  .
+        //  New implementation: ask becomes the correct piece to use, passed as a generic.
+        //  For now it does not produce an error, but with generics it is more safe.
+        //  Also, add a trait PieceConstructor that can be used here (NOT with dyn!!)
+        let upgraded = ask.then(|| piece.set_pos_upgrade(mov.to)).flatten();
         match mov.special {
             Some(SpecialMove::ShortCastle) => {
                 let mut rook = self[mov.from + Point::new(3, 0)].take().unwrap();
@@ -365,6 +375,7 @@ impl Board {
             _ => {}
         }
         let piece = self[mov.from].take().unwrap(); // .unwrap() to ensure it still exists.
+        
         if let Some(upgraded) = upgraded {
             self[mov.to] = Some(upgraded);
         } else {
@@ -434,7 +445,7 @@ impl Board {
             .into_iter()
             .all(|mov| {
                 let mut new_board = self.clone();
-                new_board.do_move(mov);
+                new_board.do_move(mov, false);
                 
                 new_board.check(color).is_some()
             })

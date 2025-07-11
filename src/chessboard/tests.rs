@@ -614,7 +614,7 @@ fn queen_mate() {
     board[second_pos] = Some(Box::new(second));
     board[queen_pos] = Some(Box::new(queen));
 
-    println!("{}", board);
+    println!("{board}");
     assert!(board.checkmate(color));
 }
 

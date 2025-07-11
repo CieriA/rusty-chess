@@ -128,7 +128,7 @@ impl Game {
             { // control if the move would lead to a check
                 let mut board = self.board.clone();
                 let mut score = self.get_printable_score(self.turn.opposite()); // score clone
-                if let Some((new_score, ..)) = board.do_move(movement.clone()) {
+                if let Some((new_score, ..)) = board.do_move(movement.clone(), false) {
                     score -= new_score as i8; // this will be seen by the losing player
                 }
 
@@ -177,7 +177,7 @@ impl Game {
                 break;
             }
 
-            if let Some((score, color)) = self.board.do_move(movement) {
+            if let Some((score, color)) = self.board.do_move(movement, true) {
                 *self.get_mut_score(color) += score;
             }
             
@@ -187,7 +187,12 @@ impl Game {
         Ok(())
     }
 }
-
+#[cfg(test)] // during tests, we can't ask input
+#[inline]
+pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
+    Ok('Q')
+}
+#[cfg(not(test))]
 pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     println!("Pawn's got to the last row.");
 
@@ -204,4 +209,12 @@ pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     }
 
     Ok(input.chars().next().unwrap())
+}
+
+#[test]
+fn test() {
+    let chars = HashSet::from(["B", "N", "R", "Q"]);
+    let input = "b";
+    let input = input.trim().to_ascii_uppercase();
+    assert!(chars.contains(&input.as_str()));
 }
