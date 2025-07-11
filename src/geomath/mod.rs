@@ -9,7 +9,7 @@ use crate::geomath::rotation::Direction;
 use std::collections::HashSet;
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub};
+use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 /// A **point** (and also a **vector**) in a **2D space**.
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -66,23 +66,7 @@ impl AddAssign for Point {
         self.y += rhs.y;
     }
 }
-impl Add<isize> for Point {
-    type Output = Self;
-    #[inline]
-    fn add(self, rhs: isize) -> Self {
-        Self {
-            x: self.x + rhs,
-            y: self.y + rhs,
-        }
-    }
-}
-impl AddAssign<isize> for Point {
-    #[inline]
-    fn add_assign(&mut self, rhs: isize) {
-        self.x += rhs;
-        self.y += rhs;
-    }
-}
+
 impl Mul<isize> for Point {
     type Output = Self;
     #[inline]
@@ -93,13 +77,7 @@ impl Mul<isize> for Point {
         }
     }
 }
-impl MulAssign<isize> for Point {
-    #[inline]
-    fn mul_assign(&mut self, rhs: isize) {
-        self.x *= rhs;
-        self.y *= rhs;
-    }
-}
+
 impl Sub for Point {
     type Output = Self;
     #[inline]

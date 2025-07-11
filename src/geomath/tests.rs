@@ -10,7 +10,6 @@ fn point() {
 
     // Def add
     assert_eq!(p + Point::default(), p);
-    assert_eq!(p + 0, p);
 }
 #[test]
 fn point_from_tuple() {
@@ -75,14 +74,6 @@ fn point_add() {
 fn point_sub() {
     assert_eq!(Point::new(3, 2) - Point::new(2, 3), Point::new(1, -1));
     assert_eq!(Point::new(7, -2) - Point::default(), Point::new(7, -2));
-}
-#[test]
-fn point_mul_assign() {
-    let mut p = Point::new(4, -2);
-    p *= 2;
-    assert_eq!(p, Point::new(8, -4),);
-    p *= -1;
-    assert_eq!(p, Point::new(-8, 4));
 }
 #[test]
 fn point_neg() {
