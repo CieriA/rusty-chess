@@ -96,7 +96,11 @@ pub(crate) trait Piece: Display + Debug + Any {
     #[inline]
     #[must_use]
     fn color_if_has_direction(&self) -> Color {
-        Color::default()
+        if self.as_any().is::<Pawn>() {
+            self.color()
+        } else {
+            Color::default()
+        }
     }
     /// From an offset (and Self) returns a new Movement.
     fn to_movement(

@@ -58,7 +58,7 @@ impl Piece for King {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 { u8::MAX } // maybe change to `unreachable!` ?
+    fn score(&self) -> u8 { unreachable!() } // should not be called
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)
     }

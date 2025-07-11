@@ -50,10 +50,6 @@ impl Piece for Pawn {
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PawnState(ps) if ps == self.state)
     }
-    #[inline(always)]
-    fn color_if_has_direction(&self) -> Color {
-        self.color
-    }
     fn move_set(&self) -> IndexSet<Movement> {
         [
             self.to_movement(

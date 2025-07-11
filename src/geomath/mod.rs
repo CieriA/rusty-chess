@@ -22,7 +22,7 @@ pub(crate) struct Point {
 
 impl Point {
     /// Constructor of `Point`.
-    #[inline]
+    #[inline(always)]
     pub(crate) const fn new(x: isize, y: isize) -> Self {
         Self { x, y }
     }
@@ -140,7 +140,7 @@ impl Neg for Point {
 }
 
 impl From<(isize, isize)> for Point {
-    #[inline]
+    #[inline(always)]
     fn from((x, y): (isize, isize)) -> Self {
         Self::new(x, y)
     }
