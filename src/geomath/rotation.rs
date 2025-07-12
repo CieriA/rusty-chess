@@ -46,8 +46,8 @@ impl Direction {
     }
     /// Returns the opposite direction only if the condition is true
     #[inline]
-    pub const fn opposite_if(&self, cond: bool) -> Self {
-        if cond { self.opposite() } else { *self }
+    pub const fn opposite_if(self, cond: bool) -> Self {
+        if cond { self.opposite() } else { self }
     }
 }
 

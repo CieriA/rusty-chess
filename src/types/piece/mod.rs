@@ -94,7 +94,7 @@ pub trait Piece: Display + Debug + Any {
         direction: Option<Direction>,
     ) -> Option<Movement> {
         let to = self.pos() + (offset * self.color_if_has_direction().sign());
-        
+
         Board::in_bounds(to).then(|| Movement::new(self.pos(), to, special, direction))
     }
 
@@ -141,15 +141,15 @@ pub trait Piece: Display + Debug + Any {
 }
 /// Given an offset from the start of the board, returns
 /// the correct piece which should be in that spot.
-pub fn placement(x: isize, color: Color) -> Box<dyn Piece> {
+pub fn placement(x: isize, color: Color) -> Option<Box<dyn Piece>> {
     let pos = Point::new(x, color.first_row() as isize);
     match x {
-        0 | 7 => Box::new(Rook::new(color, pos)),
-        1 | 6 => Box::new(Knight::new(color, pos)),
-        2 | 5 => Box::new(Bishop::new(color, pos)),
-        3 => Box::new(Queen::new(color, pos)),
-        4 => Box::new(King::new(color, pos)),
-        _ => panic!("Impossible case"),
+        0 | 7 => Some(Box::new(Rook::new(color, pos))),
+        1 | 6 => Some(Box::new(Knight::new(color, pos))),
+        2 | 5 => Some(Box::new(Bishop::new(color, pos))),
+        3 => Some(Box::new(Queen::new(color, pos))),
+        4 => Some(Box::new(King::new(color, pos))),
+        _ => None,
     }
 }
 /// Returns a `Box<dyn Piece>` from its [`char`] representation.

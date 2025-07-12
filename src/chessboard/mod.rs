@@ -54,9 +54,9 @@ impl Default for Board {
 
         // Other pieces
         for x in 0..Self::SIZE as isize {
-            board[Point::new(x, 0)] = Some(placement(x, Color::White));
+            board[Point::new(x, 0)] = placement(x, Color::White);
 
-            board[Point::new(x, Self::SIZE as isize - 1)] = Some(placement(x, Color::Black));
+            board[Point::new(x, Self::SIZE as isize - 1)] = placement(x, Color::Black);
         }
 
         board
