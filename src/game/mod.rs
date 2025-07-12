@@ -140,7 +140,7 @@ impl Game {
                 let mut score = self.get_printable_score(self.turn.opposite()); // score clone
                 if let Some((new_score, ..)) = board.do_move(movement.clone(), false) {
                     score -= new_score as i8; // this will be seen by the losing player
-                }
+                } // TODO change do_move because this implementation leads to the program not always catching a check here.
 
                 if board.check(self.turn).is_some() {
                     println!("Invalid move.");
@@ -215,12 +215,4 @@ pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     }
 
     Ok(input.chars().next().unwrap())
-}
-
-#[test]
-fn test() {
-    let chars = HashSet::from(["B", "N", "R", "Q"]);
-    let input = "b";
-    let input = input.trim().to_ascii_uppercase();
-    assert!(chars.contains(&input.as_str()));
 }
