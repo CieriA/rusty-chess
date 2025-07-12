@@ -1,7 +1,7 @@
 use crate::{
     chessboard::Board,
     geomath::Point,
-    pieces::{Color, Movement, Piece, PieceState, State},
+    types::{Color, Movement, Piece, PieceState, State},
 };
 use indexmap::IndexSet;
 use std::{

@@ -1,5 +1,5 @@
-use crate::geomath::rotation::Direction;
 use crate::geomath::Point;
+use crate::geomath::rotation::Direction;
 use std::cmp::Ordering;
 
 /// Moves that can happen under special circumstances

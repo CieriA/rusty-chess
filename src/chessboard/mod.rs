@@ -1,8 +1,8 @@
 //! 8*8 classic Chessboard
 
 use crate::{
-    geomath::{rotation::Direction, Point},
-    pieces::*,
+    geomath::{Point, rotation::Direction},
+    types::*,
 };
 use colored::Colorize;
 use indexmap::IndexSet;
@@ -304,19 +304,30 @@ impl Board {
         }
         set
     }
+    #[inline]
+    pub(crate) fn is_promoting(&self, mov: &Movement) -> bool {
+        let Some(piece) = self[mov.from].as_ref() else {
+            return false;
+        };
+        piece.as_any().is::<Pawn>() && piece.color().opposite().first_row() as isize == mov.to.y
+    }
     /// `Some` contains the points (`usize`) added to the score to the `Color` player.
     ///
     /// Also change the state of all pawns already moved.
     ///
     /// `ask` is used to know if the method should ask
     /// input to the user to promote the pawn or not.
-    pub(crate) fn do_move(&mut self, mov: Movement, ask: bool) -> Option<(u8, Color)> {
+    pub(crate) fn do_move(
+        &mut self,
+        mov: Movement,
+        promoted: Option<Box<dyn Piece>>,
+    ) -> Option<(u8, Color)> {
         let piece = self[mov.from].as_ref().unwrap();
         let color = piece.color();
 
         let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
 
-        self.apply_move(mov.clone(), ask);
+        self.apply_move(mov.clone(), promoted);
         let set: HashSet<_> = self
             .all_color_pieces(self[mov.to].as_ref().unwrap().color())
             .into_iter()
@@ -335,7 +346,7 @@ impl Board {
         res
     }
     /// Without checking errors, move a piece.
-    fn apply_move(&mut self, mov: Movement, ask: bool) {
+    fn apply_move(&mut self, mov: Movement, promoted: Option<Box<dyn Piece>>) {
         let piece = self[mov.from].as_mut().unwrap();
         if mov
             .special
@@ -345,14 +356,6 @@ impl Board {
             piece.set_state(PawnState::JustDouble.into());
         }
 
-        // TODO change this. When called with `ask = false`,
-        //  the Pawn will go to the last row without promoting.
-        //  This can lead to errors if we add minimax or something like it.
-        //  .
-        //  New implementation: ask becomes the correct piece to use, passed as a generic.
-        //  For now it does not produce an error, but with generics it is more safe.
-        //  Also, add a trait PieceConstructor that can be used here (NOT with dyn!!)
-        let upgraded = ask.then(|| piece.set_pos_upgrade(mov.to)).flatten();
         match mov.special {
             Some(SpecialMove::ShortCastle) => {
                 let mut rook = self[mov.from + Point::new(3, 0)].take().unwrap();
@@ -378,11 +381,7 @@ impl Board {
         }
         let piece = self[mov.from].take().unwrap(); // .unwrap() to ensure it still exists.
 
-        if let Some(upgraded) = upgraded {
-            self[mov.to] = Some(upgraded);
-        } else {
-            self[mov.to] = Some(piece);
-        }
+        self[mov.to] = promoted.or(Some(piece));
     }
     /// Returns the coordinates of the King of the given color.
     fn find_king(&self, color: Color) -> Point {
@@ -442,7 +441,7 @@ impl Board {
             .into_iter()
             .all(|mov| {
                 let mut new_board = self.clone();
-                new_board.do_move(mov, false);
+                new_board.do_move(mov, None); // moving the king won't ever promote anything
 
                 new_board.check(color).is_some()
             })

@@ -1,26 +1,28 @@
-use super::{Color, Movement, Piece};
-use crate::{chessboard::Board, geomath::Point};
+use crate::{
+    geomath::Point,
+    types::{Color, Movement, Piece},
+};
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
 
-/// ## Bishop piece
-/// It moves and eats, diagonally, in any direction as far as it doesn't encounter another piece.
+/// ## Knight piece
+/// (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2) or (-1, 2)
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Bishop {
+pub(crate) struct Knight {
     color: Color,
     pos: Point,
 }
 
-impl Display for Bishop {
+impl Display for Knight {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let c = "♗"; // B
+        let c = "♘"; // N
         write!(f, "{}", self.to_colored_string(c))
     }
 }
-impl Piece for Bishop {
+impl Piece for Knight {
     #[inline(always)]
     fn color(&self) -> Color {
         self.color
@@ -42,9 +44,10 @@ impl Piece for Bishop {
         3
     }
     fn move_set(&self) -> IndexSet<Movement> {
-        (1..Board::SIZE as isize)
-            .flat_map(|i| Point::new(i, i).rotations())
-            .flat_map(|(point, dir)| self.to_movement(point, None, dir))
+        Point::new(1, 2)
+            .rotations()
+            .into_iter()
+            .flat_map(|(p, dir)| self.to_movement(p, None, dir))
             .collect()
     }
     #[inline(always)]
@@ -53,8 +56,8 @@ impl Piece for Bishop {
     }
 }
 
-impl Bishop {
-    /// Constructor of Bishop
+impl Knight {
+    /// Constructor of Knight
     #[inline]
     pub(crate) const fn new(color: Color, pos: Point) -> Self {
         Self { color, pos }

@@ -4,5 +4,5 @@
 pub(crate) use crate::{
     chessboard::*,
     geomath::{rotation::*, *},
-    pieces::*,
+    types::*,
 };

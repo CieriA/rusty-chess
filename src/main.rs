@@ -4,9 +4,9 @@ use std::error::Error;
 mod chessboard;
 mod game;
 mod geomath;
-mod pieces;
 #[cfg(test)]
 pub(crate) mod prelude;
+mod types;
 
 fn main() -> Result<(), Box<dyn Error>> {
     Game::default().run()

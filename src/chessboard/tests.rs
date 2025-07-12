@@ -299,10 +299,12 @@ fn king_no_castle() {
         board[rook] = Some(Box::new(Rook::new(color, rook)));
     }
 
-    assert!(board
-        .filtered_move_set(king_pos)
-        .into_iter()
-        .all(|mov| mov.special.is_none()))
+    assert!(
+        board
+            .filtered_move_set(king_pos)
+            .into_iter()
+            .all(|mov| mov.special.is_none())
+    )
 }
 #[test]
 fn moved_rooks() {
@@ -319,10 +321,12 @@ fn moved_rooks() {
         board[rook_pos] = Some(Box::new(rook));
     }
 
-    assert!(board
-        .filtered_move_set(king_pos)
-        .into_iter()
-        .all(|mov| mov.special.is_none()))
+    assert!(
+        board
+            .filtered_move_set(king_pos)
+            .into_iter()
+            .all(|mov| mov.special.is_none())
+    )
 }
 #[test]
 fn castle_blocked() {
@@ -342,10 +346,12 @@ fn castle_blocked() {
     let rook_pos = Point::new(2, 7); // blocking long castle
     board[rook_pos] = Some(Box::new(Rook::new(color.opposite(), rook_pos)));
 
-    assert!(board
-        .filtered_move_set(king_pos)
-        .into_iter()
-        .all(|mov| mov.special.is_none()))
+    assert!(
+        board
+            .filtered_move_set(king_pos)
+            .into_iter()
+            .all(|mov| mov.special.is_none())
+    )
 }
 
 // `.check()` tests

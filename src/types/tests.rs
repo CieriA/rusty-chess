@@ -257,19 +257,6 @@ fn knight_non_linearity() {
     }
 }
 
-// `set_pos_upgrade tests`
-#[test]
-fn promote1() {
-    let mut board = Board::empty();
-    let pos = Point::new(0, 6);
-    board[pos] = Some(Box::new(Pawn::new(Color::White, pos)));
-    assert!(board[pos]
-        .as_mut()
-        .unwrap()
-        .set_pos_upgrade(pos + Point::new(0, 1))
-        .is_some());
-}
-
 // `piece_from_char` tests.
 // (also test Point limits and Piece::as_any)
 #[test]
@@ -282,26 +269,36 @@ fn pieces_from_char() {
 
 #[test]
 fn char_rook() {
-    assert!(piece_from_char('R', Color::White, Point::default())
-        .as_any()
-        .is::<Rook>(),);
+    assert!(
+        piece_from_char('R', Color::White, Point::default())
+            .unwrap()
+            .as_any()
+            .is::<Rook>(),
+    );
 }
 #[test]
 fn char_bishop() {
-    assert!(piece_from_char('B', Color::Black, Point::new(0, 2))
-        .as_any()
-        .is::<Bishop>(),);
+    assert!(
+        piece_from_char('B', Color::Black, Point::new(0, 2))
+            .unwrap()
+            .as_any()
+            .is::<Bishop>(),
+    );
 }
 #[test]
 fn char_knight() {
-    assert!(piece_from_char('N', Color::White, Point::new(10, 2))
-        .as_any()
-        .is::<Knight>(),);
+    assert!(
+        piece_from_char('N', Color::White, Point::new(10, 2))
+            .unwrap()
+            .as_any()
+            .is::<Knight>(),
+    );
 }
 #[test]
 fn char_queen() {
     assert!(
         piece_from_char('Q', Color::Black, Point::new(0xa5, isize::MIN))
+            .unwrap()
             .as_any()
             .is::<Queen>(),
     );

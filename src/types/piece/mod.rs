@@ -1,8 +1,14 @@
+pub(crate) mod bishop;
+pub(crate) mod king;
+pub(crate) mod knight;
+pub(crate) mod pawn;
+pub(crate) mod queen;
+pub(crate) mod rook;
+
 use crate::{
     chessboard::Board,
-    game::ask_upgrade,
-    geomath::{rotation::Direction, Point},
-    pieces::*,
+    geomath::{Point, rotation::Direction},
+    types::*,
 };
 use colored::{ColoredString, Colorize};
 use indexmap::IndexSet;
@@ -57,21 +63,6 @@ pub(crate) trait Piece: Display + Debug + Any {
     /// >     self as &dyn Any
     /// > }
     fn as_any(&self) -> &dyn Any;
-    #[inline]
-    #[must_use]
-    fn set_pos_upgrade(&mut self, pos: Point) -> Option<Box<dyn Piece>> {
-        self.set_pos(pos);
-        if self.as_any().is::<Pawn>() && pos.y == self.color().opposite().first_row() as isize {
-            loop {
-                let Ok(c) = ask_upgrade() else {
-                    println!("Invalid input.");
-                    continue;
-                };
-                return Some(piece_from_char(c, self.color(), self.pos()));
-            }
-        }
-        None
-    }
 
     /// In chess, each piece has a value. This method returns that value.
     #[must_use]
@@ -170,13 +161,13 @@ pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
 ///
 /// All other pieces will make this
 /// associated function panic.
-pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Box<dyn Piece> {
+pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Option<Box<dyn Piece>> {
     match c.to_ascii_uppercase() {
-        'B' => Box::new(Bishop::new(color, pos)),
-        'N' => Box::new(Knight::new(color, pos)),
-        'R' => Box::new(Rook::new(color, pos)),
-        'Q' => Box::new(Queen::new(color, pos)),
-        _ => panic!("Invalid char"),
+        'B' => Some(Box::new(Bishop::new(color, pos))),
+        'N' => Some(Box::new(Knight::new(color, pos))),
+        'R' => Some(Box::new(Rook::new(color, pos))),
+        'Q' => Some(Box::new(Queen::new(color, pos))),
+        _ => None,
     }
 }
 

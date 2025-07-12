@@ -1,6 +1,6 @@
 use crate::{
-    geomath::{rotation::Direction, Point},
-    pieces::types::*,
+    geomath::{Point, rotation::Direction},
+    types::*,
 };
 use indexmap::IndexSet;
 use std::{

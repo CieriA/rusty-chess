@@ -1,11 +1,13 @@
+use crate::types::piece_from_char;
 use crate::{
     chessboard::Board,
     geomath::Point,
-    pieces::{Color, Pawn},
+    types::{Color, Pawn},
 };
+#[cfg(not(test))]
+use std::collections::HashSet;
 use std::{
     any::Any,
-    collections::HashSet,
     error::Error,
     io::{self, Write},
 };
@@ -15,11 +17,7 @@ const P2: &str = "Black";
 
 #[inline(always)]
 fn p_name(color: Color) -> &'static str {
-    if color.into() {
-        P1
-    } else {
-        P2
-    }
+    if color.into() { P1 } else { P2 }
 }
 
 /// Engine of the game
@@ -42,7 +40,9 @@ impl Game {
     #[inline]
     fn print_instructions() {
         println!("Chess!\n");
-        println!("To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go");
+        println!(
+            "To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go"
+        );
         println!("Example:\nPiece coords: E2\nTo: E4\n\n");
         println!(
             "To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)"
@@ -100,17 +100,17 @@ impl Game {
             io::stdout().flush().unwrap();
             io::stdin().read_line(&mut to)?;
 
-            let from_cell = from.trim();
-            let to_cell = to.trim();
-            if from_cell.len() != 2 || to_cell.len() != 2 {
+            let from = from.trim();
+            let to = to.trim();
+            if from.len() != 2 || to.len() != 2 {
                 println!("Invalid input.\n");
                 continue;
             }
-            let Ok(from) = Point::try_from(from_cell) else {
+            let Ok(from) = Point::try_from(from) else {
                 println!("Invalid input.\n");
                 continue;
             };
-            let Ok(to) = Point::try_from(to_cell) else {
+            let Ok(to) = Point::try_from(to) else {
                 println!("Invalid input.\n");
                 continue;
             };
@@ -134,11 +134,26 @@ impl Game {
                 continue;
             };
 
+            let piece = self
+                .board
+                .is_promoting(&movement)
+                .then(|| {
+                    loop {
+                        let Ok(upg) = ask_upgrade() else {
+                            println!("Invalid choice.");
+                            continue;
+                        };
+                        break piece_from_char(upg, piece.color(), piece.pos());
+                    }
+                })
+                .flatten();
+
             {
                 // control if the move would lead to a check
                 let mut board = self.board.clone();
                 let mut score = self.get_printable_score(self.turn.opposite()); // score clone
-                if let Some((new_score, ..)) = board.do_move(movement.clone(), false) {
+                let piece_clone = piece.as_ref().map(|p| p.clone_box());
+                if let Some((new_score, ..)) = board.do_move(movement.clone(), piece_clone) {
                     score -= new_score as i8; // this will be seen by the losing player
                 } // TODO change do_move because this implementation leads to the program not always catching a check here.
 
@@ -183,7 +198,7 @@ impl Game {
                 break;
             }
 
-            if let Some((score, color)) = self.board.do_move(movement, true) {
+            if let Some((score, color)) = self.board.do_move(movement, piece) {
                 *self.get_mut_score(color) += score;
             }
 
