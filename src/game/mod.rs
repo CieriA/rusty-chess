@@ -155,7 +155,7 @@ impl Game {
                 let piece_clone = piece.as_ref().map(|p| p.clone_box());
                 if let Some((new_score, ..)) = board.do_move(movement.clone(), piece_clone) {
                     score -= new_score as i8; // this will be seen by the losing player
-                } // TODO change do_move because this implementation leads to the program not always catching a check here.
+                }
 
                 if board.check(self.turn).is_some() {
                     println!("Invalid move.");
