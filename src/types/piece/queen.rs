@@ -11,7 +11,7 @@ use std::{
 /// ## Queen piece
 /// It moves and eats like the `Rook` and the `Bishop` combined.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Queen {
+pub struct Queen {
     color: Color,
     pos: Point,
 }
@@ -61,7 +61,7 @@ impl Piece for Queen {
 impl Queen {
     /// Constructor of Queen
     #[inline]
-    pub(crate) const fn new(color: Color, pos: Point) -> Self {
+    pub const fn new(color: Color, pos: Point) -> Self {
         Self { color, pos }
     }
 }

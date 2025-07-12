@@ -12,7 +12,7 @@ use std::{
 /// ## Rook piece
 /// It moves and eats in any direction (not diagonally) as far as it doesn't encounter another piece.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Rook {
+pub struct Rook {
     color: Color,
     pos: Point,
     state: PieceState,
@@ -70,7 +70,7 @@ impl Piece for Rook {
 impl Rook {
     /// Constructor of Rook
     #[inline]
-    pub(crate) fn new(color: Color, pos: Point) -> Self {
+    pub fn new(color: Color, pos: Point) -> Self {
         Self {
             color,
             pos,

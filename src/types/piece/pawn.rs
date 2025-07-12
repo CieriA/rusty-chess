@@ -18,10 +18,10 @@ use std::{
 ///
 /// When it arrives to the last row, it can **upgrade** to a **Knight / Rook / Bishop / Queen**.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Pawn {
+pub struct Pawn {
     color: Color,
     pos: Point,
-    state: PawnState,
+    pub state: PawnState,
 }
 
 impl Display for Pawn {
@@ -99,7 +99,7 @@ impl Piece for Pawn {
 impl Pawn {
     /// Constructor of Pawn
     #[inline]
-    pub(crate) fn new(color: Color, pos: Point) -> Self {
+    pub fn new(color: Color, pos: Point) -> Self {
         Self {
             color,
             pos,

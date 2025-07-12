@@ -30,7 +30,7 @@ use std::{
 /// but all the squares it could go would put it in **check**.
 /// - If it happens, it's a draw.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct King {
+pub struct King {
     color: Color,
     pos: Point,
     state: PieceState,
@@ -103,7 +103,7 @@ impl Piece for King {
 impl King {
     /// Constructor of King
     #[inline]
-    pub(crate) fn new(color: Color, pos: Point) -> Self {
+    pub fn new(color: Color, pos: Point) -> Self {
         Self {
             color,
             pos,

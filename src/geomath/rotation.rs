@@ -2,7 +2,7 @@ use crate::geomath::Point;
 
 /// 90 degrees rotations
 #[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash)]
-pub(crate) enum Direction {
+pub enum Direction {
     /// `Up` (**0deg**)
     #[default]
     Up,
@@ -32,7 +32,7 @@ pub(crate) enum Direction {
 impl Direction {
     /// Returns the opposite direction
     #[inline]
-    pub(crate) const fn opposite(&self) -> Self {
+    pub const fn opposite(&self) -> Self {
         match self {
             Self::Up => Self::Down,
             Self::UpRight => Self::DownLeft,
@@ -46,7 +46,7 @@ impl Direction {
     }
     /// Returns the opposite direction only if the condition is true
     #[inline]
-    pub(crate) const fn opposite_if(&self, cond: bool) -> Self {
+    pub const fn opposite_if(&self, cond: bool) -> Self {
         if cond { self.opposite() } else { *self }
     }
 }

@@ -16,12 +16,12 @@ use std::{
 #[cfg(test)]
 mod tests;
 
-pub(crate) type Square = Option<Box<dyn Piece>>; // Change to piece
-pub(crate) type Row = [Square; Board::SIZE];
-pub(crate) type Grid = [Row; Board::SIZE];
+pub type Square = Option<Box<dyn Piece>>; // Change to piece
+pub type Row = [Square; Board::SIZE];
+pub type Grid = [Row; Board::SIZE];
 
 #[derive(Debug)]
-pub(crate) struct Board(Grid);
+pub struct Board(Grid);
 
 impl Clone for Board {
     fn clone(&self) -> Self {
@@ -116,22 +116,22 @@ impl Display for Board {
 }
 
 impl Board {
-    pub(crate) const SIZE: usize = 8;
+    pub const SIZE: usize = 8;
     /// Constructor of `Board` returning all of its squares as `None`
     #[inline]
-    pub(crate) fn empty() -> Self {
+    pub fn empty() -> Self {
         Self(Grid::default())
     }
     /// Checks if a `Point` is inside the Board.
     #[inline]
-    pub(crate) const fn in_bounds(point: Point) -> bool {
+    pub const fn in_bounds(point: Point) -> bool {
         point.x < Self::SIZE as isize
             && point.y < Self::SIZE as isize
             && point.x >= 0
             && point.y >= 0
     }
     #[inline]
-    pub(crate) fn get(&self, point: Point) -> Option<&Square> {
+    pub fn get(&self, point: Point) -> Option<&Square> {
         if !Board::in_bounds(point) {
             None
         } else {
@@ -139,7 +139,7 @@ impl Board {
         }
     }
     #[inline]
-    pub(crate) fn iter(&self) -> Iter<'_, Row> {
+    pub fn iter(&self) -> Iter<'_, Row> {
         self.0.iter()
     }
     /// From the normal `.move_set()`, returns only the possible moves,
@@ -148,7 +148,7 @@ impl Board {
     /// - Impossible SpecialMoves                               **(2° .filter())**
     ///
     /// The `from` parameter is the `Movement.from` field.
-    pub(crate) fn filtered_move_set(&self, from: Point) -> IndexSet<Movement> {
+    pub fn filtered_move_set(&self, from: Point) -> IndexSet<Movement> {
         let mut ignored: HashSet<Direction> = HashSet::new();
 
         // .unwrap() checks that the piece exists
@@ -197,12 +197,9 @@ impl Board {
                         let new_piece = match &self[to] {
                             Some(new_piece) => new_piece,
                             None => {
-                                let Some(eat_square) =
+                                let Some(Some(new_piece)) =
                                     self.get(to - Point::new(0, piece.color().sign()))
                                 else {
-                                    return false;
-                                };
-                                let Some(new_piece) = eat_square else {
                                     return false;
                                 };
                                 if !new_piece.is_state(State::PawnState(PawnState::JustDouble)) {
@@ -270,7 +267,7 @@ impl Board {
             .collect()
     }
     /// Coordinates of all pieces on the board
-    pub(crate) fn all_pieces(&self) -> HashSet<Point> {
+    pub fn all_pieces(&self) -> HashSet<Point> {
         let mut set = HashSet::new();
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
@@ -305,19 +302,20 @@ impl Board {
         set
     }
     #[inline]
-    pub(crate) fn is_promoting(&self, mov: &Movement) -> bool {
+    pub fn is_promoting(&self, mov: &Movement) -> bool {
         let Some(piece) = self[mov.from].as_ref() else {
             return false;
         };
         piece.as_any().is::<Pawn>() && piece.color().opposite().first_row() as isize == mov.to.y
     }
+    /// returns `Some` if the move is an eating move, none otherwise
     /// `Some` contains the points (`usize`) added to the score to the `Color` player.
     ///
     /// Also change the state of all pawns already moved.
     ///
-    /// `ask` is used to know if the method should ask
+    /// `promoted` is the piece to which the pawn should promote
     /// input to the user to promote the pawn or not.
-    pub(crate) fn do_move(
+    pub fn do_move(
         &mut self,
         mov: Movement,
         promoted: Option<Box<dyn Piece>>,
@@ -325,11 +323,12 @@ impl Board {
         let piece = self[mov.from].as_ref().unwrap();
         let color = piece.color();
 
+        // score
         let res = self[mov.to].as_ref().map(|piece| (piece.score(), color));
 
-        self.apply_move(mov.clone(), promoted);
+        // update pawns
         let set: HashSet<_> = self
-            .all_color_pieces(self[mov.to].as_ref().unwrap().color())
+            .all_color_pieces(self[mov.from].as_ref().unwrap().color())
             .into_iter()
             .filter(|coord| {
                 self[*coord]
@@ -343,6 +342,10 @@ impl Board {
                 .unwrap()
                 .set_state(PawnState::Already.into());
         }
+
+        // move
+        self.apply_move(mov.clone(), promoted);
+
         res
     }
     /// Without checking errors, move a piece.
@@ -382,6 +385,7 @@ impl Board {
         let piece = self[mov.from].take().unwrap(); // .unwrap() to ensure it still exists.
 
         self[mov.to] = promoted.or(Some(piece));
+        self[mov.to].as_mut().unwrap().set_pos(mov.to);
     }
     /// Returns the coordinates of the King of the given color.
     fn find_king(&self, color: Color) -> Point {
@@ -398,7 +402,7 @@ impl Board {
         unreachable!("There should be a King");
     }
     /// `color` is the color of the king about to be captured
-    pub(crate) fn check(&self, color: Color) -> Option<Movement> {
+    pub fn check(&self, color: Color) -> Option<Movement> {
         let king_pos = self.find_king(color);
         self.all_moves(color.opposite())
             .into_iter()
@@ -412,7 +416,7 @@ impl Board {
     /// Doesn't check for the king moving itself (TODO might be added?)
     ///
     /// `color` is the color of the king about to be captured
-    pub(crate) fn is_check_stoppable(&self, color: Color) -> HashSet<Movement> {
+    pub fn is_check_stoppable(&self, color: Color) -> HashSet<Movement> {
         let mut stop_cells = HashSet::new();
         let check_move = self.check(color).unwrap();
         // Adding to stop_cells
@@ -436,7 +440,7 @@ impl Board {
             .collect()
     }
     /// `color` is the color of the king about to be captured
-    pub(crate) fn checks_around(&self, color: Color) -> bool {
+    pub fn checks_around(&self, color: Color) -> bool {
         self.filtered_move_set(self.find_king(color))
             .into_iter()
             .all(|mov| {
@@ -448,14 +452,14 @@ impl Board {
     }
     /// `color` is the color of the king about to be captured
     #[inline]
-    pub(crate) fn checkmate(&self, color: Color) -> bool {
+    pub fn checkmate(&self, color: Color) -> bool {
         // Return is check, all around check and if check is not stoppable
         self.check(color).is_some()
             && self.checks_around(color)
             && self.is_check_stoppable(color).is_empty()
     }
     #[inline(always)]
-    pub(crate) fn stalemate(&self, color: Color) -> bool {
+    pub fn stalemate(&self, color: Color) -> bool {
         // No moves available and not check
         self.check(color).is_none() && self.all_moves(color).is_empty()
     }

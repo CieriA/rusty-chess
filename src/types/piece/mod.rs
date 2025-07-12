@@ -1,9 +1,9 @@
-pub(crate) mod bishop;
-pub(crate) mod king;
-pub(crate) mod knight;
-pub(crate) mod pawn;
-pub(crate) mod queen;
-pub(crate) mod rook;
+pub mod bishop;
+pub mod king;
+pub mod knight;
+pub mod pawn;
+pub mod queen;
+pub mod rook;
 
 use crate::{
     chessboard::Board,
@@ -18,7 +18,7 @@ use std::{
 };
 
 /// A trait representing a Chess Piece.
-pub(crate) trait Piece: Display + Debug + Any {
+pub trait Piece: Display + Debug + Any {
     /// Color of a given piece
     ///
     /// > This enforces the definition of a type that implements `Piece`
@@ -143,7 +143,7 @@ pub(crate) trait Piece: Display + Debug + Any {
 }
 /// Given an offset from the start of the board, returns
 /// the correct piece which should be in that spot.
-pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
+pub fn placement(x: isize, color: Color) -> Box<dyn Piece> {
     let pos = Point::new(x, color.first_row() as isize);
     match x {
         0 | 7 => Box::new(Rook::new(color, pos)),
@@ -161,7 +161,7 @@ pub(crate) fn placement(x: isize, color: Color) -> Box<dyn Piece> {
 ///
 /// All other pieces will make this
 /// associated function panic.
-pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Option<Box<dyn Piece>> {
+pub fn piece_from_char(c: char, color: Color, pos: Point) -> Option<Box<dyn Piece>> {
     match c.to_ascii_uppercase() {
         'B' => Some(Box::new(Bishop::new(color, pos))),
         'N' => Some(Box::new(Knight::new(color, pos))),
@@ -172,7 +172,7 @@ pub(crate) fn piece_from_char(c: char, color: Color, pos: Point) -> Option<Box<d
 }
 
 /// Wrapper of all the possible states
-pub(crate) enum State {
+pub enum State {
     PawnState(PawnState),
     PieceState(PieceState),
 }
@@ -191,7 +191,7 @@ impl From<PieceState> for State {
 
 /// A pawn can be not yet moved, just moved or already moved.
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
-pub(crate) enum PawnState {
+pub enum PawnState {
     /// The pawn hasn't been moved and can do a double move.
     #[default]
     NotYet,
@@ -207,7 +207,7 @@ pub(crate) enum PawnState {
 
 /// A piece like the King, to do a castle, mustn't have been moved.
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
-pub(crate) enum PieceState {
+pub enum PieceState {
     /// Not yet moved: can do a special move.
     #[default]
     NotYet,

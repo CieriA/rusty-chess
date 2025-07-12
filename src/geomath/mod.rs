@@ -1,6 +1,6 @@
 //! A way to index a 2D matrix.
 
-pub(crate) mod rotation;
+pub mod rotation;
 #[cfg(test)]
 mod tests;
 
@@ -13,21 +13,21 @@ use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 /// A **point** (and also a **vector**) in a **2D space**.
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub(crate) struct Point {
+pub struct Point {
     /// **x** coordinate of the `Point`.
-    pub(crate) x: isize,
+    pub x: isize,
     /// **y** coordinate of the `Point`.
-    pub(crate) y: isize,
+    pub y: isize,
 }
 
 impl Point {
     /// Constructor of `Point`.
     #[inline(always)]
-    pub(crate) const fn new(x: isize, y: isize) -> Self {
+    pub const fn new(x: isize, y: isize) -> Self {
         Self { x, y }
     }
 
-    pub(crate) fn rotations(self) -> HashSet<(Self, Option<Direction>)> {
+    pub fn rotations(self) -> HashSet<(Self, Option<Direction>)> {
         let Point { x, y } = self;
         let iter = [(x, y), (-x, y)].map(Self::from).into_iter();
         let iter = iter.clone().chain(iter.map(Neg::neg));
@@ -40,7 +40,7 @@ impl Point {
         set.into_iter().map(|point| (point, point.into())).collect()
     }
     /// Returns all the cells in a square (l = 2 * offset + 1) around (0, 0)
-    pub(crate) fn all_around(offset: isize) -> HashSet<(Self, Option<Direction>)> {
+    pub fn all_around(offset: isize) -> HashSet<(Self, Option<Direction>)> {
         Self::new(offset, offset)
             .rotations()
             .into_iter()
@@ -128,7 +128,7 @@ impl TryFrom<&str> for Point {
         let y = s[1].to_ascii_uppercase();
 
         if !x.is_ascii_alphabetic() || !y.is_ascii_alphanumeric() || !y.is_numeric() {
-            return Err("Invalid coords".into());
+            return Err("invalid coords".into());
         }
 
         let Some(x) = ('A'..='Z')
@@ -136,16 +136,16 @@ impl TryFrom<&str> for Point {
             .enumerate()
             .find(|(_, c)| *c == x)
         else {
-            return Err("Invalid coords".into());
+            return Err("invalid coords".into());
         };
 
         let x = x.0 as isize;
         let Ok(y) = format!("{y}").parse::<isize>() else {
-            return Err("Invalid coords".into());
+            return Err("invalid coords".into());
         };
         let y = y - 1;
         if y >= Board::SIZE as isize {
-            return Err("Coords out of bounds".into());
+            return Err("coords out of bounds".into());
         }
         Ok(Point::new(x, y))
     }

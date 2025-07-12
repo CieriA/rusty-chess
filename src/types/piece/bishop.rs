@@ -9,7 +9,7 @@ use std::{
 /// ## Bishop piece
 /// It moves and eats, diagonally, in any direction as far as it doesn't encounter another piece.
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Bishop {
+pub struct Bishop {
     color: Color,
     pos: Point,
 }
@@ -56,7 +56,7 @@ impl Piece for Bishop {
 impl Bishop {
     /// Constructor of Bishop
     #[inline]
-    pub(crate) const fn new(color: Color, pos: Point) -> Self {
+    pub const fn new(color: Color, pos: Point) -> Self {
         Self { color, pos }
     }
 }

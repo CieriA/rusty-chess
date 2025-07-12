@@ -22,7 +22,7 @@ fn p_name(color: Color) -> &'static str {
 
 /// Engine of the game
 #[derive(Default)]
-pub(super) struct Game {
+pub struct Game {
     /// Score of pieces eaten by white
     w_score: u8,
     /// Score of pieces eaten by black
@@ -30,9 +30,9 @@ pub(super) struct Game {
     /// Count for the 50 moves rule
     move_count: u8,
     /// Chessboard
-    board: Board,
+    pub board: Board,
     /// Turn of the game (White / Black)
-    turn: Color,
+    pub turn: Color,
 }
 
 impl Game {
@@ -82,7 +82,7 @@ impl Game {
             self.black_score()
         }
     }
-    pub(super) fn run(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
         Self::print_instructions();
 
         loop {
@@ -102,10 +102,6 @@ impl Game {
 
             let from = from.trim();
             let to = to.trim();
-            if from.len() != 2 || to.len() != 2 {
-                println!("Invalid input.\n");
-                continue;
-            }
             let Ok(from) = Point::try_from(from) else {
                 println!("Invalid input.\n");
                 continue;
@@ -210,11 +206,11 @@ impl Game {
 }
 #[cfg(test)] // during tests, we can't ask input
 #[inline]
-pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
+pub fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     Ok('Q')
 }
 #[cfg(not(test))]
-pub(crate) fn ask_upgrade() -> Result<char, Box<dyn Error>> {
+pub fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     println!("Pawn's got to the last row.");
 
     let mut input = String::new();

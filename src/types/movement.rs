@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 
 /// Moves that can happen under special circumstances
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub(crate) enum SpecialMove {
+pub enum SpecialMove {
     /// When the pawn cannot eat by going straight (it never can).
     CannotEat,
 
@@ -30,22 +30,22 @@ pub(crate) enum SpecialMove {
 
 /// A movement of a piece
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub(crate) struct Movement {
+pub struct Movement {
     /// the square the piece starts
-    pub(crate) from: Point,
+    pub from: Point,
     /// the square the piece arrives
-    pub(crate) to: Point,
+    pub to: Point,
     /// type of move
-    pub(crate) special: Option<SpecialMove>,
+    pub special: Option<SpecialMove>,
     /// going direction when talking about a Bishop/Rook/Queen
     /// who need to stop when colliding.
     ///
     /// `None` when the move doesn't comprehend these pieces.
-    pub(crate) direction: Option<Direction>,
+    pub direction: Option<Direction>,
 }
 impl Movement {
     #[inline]
-    pub(crate) const fn new(
+    pub const fn new(
         from: Point,
         to: Point,
         special: Option<SpecialMove>,
@@ -59,7 +59,7 @@ impl Movement {
         }
     }
 
-    pub(crate) fn linear(&self) -> Option<Point> {
+    pub fn linear(&self) -> Option<Point> {
         let step = self.to - self.from;
         if step.x == 0 || step.y == 0 || step.x.abs() == step.y.abs() {
             let x = match step.x.cmp(&0) {

@@ -2,7 +2,7 @@ use crate::chessboard::Board;
 
 /// Enum describing the color of a [`Piece`](super::piece::Piece).
 #[derive(Clone, Copy, PartialEq, Debug, Default)]
-pub(crate) enum Color {
+pub enum Color {
     Black,
     #[default]
     White,
@@ -10,7 +10,7 @@ pub(crate) enum Color {
 impl Color {
     /// Depending on the turn, returns the index of the first row from the player perspective
     #[inline]
-    pub(crate) const fn first_row(&self) -> usize {
+    pub const fn first_row(&self) -> usize {
         match self {
             Self::White => 0,
             Self::Black => Board::SIZE - 1,
@@ -18,14 +18,14 @@ impl Color {
     }
 
     #[inline]
-    pub(crate) const fn opposite(&self) -> Self {
+    pub const fn opposite(&self) -> Self {
         match self {
             Self::White => Self::Black,
             Self::Black => Self::White,
         }
     }
     #[inline]
-    pub(crate) const fn sign(&self) -> isize {
+    pub const fn sign(&self) -> isize {
         match self {
             Self::White => 1,
             Self::Black => -1,

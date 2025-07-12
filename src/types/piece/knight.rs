@@ -11,7 +11,7 @@ use std::{
 /// ## Knight piece
 /// (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2) or (-1, 2)
 #[derive(Clone, PartialEq, Debug)]
-pub(crate) struct Knight {
+pub struct Knight {
     color: Color,
     pos: Point,
 }
@@ -59,7 +59,7 @@ impl Piece for Knight {
 impl Knight {
     /// Constructor of Knight
     #[inline]
-    pub(crate) const fn new(color: Color, pos: Point) -> Self {
+    pub const fn new(color: Color, pos: Point) -> Self {
         Self { color, pos }
     }
 }

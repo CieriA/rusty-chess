@@ -307,11 +307,28 @@ fn char_queen() {
 #[test]
 #[should_panic]
 fn piece_from_char_unknown() {
-    piece_from_char('A', Color::White, Point::new(isize::MAX, 0));
+    assert!(piece_from_char('A', Color::White, Point::new(isize::MAX, 0)).is_some());
 }
 
 #[test]
 #[should_panic]
 fn piece_from_invalid_char() {
-    piece_from_char('K', Color::Black, Point::new(10, -2)); // King, but cannot upgrade to king
+    assert!(piece_from_char('K', Color::Black, Point::new(10, -2)).is_some()); // King, but cannot upgrade to king
+}
+
+// color
+#[test]
+fn color_to_bool() {
+    assert!(bool::from(Color::White));
+    assert!(!bool::from(Color::Black));
+    assert!(!bool::from(Color::White.opposite()));
+    assert!(bool::from(Color::Black.opposite()));
+}
+
+#[test]
+fn color_to_mul() {
+    assert_eq!(Color::White.sign(), 1);
+    assert_eq!(Color::Black.sign(), -1);
+    assert_eq!(Color::White.opposite().sign(), -1);
+    assert_eq!(Color::Black.opposite().sign(), 1);
 }
