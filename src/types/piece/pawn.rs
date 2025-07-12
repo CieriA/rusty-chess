@@ -21,7 +21,7 @@ use std::{
 pub struct Pawn {
     color: Color,
     pos: Point,
-    pub state: PawnState,
+    state: PawnState,
 }
 
 impl Display for Pawn {

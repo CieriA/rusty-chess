@@ -92,12 +92,10 @@ pub trait Piece: Display + Debug + Any {
         offset: Point,
         special: Option<SpecialMove>,
         direction: Option<Direction>,
-    ) -> Result<Movement, ()> {
+    ) -> Option<Movement> {
         let to = self.pos() + (offset * self.color_if_has_direction().sign());
-        if !Board::in_bounds(to) {
-            return Err(());
-        }
-        Ok(Movement::new(self.pos(), to, special, direction))
+        
+        Board::in_bounds(to).then(|| Movement::new(self.pos(), to, special, direction))
     }
 
     /// An HashSet of all the possible moves of a piece,
