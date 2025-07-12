@@ -35,11 +35,12 @@ fn fools_mate() -> Result<(), Box<dyn Error>> {
         ("G2", "G4"),
         ("D8", "H4"), // checkmate
     ];
-    
+
+    // game simulation
     for (from, to) in moves {
         setup::do_move(&mut game, from, to, None)?;
     }
-    
+
     assert!(game.board.checkmate(Color::White));
 
     Ok(())
