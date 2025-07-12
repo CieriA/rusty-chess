@@ -132,11 +132,7 @@ impl Board {
     }
     #[inline]
     pub fn get(&self, point: Point) -> Option<&Square> {
-        if !Board::in_bounds(point) {
-            None
-        } else {
-            Some(&self[point])
-        }
+        Board::in_bounds(point).then(|| &self[point])
     }
     #[inline]
     pub fn iter(&self) -> Iter<'_, Row> {
@@ -303,10 +299,9 @@ impl Board {
     }
     #[inline]
     pub fn is_promoting(&self, mov: &Movement) -> bool {
-        let Some(piece) = self[mov.from].as_ref() else {
-            return false;
-        };
-        piece.as_any().is::<Pawn>() && piece.color().opposite().first_row() as isize == mov.to.y
+        self[mov.from].as_ref().is_some_and(|piece| {
+            piece.as_any().is::<Pawn>() && piece.color().opposite().first_row() as isize == mov.to.y
+        })
     }
     /// returns `Some` if the move is an eating move, none otherwise
     /// `Some` contains the points (`usize`) added to the score to the `Color` player.
