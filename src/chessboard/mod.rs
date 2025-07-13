@@ -26,7 +26,7 @@ pub struct Board(Grid);
 impl Clone for Board {
     fn clone(&self) -> Self {
         let mut board = Board::empty();
-        for (y, row) in self.0.iter().enumerate() {
+        for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
                 if let Some(piece) = square {
                     board[Point::new(x as isize, y as isize)] = Some(piece.clone_box());

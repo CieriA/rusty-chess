@@ -1,4 +1,6 @@
-mod setup;
+mod moves;
+mod assertions;
+use assertions::{assert_empty, assert_presence};
 
 use rusty_chess::prelude::*;
 use std::error::Error;
@@ -21,16 +23,17 @@ fn promote() -> Result<(), Box<dyn Error>> {
 
     // game simulation
     for (from, to) in moves {
-        setup::do_move(&mut game, from, to, None)?;
+        moves::do_move(&mut game, from, to, None)?;
     }
     // promoting move
-    setup::do_move(
+    moves::do_move(
         &mut game,
         "E7",
         "E8",
         Some(Box::new(Rook::new(Color::White, Point::new(4, 7)))),
     )?;
 
+    assert_presence::<Rook>(&game, Point::new(4, 7));
     assert!(
         game.board[Point::new(4, 7)]
             .as_ref()
@@ -57,25 +60,13 @@ fn short_castle() -> Result<(), Box<dyn Error>> {
 
     // game simulation
     for (from, to) in moves {
-        setup::do_move(&mut game, from, to, None)?;
+        moves::do_move(&mut game, from, to, None)?;
     }
-
-    assert!(
-        game.board[Point::new(6, 0)]
-            .as_ref()
-            .unwrap()
-            .as_any()
-            .is::<King>()
-    );
-    assert!(
-        game.board[Point::new(5, 0)]
-            .as_ref()
-            .unwrap()
-            .as_any()
-            .is::<Rook>()
-    );
-    assert!(game.board[Point::new(7, 0)].is_none());
-    assert!(game.board[Point::new(4, 0)].is_none());
+    
+    assert_presence::<King>(&game, Point::new(6, 0));
+    assert_presence::<Rook>(&game, Point::new(5, 0));
+    assert_empty(&game, Point::new(7, 0));
+    assert_empty(&game, Point::new(4, 0));
 
     Ok(())
 }
@@ -96,26 +87,14 @@ fn long_castle() -> Result<(), Box<dyn Error>> {
     ];
 
     for (from, to) in moves {
-        setup::do_move(&mut game, from, to, None)?;
+        moves::do_move(&mut game, from, to, None)?;
     }
 
-    assert!(
-        game.board[Point::new(3, 0)]
-            .as_ref()
-            .unwrap()
-            .as_any()
-            .is::<Rook>()
-    );
-    assert!(
-        game.board[Point::new(2, 0)]
-            .as_ref()
-            .unwrap()
-            .as_any()
-            .is::<King>()
-    );
-    assert!(game.board[Point::new(0, 0)].is_none());
-    assert!(game.board[Point::new(1, 0)].is_none());
-    assert!(game.board[Point::new(4, 0)].is_none());
+    assert_presence::<Rook>(&game, Point::new(3, 0));
+    assert_presence::<King>(&game, Point::new(2, 0));
+    assert_empty(&game, Point::new(0, 0));
+    assert_empty(&game, Point::new(1, 0));
+    assert_empty(&game, Point::new(4, 0));
 
     Ok(())
 }
@@ -132,17 +111,11 @@ fn en_passant() -> Result<(), Box<dyn Error>> {
     ];
 
     for (from, to) in moves {
-        setup::do_move(&mut game, from, to, None)?;
+        moves::do_move(&mut game, from, to, None)?;
     }
 
-    assert!(
-        game.board[Point::new(3, 5)]
-            .as_ref()
-            .unwrap()
-            .as_any()
-            .is::<Pawn>()
-    );
-    assert!(game.board[Point::new(3, 4)].is_none());
+    assert_presence::<Pawn>(&game, Point::new(3, 5));
+    assert_empty(&game, Point::new(3, 4));
 
     Ok(())
 }

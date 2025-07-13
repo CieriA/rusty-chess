@@ -1,4 +1,4 @@
-mod setup;
+mod moves;
 
 use rusty_chess::prelude::*;
 use std::error::Error;
@@ -18,7 +18,7 @@ fn scholar_mate() -> Result<(), Box<dyn Error>> {
 
     // game simulation
     for (from, to) in moves {
-        setup::do_move(&mut game, from, to, None)?;
+        moves::do_move(&mut game, from, to, None)?;
     }
 
     assert!(game.board.checkmate(Color::Black));
@@ -38,7 +38,7 @@ fn fools_mate() -> Result<(), Box<dyn Error>> {
 
     // game simulation
     for (from, to) in moves {
-        setup::do_move(&mut game, from, to, None)?;
+        moves::do_move(&mut game, from, to, None)?;
     }
 
     assert!(game.board.checkmate(Color::White));

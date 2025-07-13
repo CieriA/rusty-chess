@@ -131,23 +131,17 @@ impl TryFrom<&str> for Point {
             return Err("invalid coords".into());
         }
 
-        let Some(x) = ('A'..='Z')
+        let x = ('A'..='Z')
             .take(Board::SIZE)
             .enumerate()
             .find(|(_, c)| *c == x)
-        else {
-            return Err("invalid coords".into());
-        };
+            .ok_or("invalid coords")?.0 as isize;
 
-        let x = x.0 as isize;
-        let Ok(y) = format!("{y}").parse::<isize>() else {
-            return Err("invalid coords".into());
-        };
-        let y = y - 1;
-        if y >= Board::SIZE as isize {
-            return Err("coords out of bounds".into());
-        }
-        Ok(Point::new(x, y))
+        let y = y.to_string().parse::<isize>()? - 1; // can't be negative because its just 1 char
+        
+        (y < Board::SIZE as isize)
+            .then_some(Point::new(x, y))
+            .ok_or("invalid coords".into())
     }
 }
 
