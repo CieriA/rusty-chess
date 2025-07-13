@@ -1,5 +1,5 @@
-mod moves;
 mod assertions;
+mod moves;
 use assertions::{assert_empty, assert_presence};
 
 use rusty_chess::prelude::*;
@@ -8,7 +8,7 @@ use std::error::Error;
 #[test]
 fn promote() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let moves = vec![
+    let movements = vec![
         ("E2", "E4"),
         ("E7", "E5"),
         ("D2", "D4"),
@@ -22,7 +22,7 @@ fn promote() -> Result<(), Box<dyn Error>> {
     ];
 
     // game simulation
-    for (from, to) in moves {
+    for (from, to) in movements {
         moves::do_move(&mut game, from, to, None)?;
     }
     // promoting move
@@ -48,7 +48,7 @@ fn promote() -> Result<(), Box<dyn Error>> {
 #[test]
 fn short_castle() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let moves = vec![
+    let movements = vec![
         ("G2", "G3"),
         ("E7", "E5"),
         ("F1", "H3"),
@@ -59,10 +59,10 @@ fn short_castle() -> Result<(), Box<dyn Error>> {
     ];
 
     // game simulation
-    for (from, to) in moves {
+    for (from, to) in movements {
         moves::do_move(&mut game, from, to, None)?;
     }
-    
+
     assert_presence::<King>(&game, Point::new(6, 0));
     assert_presence::<Rook>(&game, Point::new(5, 0));
     assert_empty(&game, Point::new(7, 0));
@@ -74,7 +74,7 @@ fn short_castle() -> Result<(), Box<dyn Error>> {
 #[test]
 fn long_castle() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let moves = vec![
+    let movements = vec![
         ("D2", "D4"),
         ("E7", "E6"),
         ("D1", "D3"),
@@ -86,7 +86,7 @@ fn long_castle() -> Result<(), Box<dyn Error>> {
         ("E1", "C1"), // castle
     ];
 
-    for (from, to) in moves {
+    for (from, to) in movements {
         moves::do_move(&mut game, from, to, None)?;
     }
 
@@ -102,7 +102,7 @@ fn long_castle() -> Result<(), Box<dyn Error>> {
 #[test]
 fn en_passant() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let moves = vec![
+    let movements = vec![
         ("E2", "E4"),
         ("B8", "A6"),
         ("E4", "E5"),
@@ -110,7 +110,7 @@ fn en_passant() -> Result<(), Box<dyn Error>> {
         ("E5", "D6"), // en passant
     ];
 
-    for (from, to) in moves {
+    for (from, to) in movements {
         moves::do_move(&mut game, from, to, None)?;
     }
 

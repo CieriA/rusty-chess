@@ -312,7 +312,7 @@ impl Board {
     /// input to the user to promote the pawn or not.
     pub fn do_move(
         &mut self,
-        mov: Movement,
+        mov: &Movement,
         promoted: Option<Box<dyn Piece>>,
     ) -> Option<(u8, Color)> {
         let piece = self[mov.from].as_ref().unwrap();
@@ -339,12 +339,12 @@ impl Board {
         }
 
         // move
-        self.apply_move(mov.clone(), promoted);
+        self.apply_move(mov, promoted);
 
         res
     }
     /// Without checking errors, move a piece.
-    fn apply_move(&mut self, mov: Movement, promoted: Option<Box<dyn Piece>>) {
+    fn apply_move(&mut self, mov: &Movement, promoted: Option<Box<dyn Piece>>) {
         let piece = self[mov.from].as_mut().unwrap();
         if mov
             .special
@@ -440,7 +440,7 @@ impl Board {
             .into_iter()
             .all(|mov| {
                 let mut new_board = self.clone();
-                new_board.do_move(mov, None); // moving the king won't ever promote anything
+                new_board.do_move(&mov, None); // moving the king won't ever promote anything
 
                 new_board.check(color).is_some()
             })

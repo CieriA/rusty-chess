@@ -135,10 +135,11 @@ impl TryFrom<&str> for Point {
             .take(Board::SIZE)
             .enumerate()
             .find(|(_, c)| *c == x)
-            .ok_or("invalid coords")?.0 as isize;
+            .ok_or("invalid coords")?
+            .0 as isize;
 
         let y = y.to_string().parse::<isize>()? - 1; // can't be negative because its just 1 char
-        
+
         (y < Board::SIZE as isize)
             .then_some(Point::new(x, y))
             .ok_or("invalid coords".into())

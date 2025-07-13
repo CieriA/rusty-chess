@@ -1,4 +1,4 @@
-use crate::types::piece_from_char;
+use crate::types::{Movement, piece_from_char};
 use crate::{
     chessboard::Board,
     geomath::Point,
@@ -28,7 +28,7 @@ pub struct Game {
     /// Score of pieces eaten by black
     b_score: u8,
     /// Count for the 50 moves rule
-    move_count: u8,
+    pub move_count: u8,
     /// Chessboard
     pub board: Board,
     /// Turn of the game (White / Black)
@@ -149,7 +149,7 @@ impl Game {
                 let mut board = self.board.clone();
                 let mut score = self.get_printable_score(self.turn.opposite()); // score clone
                 let piece_clone = piece.as_ref().map(|p| p.clone_box());
-                if let Some((new_score, ..)) = board.do_move(movement.clone(), piece_clone) {
+                if let Some((new_score, ..)) = board.do_move(&movement, piece_clone) {
                     score -= new_score as i8; // this will be seen by the losing player
                 }
 
@@ -179,22 +179,14 @@ impl Game {
             }
 
             // 50moves rule's count
-            let from_piece = (&**self.board[movement.from].as_ref().unwrap()) as &dyn Any;
-
-            if from_piece.is::<Pawn>() || self.board[movement.to].is_some() {
-                self.move_count = 0;
-            } else {
-                self.move_count += 1;
-            }
-            // Tie by 50 moves rule
-            if self.move_count == 50 {
+            if self.fifty_moves(&movement) {
                 println!("{}", self.score_str());
                 println!("{}", self.board);
                 println!("It's a tie.");
                 break;
             }
 
-            if let Some((score, color)) = self.board.do_move(movement, piece) {
+            if let Some((score, color)) = self.board.do_move(&movement, piece) {
                 *self.get_mut_score(color) += score;
             }
 
@@ -202,6 +194,22 @@ impl Game {
         }
 
         Ok(())
+    }
+    /// true: game ends
+    /// false: game continues
+    ///
+    /// (use before doing the move)
+    pub fn fifty_moves(&mut self, mov: &Movement) -> bool {
+        // 50moves rule's count
+        let from_piece = (&**self.board[mov.from].as_ref().unwrap()) as &dyn Any;
+
+        if from_piece.is::<Pawn>() || self.board[mov.to].is_some() {
+            self.move_count = 0;
+        } else {
+            self.move_count += 1;
+        }
+        // Tie by 50 moves rule
+        self.move_count >= 50
     }
 }
 #[cfg(test)] // during tests, we can't ask input
