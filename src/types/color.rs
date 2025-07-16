@@ -17,8 +17,15 @@ impl Color {
         }
     }
 
+    /// Opposite of the current color.
+    /// 
+    /// > Note: This could've been an implementation of the `Not` trait,
+    /// > but I preferred not using that trait because seeing the
+    /// > `!` operator on a type `Color` can be misinterpreted.
+    /// > 
+    /// > So I decided to implement it as a stand-alone method.
     #[inline]
-    pub const fn opposite(&self) -> Self {
+    pub const fn opposite(self) -> Self {
         match self {
             Self::White => Self::Black,
             Self::Black => Self::White,
