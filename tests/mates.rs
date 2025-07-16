@@ -6,7 +6,7 @@ use std::error::Error;
 #[test]
 fn scholar_mate() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![
+    let movements = [
         ("E2", "E4"),
         ("E7", "E5"),
         ("D1", "H5"),
@@ -29,7 +29,7 @@ fn scholar_mate() -> Result<(), Box<dyn Error>> {
 #[test]
 fn fools_mate() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![
+    let movements = [
         ("F2", "F3"),
         ("E7", "E6"),
         ("G2", "G4"),
@@ -42,18 +42,6 @@ fn fools_mate() -> Result<(), Box<dyn Error>> {
     }
 
     assert!(game.board.checkmate(Color::White));
-
-    Ok(())
-}
-
-#[test]
-fn stalemate() -> Result<(), Box<dyn Error>> {
-    let mut game = Game::default();
-    let movements = vec![];
-
-    for (from, to) in movements {
-        moves::do_move(&mut game, from, to, None)?;
-    }
 
     Ok(())
 }

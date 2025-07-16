@@ -5,7 +5,7 @@ use std::error::Error;
 #[test]
 fn fifty_moves() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![("B1", "C3"), ("G8", "F6"), ("C3", "B1"), ("F6", "G8")]
+    let movements = [("B1", "C3"), ("G8", "F6"), ("C3", "B1"), ("F6", "G8")]
         .into_iter()
         .cycle();
 

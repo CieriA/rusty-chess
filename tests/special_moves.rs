@@ -8,7 +8,7 @@ use std::error::Error;
 #[test]
 fn promote() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![
+    let movements = [
         ("E2", "E4"),
         ("E7", "E5"),
         ("D2", "D4"),
@@ -48,7 +48,7 @@ fn promote() -> Result<(), Box<dyn Error>> {
 #[test]
 fn short_castle() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![
+    let movements = [
         ("G2", "G3"),
         ("E7", "E5"),
         ("F1", "H3"),
@@ -74,7 +74,7 @@ fn short_castle() -> Result<(), Box<dyn Error>> {
 #[test]
 fn long_castle() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![
+    let movements = [
         ("D2", "D4"),
         ("E7", "E6"),
         ("D1", "D3"),
@@ -102,7 +102,7 @@ fn long_castle() -> Result<(), Box<dyn Error>> {
 #[test]
 fn en_passant() -> Result<(), Box<dyn Error>> {
     let mut game = Game::default();
-    let movements = vec![
+    let movements = [
         ("E2", "E4"),
         ("B8", "A6"),
         ("E4", "E5"),
