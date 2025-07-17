@@ -1,8 +1,10 @@
+#![allow(deprecated)] // each of these deprecated methods uses the other ones.
+
 use crate::types::{Movement, piece_from_char};
 use crate::{
     chessboard::Board,
     geomath::Point,
-    types::{Color, Pawn},
+    types::{PieceColor, Pawn},
 };
 #[cfg(not(test))]
 use std::collections::HashSet;
@@ -16,12 +18,13 @@ const P1: &str = "White";
 const P2: &str = "Black";
 
 #[inline(always)]
-fn p_name(color: Color) -> &'static str {
+fn p_name(color: PieceColor) -> &'static str {
     if color.into() { P1 } else { P2 }
 }
 
 /// Engine of the game
 #[derive(Default)]
+#[deprecated(since = "0.2.0", note = "Use interface::Interface instead, which has a UI")]
 pub struct Game {
     /// Score of pieces eaten by white
     w_score: u8,
@@ -32,7 +35,7 @@ pub struct Game {
     /// Chessboard
     pub board: Board,
     /// Turn of the game (White / Black)
-    pub turn: Color,
+    pub turn: PieceColor,
 }
 
 impl Game {
@@ -67,7 +70,7 @@ impl Game {
         )
     }
     #[inline]
-    fn get_mut_score(&mut self, color: Color) -> &mut u8 {
+    fn get_mut_score(&mut self, color: PieceColor) -> &mut u8 {
         if color.into() {
             &mut self.w_score
         } else {
@@ -75,7 +78,7 @@ impl Game {
         }
     }
     #[inline]
-    fn get_printable_score(&self, color: Color) -> i8 {
+    fn get_printable_score(&self, color: PieceColor) -> i8 {
         if color.into() {
             self.white_score()
         } else {

@@ -16,6 +16,8 @@ use std::{
 #[cfg(test)]
 mod tests;
 
+pub const CELL_SIZE: u32 = 200;
+
 pub type Square = Option<Box<dyn Piece>>; // Change to piece
 pub type Row = [Square; Board::SIZE];
 pub type Grid = [Row; Board::SIZE];
@@ -42,21 +44,22 @@ impl Default for Board {
 
         // White pawns
         for (x, cell) in board[1].iter_mut().enumerate() {
-            *cell = Some(Box::new(Pawn::new(Color::White, Point::new(x as isize, 1))));
+            *cell = Some(Box::new(Pawn::new(PieceColor::White, Point::new(x as isize, 1), CELL_SIZE)));
         }
         // Black pawns
         for (x, cell) in board[Self::SIZE - 2].iter_mut().enumerate() {
             *cell = Some(Box::new(Pawn::new(
-                Color::Black,
+                PieceColor::Black,
                 Point::new(x as isize, Self::SIZE as isize - 2),
+                CELL_SIZE,
             )));
         }
 
         // Other pieces
         for x in 0..Self::SIZE as isize {
-            board[Point::new(x, 0)] = placement(x, Color::White);
+            board[Point::new(x, 0)] = placement(x, PieceColor::White);
 
-            board[Point::new(x, Self::SIZE as isize - 1)] = placement(x, Color::Black);
+            board[Point::new(x, Self::SIZE as isize - 1)] = placement(x, PieceColor::Black);
         }
 
         board
@@ -275,7 +278,7 @@ impl Board {
         set
     }
     /// Coordinates of all pieces with a given color on the board
-    fn all_color_pieces(&self, color: Color) -> HashSet<Point> {
+    fn all_color_pieces(&self, color: PieceColor) -> HashSet<Point> {
         self.all_pieces()
             .into_iter()
             // by using `.unwrap()` instead of `.is_some_and()` I assure `.all_pieces()` works too,
@@ -285,7 +288,7 @@ impl Board {
             .collect()
     }
     /// Returns all the moves a player (`color`) can do.
-    fn all_moves(&self, color: Color) -> HashSet<Movement> {
+    fn all_moves(&self, color: PieceColor) -> HashSet<Movement> {
         let mut set = HashSet::new();
         for coord in self.all_color_pieces(color) {
             if self[coord]
@@ -314,7 +317,7 @@ impl Board {
         &mut self,
         mov: &Movement,
         promoted: Option<Box<dyn Piece>>,
-    ) -> Option<(u8, Color)> {
+    ) -> Option<(u8, PieceColor)> {
         let piece = self[mov.from].as_ref().unwrap();
         let color = piece.color();
 
@@ -383,7 +386,7 @@ impl Board {
         self[mov.to].as_mut().unwrap().set_pos(mov.to);
     }
     /// Returns the coordinates of the King of the given color.
-    fn find_king(&self, color: Color) -> Point {
+    fn find_king(&self, color: PieceColor) -> Point {
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
                 if square
@@ -397,7 +400,7 @@ impl Board {
         unreachable!("There should be a King");
     }
     /// `color` is the color of the king about to be captured
-    pub fn check(&self, color: Color) -> Option<Movement> {
+    pub fn check(&self, color: PieceColor) -> Option<Movement> {
         let king_pos = self.find_king(color);
         self.all_moves(color.opposite())
             .into_iter()
@@ -411,7 +414,7 @@ impl Board {
     /// Doesn't check for the king moving itself (TODO might be added?)
     ///
     /// `color` is the color of the king about to be captured
-    pub fn is_check_stoppable(&self, color: Color) -> HashSet<Movement> {
+    pub fn is_check_stoppable(&self, color: PieceColor) -> HashSet<Movement> {
         let mut stop_cells = HashSet::new();
         let check_move = self.check(color).unwrap();
         // Adding to stop_cells
@@ -435,7 +438,7 @@ impl Board {
             .collect()
     }
     /// `color` is the color of the king about to be captured
-    pub fn checks_around(&self, color: Color) -> bool {
+    pub fn checks_around(&self, color: PieceColor) -> bool {
         self.filtered_move_set(self.find_king(color))
             .into_iter()
             .all(|mov| {
@@ -447,14 +450,14 @@ impl Board {
     }
     /// `color` is the color of the king about to be captured
     #[inline]
-    pub fn checkmate(&self, color: Color) -> bool {
+    pub fn checkmate(&self, color: PieceColor) -> bool {
         // Return is check, all around check and if check is not stoppable
         self.check(color).is_some()
             && self.checks_around(color)
             && self.is_check_stoppable(color).is_empty()
     }
     #[inline(always)]
-    pub fn stalemate(&self, color: Color) -> bool {
+    pub fn stalemate(&self, color: PieceColor) -> bool {
         // No moves available and not check
         self.check(color).is_none() && self.all_moves(color).is_empty()
     }

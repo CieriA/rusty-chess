@@ -4,9 +4,10 @@ pub mod knight;
 pub mod pawn;
 pub mod queen;
 pub mod rook;
+mod utils;
 
 use crate::{
-    chessboard::Board,
+    chessboard::{Board, CELL_SIZE},
     geomath::{Point, rotation::Direction},
     types::*,
 };
@@ -16,6 +17,7 @@ use std::{
     any::Any,
     fmt::{Debug, Display},
 };
+use sdl3::rect::Rect;
 
 /// A trait representing a Chess Piece.
 pub trait Piece: Display + Debug + Any {
@@ -32,7 +34,7 @@ pub trait Piece: Display + Debug + Any {
     /// > }
     /// > ```
     #[must_use]
-    fn color(&self) -> Color;
+    fn color(&self) -> PieceColor;
     /// Position of a given piece on the board
     ///
     /// > This enforces the definition of a type that implements `Piece`
@@ -47,6 +49,8 @@ pub trait Piece: Display + Debug + Any {
     /// > ```
     #[must_use]
     fn pos(&self) -> Point;
+    #[must_use]
+    fn rect(&self) -> Rect;
 
     fn set_pos(&mut self, pos: Point);
     /// Returns self as `&dyn Any`.
@@ -79,11 +83,11 @@ pub trait Piece: Display + Debug + Any {
     /// or Color::default() if it is not.
     #[inline]
     #[must_use]
-    fn color_if_has_direction(&self) -> Color {
+    fn color_if_has_direction(&self) -> PieceColor {
         if self.as_any().is::<Pawn>() {
             self.color()
         } else {
-            Color::default()
+            PieceColor::default()
         }
     }
     /// From an offset (and Self) returns a new Movement.
@@ -141,14 +145,14 @@ pub trait Piece: Display + Debug + Any {
 }
 /// Given an offset from the start of the board, returns
 /// the correct piece which should be in that spot.
-pub fn placement(x: isize, color: Color) -> Option<Box<dyn Piece>> {
+pub fn placement(x: isize, color: PieceColor) -> Option<Box<dyn Piece>> {
     let pos = Point::new(x, color.first_row() as isize);
     match x {
-        0 | 7 => Some(Box::new(Rook::new(color, pos))),
-        1 | 6 => Some(Box::new(Knight::new(color, pos))),
-        2 | 5 => Some(Box::new(Bishop::new(color, pos))),
-        3 => Some(Box::new(Queen::new(color, pos))),
-        4 => Some(Box::new(King::new(color, pos))),
+        0 | 7 => Some(Box::new(Rook::new(color, pos, CELL_SIZE))),
+        1 | 6 => Some(Box::new(Knight::new(color, pos, CELL_SIZE))),
+        2 | 5 => Some(Box::new(Bishop::new(color, pos, CELL_SIZE))),
+        3 => Some(Box::new(Queen::new(color, pos, CELL_SIZE))),
+        4 => Some(Box::new(King::new(color, pos, CELL_SIZE))),
         _ => None,
     }
 }
@@ -159,12 +163,12 @@ pub fn placement(x: isize, color: Color) -> Option<Box<dyn Piece>> {
 ///
 /// All other pieces will make this
 /// associated function panic.
-pub fn piece_from_char(c: char, color: Color, pos: Point) -> Option<Box<dyn Piece>> {
+pub fn piece_from_char(c: char, color: PieceColor, pos: Point) -> Option<Box<dyn Piece>> {
     match c.to_ascii_uppercase() {
-        'B' => Some(Box::new(Bishop::new(color, pos))),
-        'N' => Some(Box::new(Knight::new(color, pos))),
-        'R' => Some(Box::new(Rook::new(color, pos))),
-        'Q' => Some(Box::new(Queen::new(color, pos))),
+        'B' => Some(Box::new(Bishop::new(color, pos, CELL_SIZE))),
+        'N' => Some(Box::new(Knight::new(color, pos, CELL_SIZE))),
+        'R' => Some(Box::new(Rook::new(color, pos, CELL_SIZE))),
+        'Q' => Some(Box::new(Queen::new(color, pos, CELL_SIZE))),
         _ => None,
     }
 }

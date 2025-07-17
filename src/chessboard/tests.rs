@@ -7,7 +7,7 @@ use indexmap::IndexSet;
 fn pawn_alone() {
     let mut board = Board::empty();
     let pos = Point::new(3, 1);
-    let piece = Pawn::new(Color::White, pos);
+    let piece = Pawn::new(PieceColor::White, pos, CELL_SIZE);
     board[pos] = Some(Box::new(piece.clone()));
     assert_eq!(
         board.filtered_move_set(pos),
@@ -31,9 +31,9 @@ fn pawn_alone() {
 #[test]
 fn pawn_moved() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let pos = Point::new(6, 4);
-    let mut piece = Pawn::new(color, pos);
+    let mut piece = Pawn::new(color, pos, CELL_SIZE);
     piece.set_state(PawnState::Already.into());
     board[pos] = Some(Box::new(piece.clone()));
 
@@ -52,15 +52,15 @@ fn pawn_moved() {
 #[test]
 fn pawn_eat_only() {
     let mut board = Board::empty();
-    let color = Color::White;
+    let color = PieceColor::White;
     let pos = Point::new(3, 1);
-    let piece = Pawn::new(color, pos);
+    let piece = Pawn::new(color, pos, CELL_SIZE);
     board[pos] = Some(Box::new(piece.clone()));
 
     let pieces: Vec<Box<dyn Piece>> = vec![
-        Box::new(Bishop::new(color.opposite(), Point::new(2, 2))), // Eatable
-        Box::new(Pawn::new(color.opposite(), Point::new(4, 2))),   // Eatable
-        Box::new(Knight::new(color, Point::new(3, 2))),            // Cannot move
+        Box::new(Bishop::new(color.opposite(), Point::new(2, 2), CELL_SIZE)), // Eatable
+        Box::new(Pawn::new(color.opposite(), Point::new(4, 2), CELL_SIZE)),   // Eatable
+        Box::new(Knight::new(color, Point::new(3, 2), CELL_SIZE)),            // Cannot move
     ];
 
     for piece in pieces {
@@ -90,17 +90,17 @@ fn pawn_eat_only() {
 #[test]
 fn en_passant_and_eat() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let pos = Point::new(2, 3);
-    let piece = Pawn::new(color, pos);
+    let piece = Pawn::new(color, pos, CELL_SIZE);
     board[pos] = Some(Box::new(piece.clone()));
 
-    let mut en_passant_piece = Pawn::new(color.opposite(), Point::new(3, 3));
+    let mut en_passant_piece = Pawn::new(color.opposite(), Point::new(3, 3), CELL_SIZE);
     en_passant_piece.set_state(PawnState::JustDouble.into());
     board[en_passant_piece.pos()] = Some(Box::new(en_passant_piece.clone()));
 
-    board[Point::new(1, 2)] = Some(Box::new(Rook::new(color.opposite(), Point::new(1, 2))));
-    board[Point::new(2, 2)] = Some(Box::new(Bishop::new(color, Point::new(2, 2))));
+    board[Point::new(1, 2)] = Some(Box::new(Rook::new(color.opposite(), Point::new(1, 2), CELL_SIZE)));
+    board[Point::new(2, 2)] = Some(Box::new(Bishop::new(color, Point::new(2, 2), CELL_SIZE)));
 
     assert_eq!(
         board.filtered_move_set(pos),
@@ -124,7 +124,7 @@ fn en_passant_and_eat() {
 #[test]
 fn pawn_stuck() {
     let mut board = Board::empty();
-    let mut piece = Pawn::new(Color::White, Point::default());
+    let mut piece = Pawn::new(PieceColor::White, Point::default(), CELL_SIZE);
     piece.set_state(PawnState::Already.into());
     board[Point::new(0, 1)] = Some(Box::new(piece.clone()));
     board[Point::default()] = Some(Box::new(piece));
@@ -135,10 +135,10 @@ fn cannot_eat_straight() {
     let mut board = Board::empty();
     let pawn_pos = Point::new(3, 1);
     let bishop_pos = Point::new(3, 2);
-    let color = Color::White;
+    let color = PieceColor::White;
 
-    board[pawn_pos] = Some(Box::new(Pawn::new(color, pawn_pos)));
-    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos)));
+    board[pawn_pos] = Some(Box::new(Pawn::new(color, pawn_pos, CELL_SIZE)));
+    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos, CELL_SIZE)));
 
     let movements = [
         Movement::new(pawn_pos, Point::new(3, 2), None, Some(Direction::Up)),
@@ -158,12 +158,12 @@ fn cannot_eat_straight() {
 #[test]
 fn knight_stuck() {
     let mut board = Board::empty();
-    let color = Color::Black;
-    let piece = Knight::new(color, Point::default());
+    let color = PieceColor::Black;
+    let piece = Knight::new(color, Point::default(), CELL_SIZE);
     board[Point::default()] = Some(Box::new(piece));
 
-    board[Point::new(1, 2)] = Some(Box::new(Rook::new(color, Point::new(1, 2))));
-    board[Point::new(2, 1)] = Some(Box::new(Rook::new(color, Point::new(2, 1))));
+    board[Point::new(1, 2)] = Some(Box::new(Rook::new(color, Point::new(1, 2), CELL_SIZE)));
+    board[Point::new(2, 1)] = Some(Box::new(Rook::new(color, Point::new(2, 1), CELL_SIZE)));
     assert!(board.filtered_move_set(Point::default()).is_empty());
 }
 
@@ -172,14 +172,14 @@ fn knight_stuck() {
 fn bishop_colliding() {
     let mut board = Board::empty();
     let pos = Point::new(3, 4);
-    let color = Color::White;
-    let piece = Bishop::new(color, pos);
+    let color = PieceColor::White;
+    let piece = Bishop::new(color, pos, CELL_SIZE);
     board[pos] = Some(Box::new(piece.clone()));
 
     let pieces: Vec<Box<dyn Piece>> = vec![
-        Box::new(Queen::new(color.opposite(), Point::new(2, 3))), // Next to but eatable
-        Box::new(Pawn::new(color, Point::new(5, 2))),             // Colliding, not eatable
-        Box::new(Pawn::new(color, Point::new(6, 7))),             // Last square, not eatable
+        Box::new(Queen::new(color.opposite(), Point::new(2, 3), CELL_SIZE)), // Next to but eatable
+        Box::new(Pawn::new(color, Point::new(5, 2), CELL_SIZE)),             // Colliding, not eatable
+        Box::new(Pawn::new(color, Point::new(6, 7), CELL_SIZE)),             // Last square, not eatable
     ];
 
     for piece in pieces {
@@ -217,16 +217,16 @@ fn bishop_stuck() {
 fn rook_not_colliding() {
     let mut board = Board::empty();
     let pos = Point::new(7, 2);
-    let color = Color::Black;
-    let piece = Rook::new(color, pos);
+    let color = PieceColor::Black;
+    let piece = Rook::new(color, pos, CELL_SIZE);
     board[pos] = Some(Box::new(piece.clone()));
 
     // other pieces non-in trail with the rook
     let pieces: Vec<Box<dyn Piece>> = vec![
-        Box::new(Queen::new(Color::White, Point::new(0, 3))),
-        Box::new(King::new(Color::Black, Point::new(3, 5))),
-        Box::new(Knight::new(Color::Black, Point::new(4, 6))),
-        Box::new(Pawn::new(Color::White, Point::new(6, 1))),
+        Box::new(Queen::new(PieceColor::White, Point::new(0, 3), CELL_SIZE)),
+        Box::new(King::new(PieceColor::Black, Point::new(3, 5), CELL_SIZE)),
+        Box::new(Knight::new(PieceColor::Black, Point::new(4, 6), CELL_SIZE)),
+        Box::new(Pawn::new(PieceColor::White, Point::new(6, 1), CELL_SIZE)),
     ];
 
     for piece in pieces {
@@ -253,11 +253,11 @@ fn queen_eat() {
 
     let mut board = Board::empty();
     let mut board2 = Board::empty();
-    let color = Color::White;
+    let color = PieceColor::White;
     let pos = Point::new(4, 3);
 
-    let queen = Queen::new(color, pos);
-    let king = King::new(color, pos);
+    let queen = Queen::new(color, pos, CELL_SIZE);
+    let king = King::new(color, pos, CELL_SIZE);
 
     board[pos] = Some(Box::new(queen.clone()));
     board2[pos] = Some(Box::new(king.clone()));
@@ -266,7 +266,7 @@ fn queen_eat() {
     Point::all_around(1)
         .into_iter()
         .map(|(point, dir)| (point + pos, dir))
-        .map(|(pos, _)| Knight::new(color.opposite(), pos))
+        .map(|(pos, _)| Knight::new(color.opposite(), pos, CELL_SIZE))
         .for_each(|knight| board[knight.pos()] = Some(Box::new(knight.clone())));
 
     assert_eq!(board.filtered_move_set(pos), board2.filtered_move_set(pos),)
@@ -289,14 +289,14 @@ fn king_stuck() {
 fn king_no_castle() {
     let mut board = Board::empty();
     let king_pos = Point::new(4, 0);
-    let color = Color::White;
-    let mut king = King::new(color, king_pos);
+    let color = PieceColor::White;
+    let mut king = King::new(color, king_pos, CELL_SIZE);
     king.set_state(PieceState::Already.into());
     board[king_pos] = Some(Box::new(king.clone()));
 
     let rooks = [(0, 0), (7, 0)].map(Point::from);
     for rook in rooks {
-        board[rook] = Some(Box::new(Rook::new(color, rook)));
+        board[rook] = Some(Box::new(Rook::new(color, rook, CELL_SIZE)));
     }
 
     assert!(
@@ -310,13 +310,13 @@ fn king_no_castle() {
 fn moved_rooks() {
     let mut board = Board::empty();
     let king_pos = Point::new(4, 0);
-    let color = Color::White;
-    let king = King::new(color, king_pos);
+    let color = PieceColor::White;
+    let king = King::new(color, king_pos, CELL_SIZE);
     board[king_pos] = Some(Box::new(king.clone()));
 
     let rooks = [(0, 0), (7, 0)].map(Point::from);
     for rook_pos in rooks {
-        let mut rook = Rook::new(color, rook_pos);
+        let mut rook = Rook::new(color, rook_pos, CELL_SIZE);
         rook.set_state(PieceState::Already.into());
         board[rook_pos] = Some(Box::new(rook));
     }
@@ -332,19 +332,19 @@ fn moved_rooks() {
 fn castle_blocked() {
     let mut board = Board::empty();
     let king_pos = Point::new(4, 0);
-    let color = Color::White;
-    let king = King::new(color, king_pos);
+    let color = PieceColor::White;
+    let king = King::new(color, king_pos, CELL_SIZE);
     board[king_pos] = Some(Box::new(king.clone()));
 
     let rooks = [(0, 0), (7, 0)].map(Point::from);
     for rook in rooks {
-        board[rook] = Some(Box::new(Rook::new(color, rook)));
+        board[rook] = Some(Box::new(Rook::new(color, rook, CELL_SIZE)));
     }
     let bishop_pos = Point::new(3, 2); // blocking short castles
-    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos)));
+    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos, CELL_SIZE)));
 
     let rook_pos = Point::new(2, 7); // blocking long castle
-    board[rook_pos] = Some(Box::new(Rook::new(color.opposite(), rook_pos)));
+    board[rook_pos] = Some(Box::new(Rook::new(color.opposite(), rook_pos, CELL_SIZE)));
 
     assert!(
         board
@@ -358,9 +358,9 @@ fn castle_blocked() {
 #[test]
 fn rook_check() {
     let mut board = Board::empty();
-    let color = Color::White;
-    let king = King::new(color, Point::new(3, 7));
-    let rook = Rook::new(color.opposite(), Point::new(5, 7));
+    let color = PieceColor::White;
+    let king = King::new(color, Point::new(3, 7), CELL_SIZE);
+    let rook = Rook::new(color.opposite(), Point::new(5, 7), CELL_SIZE);
 
     board[Point::new(3, 7)] = Some(Box::new(king));
     board[Point::new(5, 7)] = Some(Box::new(rook));
@@ -371,9 +371,9 @@ fn rook_check() {
 #[test]
 fn bishop_check() {
     let mut board = Board::empty();
-    let color = Color::Black;
-    let king = King::new(color, Point::new(1, 0));
-    let bishop = Bishop::new(color.opposite(), Point::new(7, 6));
+    let color = PieceColor::Black;
+    let king = King::new(color, Point::new(1, 0), CELL_SIZE);
+    let bishop = Bishop::new(color.opposite(), Point::new(7, 6), CELL_SIZE);
 
     board[Point::new(1, 0)] = Some(Box::new(king));
     board[Point::new(7, 6)] = Some(Box::new(bishop));
@@ -384,9 +384,9 @@ fn bishop_check() {
 #[test]
 fn knight_check() {
     let mut board = Board::empty();
-    let color = Color::White;
-    let king = King::new(color, Point::new(4, 5));
-    let knight = Knight::new(color.opposite(), Point::new(6, 4));
+    let color = PieceColor::White;
+    let king = King::new(color, Point::new(4, 5), CELL_SIZE);
+    let knight = Knight::new(color.opposite(), Point::new(6, 4), CELL_SIZE);
 
     board[Point::new(4, 5)] = Some(Box::new(king));
     board[Point::new(6, 4)] = Some(Box::new(knight));
@@ -397,9 +397,9 @@ fn knight_check() {
 #[test]
 fn queen_check() {
     let mut board = Board::empty();
-    let color = Color::Black;
-    let king = King::new(color, Point::new(0, 0));
-    let queen = Queen::new(color.opposite(), Point::new(7, 7));
+    let color = PieceColor::Black;
+    let king = King::new(color, Point::new(0, 0), CELL_SIZE);
+    let queen = Queen::new(color.opposite(), Point::new(7, 7), CELL_SIZE);
 
     board[Point::new(0, 0)] = Some(Box::new(king));
     board[Point::new(7, 7)] = Some(Box::new(queen));
@@ -410,9 +410,9 @@ fn queen_check() {
 #[test]
 fn pawn_check() {
     let mut board = Board::empty();
-    let color = Color::Black;
-    let king = King::new(color, Point::new(2, 2));
-    let pawn = Pawn::new(color.opposite(), Point::new(3, 1));
+    let color = PieceColor::Black;
+    let king = King::new(color, Point::new(2, 2), CELL_SIZE);
+    let pawn = Pawn::new(color.opposite(), Point::new(3, 1), CELL_SIZE);
 
     board[Point::new(2, 2)] = Some(Box::new(king));
     board[Point::new(3, 1)] = Some(Box::new(pawn));
@@ -424,14 +424,14 @@ fn pawn_check() {
 #[test]
 fn rook_stoppable() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let king_pos = Point::new(0, 0);
     let rook_pos = Point::new(7, 0);
     let pawn_eat = Point::new(6, 1);
 
-    let king = King::new(color, king_pos);
-    let rook = Rook::new(color.opposite(), rook_pos);
-    let pawn = Pawn::new(color, pawn_eat);
+    let king = King::new(color, king_pos, CELL_SIZE);
+    let rook = Rook::new(color.opposite(), rook_pos, CELL_SIZE);
+    let pawn = Pawn::new(color, pawn_eat, CELL_SIZE);
 
     board[king_pos] = Some(Box::new(king));
     board[rook_pos] = Some(Box::new(rook));
@@ -443,14 +443,14 @@ fn rook_stoppable() {
 #[test]
 fn bishop_stoppable() {
     let mut board = Board::empty();
-    let color = Color::White;
+    let color = PieceColor::White;
     let king_pos = Point::new(7, 7);
     let bishop_pos = Point::new(0, 0);
     let knight_eat = Point::new(2, 1);
 
-    let king = King::new(color, king_pos);
-    let bishop = Bishop::new(color.opposite(), bishop_pos);
-    let knight = Knight::new(color, knight_eat);
+    let king = King::new(color, king_pos, CELL_SIZE);
+    let bishop = Bishop::new(color.opposite(), bishop_pos, CELL_SIZE);
+    let knight = Knight::new(color, knight_eat, CELL_SIZE);
 
     board[king_pos] = Some(Box::new(king));
     board[bishop_pos] = Some(Box::new(bishop));
@@ -462,14 +462,14 @@ fn bishop_stoppable() {
 #[test]
 fn queen_stoppable() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let king_pos = Point::new(7, 0);
     let queen_pos = Point::new(0, 7);
     let rook_eat = Point::new(0, 1);
 
-    let king = King::new(color, king_pos);
-    let queen = Queen::new(color.opposite(), queen_pos);
-    let rook = Rook::new(color, rook_eat);
+    let king = King::new(color, king_pos, CELL_SIZE);
+    let queen = Queen::new(color.opposite(), queen_pos, CELL_SIZE);
+    let rook = Rook::new(color, rook_eat, CELL_SIZE);
 
     board[king_pos] = Some(Box::new(king));
     board[queen_pos] = Some(Box::new(queen));
@@ -480,14 +480,14 @@ fn queen_stoppable() {
 #[test]
 fn not_stoppable() {
     let mut board = Board::empty();
-    let color = Color::White;
+    let color = PieceColor::White;
     let king_pos = Point::new(7, 0);
     let queen_pos = Point::new(0, 7);
     let pawn_pos = Point::new(3, 1);
 
-    let king = King::new(color, king_pos);
-    let queen = Queen::new(color.opposite(), queen_pos);
-    let pawn = Pawn::new(color, pawn_pos);
+    let king = King::new(color, king_pos, CELL_SIZE);
+    let queen = Queen::new(color.opposite(), queen_pos, CELL_SIZE);
+    let pawn = Pawn::new(color, pawn_pos, CELL_SIZE);
 
     board[king_pos] = Some(Box::new(king));
     board[queen_pos] = Some(Box::new(queen));
@@ -500,14 +500,14 @@ fn not_stoppable() {
 #[test]
 fn rook_mate() {
     let mut board = Board::empty();
-    let color = Color::White;
+    let color = PieceColor::White;
     let first_pos = Point::new(6, 5);
     let second_pos = Point::new(7, 7);
     let rook_pos = Point::new(5, 7);
 
-    let first = King::new(color.opposite(), first_pos);
-    let second = King::new(color, second_pos);
-    let rook = Rook::new(color.opposite(), rook_pos);
+    let first = King::new(color.opposite(), first_pos, CELL_SIZE);
+    let second = King::new(color, second_pos, CELL_SIZE);
+    let rook = Rook::new(color.opposite(), rook_pos, CELL_SIZE);
 
     board[first_pos] = Some(Box::new(first));
     board[second_pos] = Some(Box::new(second));
@@ -519,16 +519,16 @@ fn rook_mate() {
 #[test]
 fn bishops_mate() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let first_pos = Point::new(1, 5);
     let second_pos = Point::new(0, 7);
     let bishop_pos = Point::new(2, 5);
     let bishop_pos2 = Point::new(2, 6);
 
-    let first = King::new(color.opposite(), first_pos);
-    let second = King::new(color, second_pos);
-    let bishop = Bishop::new(color.opposite(), bishop_pos);
-    let bishop2 = Bishop::new(color.opposite(), bishop_pos2);
+    let first = King::new(color.opposite(), first_pos, CELL_SIZE);
+    let second = King::new(color, second_pos, CELL_SIZE);
+    let bishop = Bishop::new(color.opposite(), bishop_pos, CELL_SIZE);
+    let bishop2 = Bishop::new(color.opposite(), bishop_pos2, CELL_SIZE);
 
     board[first_pos] = Some(Box::new(first));
     board[second_pos] = Some(Box::new(second));
@@ -541,14 +541,14 @@ fn bishops_mate() {
 #[test]
 fn queen_mate() {
     let mut board = Board::empty();
-    let color = Color::White;
+    let color = PieceColor::White;
     let first_pos = Point::new(4, 5);
     let second_pos = Point::new(5, 7);
     let queen_pos = Point::new(5, 6);
 
-    let first = King::new(color.opposite(), first_pos);
-    let second = King::new(color, second_pos);
-    let queen = Queen::new(color.opposite(), queen_pos);
+    let first = King::new(color.opposite(), first_pos, CELL_SIZE);
+    let second = King::new(color, second_pos, CELL_SIZE);
+    let queen = Queen::new(color.opposite(), queen_pos, CELL_SIZE);
 
     board[first_pos] = Some(Box::new(first));
     board[second_pos] = Some(Box::new(second));
@@ -561,16 +561,16 @@ fn queen_mate() {
 #[test]
 fn bishop_knight_mate() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let first_pos = Point::new(6, 5);
     let second_pos = Point::new(7, 7);
     let bishop_pos = Point::new(5, 5);
     let knight_pos = Point::new(7, 5);
 
-    let first = King::new(color.opposite(), first_pos);
-    let second = King::new(color, second_pos);
-    let bishop = Bishop::new(color.opposite(), bishop_pos);
-    let knight = Knight::new(color.opposite(), knight_pos);
+    let first = King::new(color.opposite(), first_pos, CELL_SIZE);
+    let second = King::new(color, second_pos, CELL_SIZE);
+    let bishop = Bishop::new(color.opposite(), bishop_pos, CELL_SIZE);
+    let knight = Knight::new(color.opposite(), knight_pos, CELL_SIZE);
 
     board[first_pos] = Some(Box::new(first));
     board[second_pos] = Some(Box::new(second));
@@ -583,14 +583,14 @@ fn bishop_knight_mate() {
 #[test]
 fn two_rooks() {
     let mut board = Board::empty();
-    let color = Color::Black;
+    let color = PieceColor::Black;
     let king_pos = Point::new(7, 7);
     let rook_pos = Point::new(7, 0);
     let rook_pos2 = Point::new(6, 0);
 
-    let king = King::new(color, king_pos);
-    let rook = Rook::new(color.opposite(), rook_pos);
-    let rook2 = Rook::new(color.opposite(), rook_pos2);
+    let king = King::new(color, king_pos, CELL_SIZE);
+    let rook = Rook::new(color.opposite(), rook_pos, CELL_SIZE);
+    let rook2 = Rook::new(color.opposite(), rook_pos2, CELL_SIZE);
 
     board[king_pos] = Some(Box::new(king));
     board[rook_pos] = Some(Box::new(rook));
@@ -603,11 +603,11 @@ fn two_rooks() {
 fn base() {
     // .checkmate() doesn't work if the board is empty
     let board = Board::default();
-    assert!(!board.checkmate(Color::White));
-    assert!(!board.checkmate(Color::Black));
+    assert!(!board.checkmate(PieceColor::White));
+    assert!(!board.checkmate(PieceColor::Black));
     let mut board = Board::empty();
-    board[Point::default()] = Some(Box::new(King::new(Color::White, Point::default())));
-    board[Point::new(7, 2)] = Some(Box::new(King::new(Color::Black, Point::new(7, 2))));
-    assert!(!board.checkmate(Color::White));
-    assert!(!board.checkmate(Color::Black));
+    board[Point::default()] = Some(Box::new(King::new(PieceColor::White, Point::default(), CELL_SIZE)));
+    board[Point::new(7, 2)] = Some(Box::new(King::new(PieceColor::Black, Point::new(7, 2), CELL_SIZE)));
+    assert!(!board.checkmate(PieceColor::White));
+    assert!(!board.checkmate(PieceColor::Black));
 }

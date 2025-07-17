@@ -1,19 +1,22 @@
 use crate::{
+    new_piece,
     geomath::Point,
-    types::{Color, Movement, Piece},
+    types::{PieceColor, Movement, Piece},
 };
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
+use sdl3::rect::Rect;
 
 /// ## Knight piece
 /// (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2) or (-1, 2)
 #[derive(Clone, PartialEq, Debug)]
 pub struct Knight {
-    color: Color,
+    color: PieceColor,
     pos: Point,
+    rect: Rect,
 }
 
 impl Display for Knight {
@@ -24,12 +27,16 @@ impl Display for Knight {
 }
 impl Piece for Knight {
     #[inline(always)]
-    fn color(&self) -> Color {
+    fn color(&self) -> PieceColor {
         self.color
     }
     #[inline(always)]
     fn pos(&self) -> Point {
         self.pos
+    }
+    #[inline(always)]
+    fn rect(&self) -> Rect {
+        self.rect
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
@@ -56,10 +63,4 @@ impl Piece for Knight {
     }
 }
 
-impl Knight {
-    /// Constructor of Knight
-    #[inline]
-    pub const fn new(color: Color, pos: Point) -> Self {
-        Self { color, pos }
-    }
-}
+new_piece!(Knight);

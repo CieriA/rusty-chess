@@ -1,12 +1,10 @@
-use crate::{
-    geomath::{Point, rotation::Direction},
-    types::*,
-};
+use crate::{geomath::{Point, rotation::Direction}, new_piece, types::*};
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
+use sdl3::rect::Rect;
 
 /// If the inside `bool` is `false`, it means that the `King` has never been moved.
 /// ## King piece
@@ -31,8 +29,9 @@ use std::{
 /// - If it happens, it's a draw.
 #[derive(Clone, PartialEq, Debug)]
 pub struct King {
-    color: Color,
+    color: PieceColor,
     pos: Point,
+    rect: Rect,
     state: PieceState,
 }
 
@@ -44,12 +43,16 @@ impl Display for King {
 }
 impl Piece for King {
     #[inline(always)]
-    fn color(&self) -> Color {
+    fn color(&self) -> PieceColor {
         self.color
     }
     #[inline(always)]
     fn pos(&self) -> Point {
         self.pos
+    }
+    #[inline(always)]
+    fn rect(&self) -> Rect {
+        self.rect
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
@@ -100,14 +103,4 @@ impl Piece for King {
     }
 }
 
-impl King {
-    /// Constructor of King
-    #[inline]
-    pub fn new(color: Color, pos: Point) -> Self {
-        Self {
-            color,
-            pos,
-            state: PieceState::default(),
-        }
-    }
-}
+new_piece!(King, PieceState);

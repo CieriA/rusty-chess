@@ -21,7 +21,7 @@ fn scholar_mate() -> Result<(), Box<dyn Error>> {
         moves::do_move(&mut game, from, to, None)?;
     }
 
-    assert!(game.board.checkmate(Color::Black));
+    assert!(game.board.checkmate(PieceColor::Black));
 
     Ok(())
 }
@@ -41,7 +41,7 @@ fn fools_mate() -> Result<(), Box<dyn Error>> {
         moves::do_move(&mut game, from, to, None)?;
     }
 
-    assert!(game.board.checkmate(Color::White));
+    assert!(game.board.checkmate(PieceColor::White));
 
     Ok(())
 }

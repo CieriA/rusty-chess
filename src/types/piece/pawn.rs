@@ -1,12 +1,10 @@
-use crate::{
-    geomath::{Point, rotation::Direction},
-    types::*,
-};
+use crate::{geomath::{Point, rotation::Direction}, new_piece, types::*};
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
+use sdl3::rect::Rect;
 
 /// ## Pawn piece
 /// It moves by **1 square upwards** normally, or by **2 squares upwards** if it has never been moved.
@@ -19,8 +17,9 @@ use std::{
 /// When it arrives to the last row, it can **upgrade** to a **Knight / Rook / Bishop / Queen**.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Pawn {
-    color: Color,
+    color: PieceColor,
     pos: Point,
+    rect: Rect,
     state: PawnState,
 }
 
@@ -32,12 +31,16 @@ impl Display for Pawn {
 }
 impl Piece for Pawn {
     #[inline(always)]
-    fn color(&self) -> Color {
+    fn color(&self) -> PieceColor {
         self.color
     }
     #[inline(always)]
     fn pos(&self) -> Point {
         self.pos
+    }
+    #[inline(always)]
+    fn rect(&self) -> Rect {
+        self.rect
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
@@ -96,14 +99,5 @@ impl Piece for Pawn {
     }
 }
 
-impl Pawn {
-    /// Constructor of Pawn
-    #[inline]
-    pub fn new(color: Color, pos: Point) -> Self {
-        Self {
-            color,
-            pos,
-            state: PawnState::default(),
-        }
-    }
-}
+new_piece!(Pawn, PawnState
+);

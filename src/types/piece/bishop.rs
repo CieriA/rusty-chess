@@ -1,17 +1,19 @@
-use crate::types::{Color, Movement, Piece};
-use crate::{chessboard::Board, geomath::Point};
+use crate::types::{PieceColor, Movement, Piece};
+use crate::{chessboard::Board, geomath::Point, new_piece};
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
+use sdl3::rect::Rect;
 
 /// ## Bishop piece
 /// It moves and eats, diagonally, in any direction as far as it doesn't encounter another piece.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Bishop {
-    color: Color,
+    color: PieceColor,
     pos: Point,
+    rect: Rect,
 }
 
 impl Display for Bishop {
@@ -22,12 +24,16 @@ impl Display for Bishop {
 }
 impl Piece for Bishop {
     #[inline(always)]
-    fn color(&self) -> Color {
+    fn color(&self) -> PieceColor {
         self.color
     }
     #[inline(always)]
     fn pos(&self) -> Point {
         self.pos
+    }
+    #[inline(always)]
+    fn rect(&self) -> Rect {
+        self.rect
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
@@ -53,10 +59,4 @@ impl Piece for Bishop {
     }
 }
 
-impl Bishop {
-    /// Constructor of Bishop
-    #[inline]
-    pub const fn new(color: Color, pos: Point) -> Self {
-        Self { color, pos }
-    }
-}
+new_piece!(Bishop);

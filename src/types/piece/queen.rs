@@ -1,19 +1,19 @@
-use crate::{
-    geomath::Point,
-    types::{Bishop, Color, Movement, Piece, Rook},
-};
+use crate::{geomath::Point, new_piece, types::{Bishop, PieceColor, Movement, Piece, Rook}};
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
+use sdl3::rect::Rect;
+use crate::chessboard::CELL_SIZE;
 
 /// ## Queen piece
 /// It moves and eats like the `Rook` and the `Bishop` combined.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Queen {
-    color: Color,
+    color: PieceColor,
     pos: Point,
+    rect: Rect,
 }
 
 impl Display for Queen {
@@ -24,12 +24,16 @@ impl Display for Queen {
 }
 impl Piece for Queen {
     #[inline(always)]
-    fn color(&self) -> Color {
+    fn color(&self) -> PieceColor {
         self.color
     }
     #[inline(always)]
     fn pos(&self) -> Point {
         self.pos
+    }
+    #[inline(always)]
+    fn rect(&self) -> Rect {
+        self.rect
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
@@ -44,8 +48,8 @@ impl Piece for Queen {
         9
     }
     fn move_set(&self) -> IndexSet<Movement> {
-        let rook = Rook::new(self.color, self.pos);
-        let bishop = Bishop::new(self.color, self.pos);
+        let rook = Rook::new(self.color, self.pos, CELL_SIZE);
+        let bishop = Bishop::new(self.color, self.pos, CELL_SIZE);
 
         rook.move_set()
             .into_iter()
@@ -58,10 +62,4 @@ impl Piece for Queen {
     }
 }
 
-impl Queen {
-    /// Constructor of Queen
-    #[inline]
-    pub const fn new(color: Color, pos: Point) -> Self {
-        Self { color, pos }
-    }
-}
+new_piece!(Queen);

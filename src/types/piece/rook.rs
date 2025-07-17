@@ -1,20 +1,18 @@
-use crate::{
-    chessboard::Board,
-    geomath::Point,
-    types::{Color, Movement, Piece, PieceState, State},
-};
+use crate::{chessboard::Board, geomath::Point, new_piece, types::{PieceColor, Movement, Piece, PieceState, State}};
 use indexmap::IndexSet;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
+use sdl3::rect::Rect;
 
 /// ## Rook piece
 /// It moves and eats in any direction (not diagonally) as far as it doesn't encounter another piece.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Rook {
-    color: Color,
+    color: PieceColor,
     pos: Point,
+    rect: Rect,
     state: PieceState,
 }
 
@@ -25,11 +23,15 @@ impl Display for Rook {
     }
 }
 impl Piece for Rook {
-    fn color(&self) -> Color {
+    fn color(&self) -> PieceColor {
         self.color
     }
     fn pos(&self) -> Point {
         self.pos
+    }
+    #[inline(always)]
+    fn rect(&self) -> Rect {
+        self.rect
     }
     #[inline(always)]
     fn set_pos(&mut self, pos: Point) {
@@ -67,14 +69,4 @@ impl Piece for Rook {
     }
 }
 
-impl Rook {
-    /// Constructor of Rook
-    #[inline]
-    pub fn new(color: Color, pos: Point) -> Self {
-        Self {
-            color,
-            pos,
-            state: PieceState::default(),
-        }
-    }
-}
+new_piece!(Rook, PieceState);

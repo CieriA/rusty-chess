@@ -1,6 +1,6 @@
 [package]
 name = "rusty-chess"
-version = "1.1.0"
+version = "0.2.1"
 edition = "2024"
 authors = ["CieriA"]
 license = "ISC"
@@ -10,3 +10,4 @@ readme = "README.md"
 [dependencies]
 colored = "3.0.0"
 indexmap = "2.9.0"
+sdl3 = { version = "0.14.36", features = ["image"] }

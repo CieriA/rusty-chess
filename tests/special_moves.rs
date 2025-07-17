@@ -30,7 +30,7 @@ fn promote() -> Result<(), Box<dyn Error>> {
         &mut game,
         "E7",
         "E8",
-        Some(Box::new(Rook::new(Color::White, Point::new(4, 7)))),
+        Some(Box::new(Rook::new(PieceColor::White, Point::new(4, 7), CELL_SIZE))),
     )?;
 
     assert_presence::<Rook>(&game, Point::new(4, 7));
