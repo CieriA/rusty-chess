@@ -1,37 +1,54 @@
 mod asset;
 
-use crate::types::{Movement, piece_from_char};
-use crate::{asset, chessboard::Board, geomath::Point, types::*};
-use std::any::TypeId;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::{
-    any::Any,
-    error::Error,
-    path::PathBuf,
-};
+use crate::geomath::Point;
+use crate::{asset, chessboard::Board, types::*};
+use sdl3::EventPump;
 use sdl3::event::Event;
 use sdl3::pixels::Color;
-use sdl3::render::WindowCanvas;
+use sdl3::render::{Texture, TextureCreator, WindowCanvas};
+use sdl3::video::WindowContext;
+use sdl3::surface::Surface;
+use std::any::TypeId;
+use std::collections::HashMap;
+use std::{error::Error, path::PathBuf};
+use sdl3::image::LoadSurface;
 
 pub struct Interface {
-    /// Map of assets for the pieces.
-    ///
-    /// The key is a tuple of [`TypeId`] and [`PieceColor`].
-    /// The [`TypeId`] can be obtained with something like
-    /// `Pawn::id()` or `Queen::id()` (from trait [`Any`]),
-    /// and the [`PieceColor`] is the color of the piece.
-    ///
-    /// The value is a [`PathBuf`], the path of the asset.
-    assets: HashMap<(TypeId, PieceColor), PathBuf>,
+    canvas: WindowCanvas,
+    event_pump: EventPump,
     /// Board of the game
     pub board: Board,
     /// Current turn
     pub player: PieceColor,
+    /// Is the player dragging a piece?
+    dragging: bool,
+    /// Offset from (0, 0) of the rect to where the player's cursor is
+    drag_offset: Point<f32>,
 }
 
-impl Default for Interface {
-    fn default() -> Self {
+impl Interface {
+    pub fn new() -> Result<Self, Box<dyn Error>> {
+        let sdl = sdl3::init()?;
+        let video = sdl.video()?;
+
+        let window = video
+            .window("Chess", 800, 600)
+            .position_centered()
+            .build()?;
+        let canvas = window.into_canvas();
+        let event_pump = sdl.event_pump()?;
+
+        Ok(Self {
+            canvas,
+            event_pump,
+            board: Board::default(),
+            player: PieceColor::default(),
+            dragging: false,
+            drag_offset: Point::default(),
+        })
+    }
+
+    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
         let paths = [
             asset!(Rook, White),
             asset!(Knight, White),
@@ -46,67 +63,43 @@ impl Default for Interface {
             asset!(King, Black),
             asset!(Pawn, Black),
         ];
+        let texture_creator = self.canvas.texture_creator();
         let mut assets = HashMap::new();
-        assets.extend(paths);
-
-        Self {
-            assets,
-            board: Board::default(),
-            player: PieceColor::default(),
+        
+        for (key, path) in paths {
+            let surface = Surface::from_file(path)?;
+            let texture = texture_creator.create_texture_from_surface(&surface)?;
+            assets.insert(key, texture);
         }
-    }
-}
 
-impl Interface {
-    pub fn run(&mut self) -> Result<(), Box<dyn Error>> {
-        let sdl = sdl3::init()?;
-        
-        let video = sdl.video()?;
-        
-        let window = video
-            .window("Chess", 800, 800)
-            .position_centered()
-            .build()?;
-        
-        let mut canvas = window.into_canvas();
-        
-        let mut event_pump = sdl.event_pump()?;
-        
-        // global state to draw
-        
-        // is the player dragging a piece?
-        let mut dragging = false;
-        // offset from (0, 0) of the piece rect
-        // to where the player cursor is
-        let mut drag_offset = (0f32, 0f32);
-        
         'running: loop {
-            for event in event_pump.poll_iter() {
+            for event in self.event_pump.poll_iter() {
                 match event {
-                    Event::Quit {..} => break 'running,
-                    _ => {}
-                    // TODO take input (handle drag & drop)
+                    Event::Quit { .. } => break 'running,
+                    _ => {} // TODO take input (handle drag & drop)
                 }
             }
-            
+
             // TODO let the user move pieces freely before while MouseDown
             //  place definitely the piece only when MouseUp
             //  take input as Movement when MouseUp
             //  handle input in another func (.logic() probably) IF MouseUp
-            
-            canvas.set_draw_color(Color::BLACK);
-            canvas.clear();
-            
-            self.draw(&mut canvas)?;
-            canvas.present();
+
+            self.canvas.set_draw_color(Color::BLACK);
+            self.canvas.clear();
+
+            self.draw()?;
+            self.canvas.present();
         }
-        
+
         Ok(())
     }
     /// Draws the board and then the pieces
-    fn draw(&mut self, canvas: &mut WindowCanvas) -> Result<(), Box<dyn Error>> {
-        
-        
-        Ok(())
+    fn draw(&mut self) -> Result<(), Box<dyn Error>> {
+        todo!();
+    }
+
+    fn logic(&mut self, mov: Movement) -> bool {
+        todo!();
     }
 }

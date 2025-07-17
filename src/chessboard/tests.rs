@@ -99,7 +99,11 @@ fn en_passant_and_eat() {
     en_passant_piece.set_state(PawnState::JustDouble.into());
     board[en_passant_piece.pos()] = Some(Box::new(en_passant_piece.clone()));
 
-    board[Point::new(1, 2)] = Some(Box::new(Rook::new(color.opposite(), Point::new(1, 2), CELL_SIZE)));
+    board[Point::new(1, 2)] = Some(Box::new(Rook::new(
+        color.opposite(),
+        Point::new(1, 2),
+        CELL_SIZE,
+    )));
     board[Point::new(2, 2)] = Some(Box::new(Bishop::new(color, Point::new(2, 2), CELL_SIZE)));
 
     assert_eq!(
@@ -138,7 +142,11 @@ fn cannot_eat_straight() {
     let color = PieceColor::White;
 
     board[pawn_pos] = Some(Box::new(Pawn::new(color, pawn_pos, CELL_SIZE)));
-    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos, CELL_SIZE)));
+    board[bishop_pos] = Some(Box::new(Bishop::new(
+        color.opposite(),
+        bishop_pos,
+        CELL_SIZE,
+    )));
 
     let movements = [
         Movement::new(pawn_pos, Point::new(3, 2), None, Some(Direction::Up)),
@@ -178,8 +186,8 @@ fn bishop_colliding() {
 
     let pieces: Vec<Box<dyn Piece>> = vec![
         Box::new(Queen::new(color.opposite(), Point::new(2, 3), CELL_SIZE)), // Next to but eatable
-        Box::new(Pawn::new(color, Point::new(5, 2), CELL_SIZE)),             // Colliding, not eatable
-        Box::new(Pawn::new(color, Point::new(6, 7), CELL_SIZE)),             // Last square, not eatable
+        Box::new(Pawn::new(color, Point::new(5, 2), CELL_SIZE)), // Colliding, not eatable
+        Box::new(Pawn::new(color, Point::new(6, 7), CELL_SIZE)), // Last square, not eatable
     ];
 
     for piece in pieces {
@@ -341,7 +349,11 @@ fn castle_blocked() {
         board[rook] = Some(Box::new(Rook::new(color, rook, CELL_SIZE)));
     }
     let bishop_pos = Point::new(3, 2); // blocking short castles
-    board[bishop_pos] = Some(Box::new(Bishop::new(color.opposite(), bishop_pos, CELL_SIZE)));
+    board[bishop_pos] = Some(Box::new(Bishop::new(
+        color.opposite(),
+        bishop_pos,
+        CELL_SIZE,
+    )));
 
     let rook_pos = Point::new(2, 7); // blocking long castle
     board[rook_pos] = Some(Box::new(Rook::new(color.opposite(), rook_pos, CELL_SIZE)));
@@ -606,8 +618,16 @@ fn base() {
     assert!(!board.checkmate(PieceColor::White));
     assert!(!board.checkmate(PieceColor::Black));
     let mut board = Board::empty();
-    board[Point::default()] = Some(Box::new(King::new(PieceColor::White, Point::default(), CELL_SIZE)));
-    board[Point::new(7, 2)] = Some(Box::new(King::new(PieceColor::Black, Point::new(7, 2), CELL_SIZE)));
+    board[Point::default()] = Some(Box::new(King::new(
+        PieceColor::White,
+        Point::default(),
+        CELL_SIZE,
+    )));
+    board[Point::new(7, 2)] = Some(Box::new(King::new(
+        PieceColor::Black,
+        Point::new(7, 2),
+        CELL_SIZE,
+    )));
     assert!(!board.checkmate(PieceColor::White));
     assert!(!board.checkmate(PieceColor::Black));
 }

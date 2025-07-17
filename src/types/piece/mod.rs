@@ -13,11 +13,11 @@ use crate::{
 };
 use colored::{ColoredString, Colorize};
 use indexmap::IndexSet;
+use sdl3::rect::Rect;
 use std::{
     any::Any,
     fmt::{Debug, Display},
 };
-use sdl3::rect::Rect;
 
 /// A trait representing a Chess Piece.
 pub trait Piece: Display + Debug + Any {
@@ -48,11 +48,11 @@ pub trait Piece: Display + Debug + Any {
     /// > }
     /// > ```
     #[must_use]
-    fn pos(&self) -> Point;
+    fn pos(&self) -> Point<isize>;
     #[must_use]
     fn rect(&self) -> Rect;
 
-    fn set_pos(&mut self, pos: Point);
+    fn set_pos(&mut self, pos: Point<isize>);
     /// Returns self as `&dyn Any`.
     ///
     /// This method exists because a trait object is not [`Sized`],
@@ -93,7 +93,7 @@ pub trait Piece: Display + Debug + Any {
     /// From an offset (and Self) returns a new Movement.
     fn to_movement(
         &self,
-        offset: Point,
+        offset: Point<isize>,
         special: Option<SpecialMove>,
         direction: Option<Direction>,
     ) -> Option<Movement> {
@@ -163,7 +163,7 @@ pub fn placement(x: isize, color: PieceColor) -> Option<Box<dyn Piece>> {
 ///
 /// All other pieces will make this
 /// associated function panic.
-pub fn piece_from_char(c: char, color: PieceColor, pos: Point) -> Option<Box<dyn Piece>> {
+pub fn piece_from_char(c: char, color: PieceColor, pos: Point<isize>) -> Option<Box<dyn Piece>> {
     match c.to_ascii_uppercase() {
         'B' => Some(Box::new(Bishop::new(color, pos, CELL_SIZE))),
         'N' => Some(Box::new(Knight::new(color, pos, CELL_SIZE))),

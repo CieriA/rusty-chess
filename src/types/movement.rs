@@ -32,9 +32,9 @@ pub enum SpecialMove {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Movement {
     /// the square the piece starts
-    pub from: Point,
+    pub from: Point<isize>,
     /// the square the piece arrives
-    pub to: Point,
+    pub to: Point<isize>,
     /// type of move
     pub special: Option<SpecialMove>,
     /// going direction when talking about a Bishop/Rook/Queen
@@ -46,8 +46,8 @@ pub struct Movement {
 impl Movement {
     #[inline]
     pub const fn new(
-        from: Point,
-        to: Point,
+        from: Point<isize>,
+        to: Point<isize>,
         special: Option<SpecialMove>,
         direction: Option<Direction>,
     ) -> Self {
@@ -59,7 +59,7 @@ impl Movement {
         }
     }
 
-    pub fn linear(&self) -> Option<Point> {
+    pub fn linear(&self) -> Option<Point<isize>> {
         let step = self.to - self.from;
         if step.x == 0 || step.y == 0 || step.x.abs() == step.y.abs() {
             let x = match step.x.cmp(&0) {

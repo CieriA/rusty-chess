@@ -13,20 +13,22 @@ use std::ops::{Add, AddAssign, Mul, Neg, Sub};
 
 /// A **point** (and also a **vector**) in a **2D space**.
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub struct Point {
+pub struct Point<T> {
     /// **x** coordinate of the `Point`.
-    pub x: isize,
+    pub x: T,
     /// **y** coordinate of the `Point`.
-    pub y: isize,
+    pub y: T,
 }
 
-impl Point {
+impl<T> Point<T> {
     /// Constructor of `Point`.
     #[inline(always)]
-    pub const fn new(x: isize, y: isize) -> Self {
+    pub const fn new(x: T, y: T) -> Self {
         Self { x, y }
     }
+}
 
+impl Point<isize> {
     pub fn rotations(self) -> HashSet<(Self, Option<Direction>)> {
         let Point { x, y } = self;
         let iter = [(x, y), (-x, y)].map(Self::from).into_iter();
@@ -49,7 +51,10 @@ impl Point {
     }
 }
 
-impl Add for Point {
+impl<T> Add for Point<T>
+where
+    T: Add<Output = T>,
+{
     type Output = Self;
     #[inline]
     fn add(self, rhs: Self) -> Self {
@@ -59,7 +64,10 @@ impl Add for Point {
         }
     }
 }
-impl AddAssign for Point {
+impl<T> AddAssign for Point<T>
+where
+    T: AddAssign,
+{
     #[inline]
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
@@ -67,10 +75,13 @@ impl AddAssign for Point {
     }
 }
 
-impl Mul<isize> for Point {
+impl<T> Mul<T> for Point<T>
+where
+    T: Mul<Output = T> + Copy,
+{
     type Output = Self;
     #[inline]
-    fn mul(self, rhs: isize) -> Self {
+    fn mul(self, rhs: T) -> Self {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -78,7 +89,10 @@ impl Mul<isize> for Point {
     }
 }
 
-impl Sub for Point {
+impl<T> Sub for Point<T>
+where
+    T: Sub<Output = T>,
+{
     type Output = Self;
     #[inline]
     fn sub(self, rhs: Self) -> Self {
@@ -88,17 +102,23 @@ impl Sub for Point {
         }
     }
 }
-impl Sub<isize> for Point {
+impl<T> Sub<T> for Point<T>
+where
+    T: Sub<Output = T> + Copy,
+{
     type Output = Self;
     #[inline]
-    fn sub(self, rhs: isize) -> Self {
+    fn sub(self, rhs: T) -> Self {
         Self {
             x: self.x - rhs,
             y: self.y - rhs,
         }
     }
 }
-impl Neg for Point {
+impl<T> Neg for Point<T>
+where
+    T: Neg<Output = T>,
+{
     type Output = Self;
     #[inline]
     fn neg(self) -> Self {
@@ -109,13 +129,13 @@ impl Neg for Point {
     }
 }
 
-impl From<(isize, isize)> for Point {
+impl<T> From<(T, T)> for Point<T> {
     #[inline(always)]
-    fn from((x, y): (isize, isize)) -> Self {
+    fn from((x, y): (T, T)) -> Self {
         Self::new(x, y)
     }
 }
-impl TryFrom<&str> for Point {
+impl TryFrom<&str> for Point<isize> {
     type Error = Box<dyn Error>;
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let s: Vec<char> = s.chars().collect();
@@ -146,9 +166,26 @@ impl TryFrom<&str> for Point {
     }
 }
 
-impl Display for Point {
+impl<T> Display for Point<T>
+where
+    T: Display,
+{
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+impl From<Point<isize>> for Point<f32> {
+    #[inline]
+    fn from(point: Point<isize>) -> Self {
+        Self::new(point.x as f32, point.y as f32)
+    }
+}
+
+impl From<Point<f32>> for Point<isize> {
+    #[inline]
+    fn from(point: Point<f32>) -> Self {
+        Self::new(point.x as isize, point.y as isize)
     }
 }

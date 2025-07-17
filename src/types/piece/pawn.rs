@@ -1,10 +1,14 @@
-use crate::{geomath::{Point, rotation::Direction}, new_piece, types::*};
+use crate::{
+    geomath::{Point, rotation::Direction},
+    new_piece,
+    types::*,
+};
 use indexmap::IndexSet;
+use sdl3::rect::Rect;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
-use sdl3::rect::Rect;
 
 /// ## Pawn piece
 /// It moves by **1 square upwards** normally, or by **2 squares upwards** if it has never been moved.
@@ -18,7 +22,7 @@ use sdl3::rect::Rect;
 #[derive(Clone, PartialEq, Debug)]
 pub struct Pawn {
     color: PieceColor,
-    pos: Point,
+    pos: Point<isize>,
     rect: Rect,
     state: PawnState,
 }
@@ -35,7 +39,7 @@ impl Piece for Pawn {
         self.color
     }
     #[inline(always)]
-    fn pos(&self) -> Point {
+    fn pos(&self) -> Point<isize> {
         self.pos
     }
     #[inline(always)]
@@ -43,7 +47,7 @@ impl Piece for Pawn {
         self.rect
     }
     #[inline(always)]
-    fn set_pos(&mut self, pos: Point) {
+    fn set_pos(&mut self, pos: Point<isize>) {
         self.pos = pos;
     }
     #[inline]
@@ -99,5 +103,4 @@ impl Piece for Pawn {
     }
 }
 
-new_piece!(Pawn, PawnState
-);
+new_piece!(Pawn, PawnState);

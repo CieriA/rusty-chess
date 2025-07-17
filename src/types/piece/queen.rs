@@ -1,18 +1,22 @@
-use crate::{geomath::Point, new_piece, types::{Bishop, PieceColor, Movement, Piece, Rook}};
+use crate::chessboard::CELL_SIZE;
+use crate::{
+    geomath::Point,
+    new_piece,
+    types::{Bishop, Movement, Piece, PieceColor, Rook},
+};
 use indexmap::IndexSet;
+use sdl3::rect::Rect;
 use std::{
     any::Any,
     fmt::{Display, Formatter},
 };
-use sdl3::rect::Rect;
-use crate::chessboard::CELL_SIZE;
 
 /// ## Queen piece
 /// It moves and eats like the `Rook` and the `Bishop` combined.
 #[derive(Clone, PartialEq, Debug)]
 pub struct Queen {
     color: PieceColor,
-    pos: Point,
+    pos: Point<isize>,
     rect: Rect,
 }
 
@@ -28,7 +32,7 @@ impl Piece for Queen {
         self.color
     }
     #[inline(always)]
-    fn pos(&self) -> Point {
+    fn pos(&self) -> Point<isize> {
         self.pos
     }
     #[inline(always)]
@@ -36,7 +40,7 @@ impl Piece for Queen {
         self.rect
     }
     #[inline(always)]
-    fn set_pos(&mut self, pos: Point) {
+    fn set_pos(&mut self, pos: Point<isize>) {
         self.pos = pos;
     }
     #[inline(always)]

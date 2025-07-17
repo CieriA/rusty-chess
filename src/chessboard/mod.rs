@@ -44,7 +44,11 @@ impl Default for Board {
 
         // White pawns
         for (x, cell) in board[1].iter_mut().enumerate() {
-            *cell = Some(Box::new(Pawn::new(PieceColor::White, Point::new(x as isize, 1), CELL_SIZE)));
+            *cell = Some(Box::new(Pawn::new(
+                PieceColor::White,
+                Point::new(x as isize, 1),
+                CELL_SIZE,
+            )));
         }
         // Black pawns
         for (x, cell) in board[Self::SIZE - 2].iter_mut().enumerate() {
@@ -65,17 +69,17 @@ impl Default for Board {
         board
     }
 }
-impl Index<Point> for Board {
+impl Index<Point<isize>> for Board {
     type Output = Square;
     #[inline]
-    fn index(&self, index: Point) -> &Self::Output {
+    fn index(&self, index: Point<isize>) -> &Self::Output {
         assert!(Self::in_bounds(index), "(x, y): {index}");
         &self.0[index.y as usize][index.x as usize]
     }
 }
-impl IndexMut<Point> for Board {
+impl IndexMut<Point<isize>> for Board {
     #[inline]
-    fn index_mut(&mut self, index: Point) -> &mut Self::Output {
+    fn index_mut(&mut self, index: Point<isize>) -> &mut Self::Output {
         assert!(Self::in_bounds(index), "(x, y): {index}");
         &mut self.0[index.y as usize][index.x as usize]
     }
@@ -127,14 +131,14 @@ impl Board {
     }
     /// Checks if a `Point` is inside the Board.
     #[inline]
-    pub const fn in_bounds(point: Point) -> bool {
+    pub const fn in_bounds(point: Point<isize>) -> bool {
         point.x < Self::SIZE as isize
             && point.y < Self::SIZE as isize
             && point.x >= 0
             && point.y >= 0
     }
     #[inline]
-    pub fn get(&self, point: Point) -> Option<&Square> {
+    pub fn get(&self, point: Point<isize>) -> Option<&Square> {
         Board::in_bounds(point).then(|| &self[point])
     }
     #[inline]
@@ -147,7 +151,7 @@ impl Board {
     /// - Impossible SpecialMoves                               **(2° .filter())**
     ///
     /// The `from` parameter is the `Movement.from` field.
-    pub fn filtered_move_set(&self, from: Point) -> IndexSet<Movement> {
+    pub fn filtered_move_set(&self, from: Point<isize>) -> IndexSet<Movement> {
         let mut ignored: HashSet<Direction> = HashSet::new();
 
         // .unwrap() checks that the piece exists
@@ -266,7 +270,7 @@ impl Board {
             .collect()
     }
     /// Coordinates of all pieces on the board
-    pub fn all_pieces(&self) -> HashSet<Point> {
+    pub fn all_pieces(&self) -> HashSet<Point<isize>> {
         let mut set = HashSet::new();
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
@@ -278,7 +282,7 @@ impl Board {
         set
     }
     /// Coordinates of all pieces with a given color on the board
-    fn all_color_pieces(&self, color: PieceColor) -> HashSet<Point> {
+    fn all_color_pieces(&self, color: PieceColor) -> HashSet<Point<isize>> {
         self.all_pieces()
             .into_iter()
             // by using `.unwrap()` instead of `.is_some_and()` I assure `.all_pieces()` works too,
@@ -386,7 +390,7 @@ impl Board {
         self[mov.to].as_mut().unwrap().set_pos(mov.to);
     }
     /// Returns the coordinates of the King of the given color.
-    fn find_king(&self, color: PieceColor) -> Point {
+    fn find_king(&self, color: PieceColor) -> Point<isize> {
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
                 if square

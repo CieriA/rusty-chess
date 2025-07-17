@@ -51,8 +51,8 @@ impl Direction {
     }
 }
 
-impl From<Point> for Option<Direction> {
-    fn from(value: Point) -> Self {
+impl From<Point<isize>> for Option<Direction> {
+    fn from(value: Point<isize>) -> Self {
         let Point { x, y } = value;
 
         match (x, y) {

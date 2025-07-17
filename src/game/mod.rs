@@ -4,7 +4,7 @@ use crate::types::{Movement, piece_from_char};
 use crate::{
     chessboard::Board,
     geomath::Point,
-    types::{PieceColor, Pawn},
+    types::{Pawn, PieceColor},
 };
 #[cfg(not(test))]
 use std::collections::HashSet;
@@ -24,7 +24,10 @@ fn p_name(color: PieceColor) -> &'static str {
 
 /// Engine of the game
 #[derive(Default)]
-#[deprecated(since = "0.2.0", note = "Use interface::Interface instead, which has a UI")]
+#[deprecated(
+    since = "0.2.0",
+    note = "Use interface::Interface instead, which has a UI"
+)]
 pub struct Game {
     /// Score of pieces eaten by white
     w_score: u8,

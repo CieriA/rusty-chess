@@ -77,7 +77,7 @@ fn point_sub() {
 }
 #[test]
 fn point_neg() {
-    assert_eq!(Point::default(), -Point::default());
+    assert_eq!(Point::<isize>::default(), -Point::default());
 
     assert_eq!(Point::new(3, 12), -Point::new(-3, -12));
 

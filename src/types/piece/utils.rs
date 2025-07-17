@@ -3,7 +3,7 @@ macro_rules! new_piece {
     ($piece:ty $(, $state:ty)?) => {
         impl $piece {
             #[inline]
-            pub fn new(color: PieceColor, pos: Point, size: u32) -> Self
+            pub fn new(color: PieceColor, pos: Point<isize>, size: u32) -> Self
             $(
             where
                 $state: Default,
