@@ -36,7 +36,7 @@ cargo run --release
 ```
 
 ## Controls
-- A1-H8 / a1-h8 -> to index the board from the terminal
+- A1-H8 / a1-h8 → to index the board from the terminal
 
 ## Development notes
 This project uses the following crates:
