@@ -285,7 +285,7 @@ impl Board {
             .collect()
     }
     /// Returns all the moves a player (`color`) can do.
-    fn all_moves(&self, color: Color) -> HashSet<Movement> {
+    pub fn all_moves(&self, color: Color) -> HashSet<Movement> {
         let mut set = HashSet::new();
         for coord in self.all_color_pieces(color) {
             if self[coord]
@@ -314,7 +314,7 @@ impl Board {
         &mut self,
         mov: &Movement,
         promoted: Option<Box<dyn Piece>>,
-    ) -> Option<(u8, Color)> {
+    ) -> Option<(f64, Color)> {
         let piece = self[mov.from].as_ref().unwrap();
         let color = piece.color();
 
@@ -457,5 +457,10 @@ impl Board {
     pub fn stalemate(&self, color: Color) -> bool {
         // No moves available and not check
         self.check(color).is_none() && self.all_moves(color).is_empty()
+    }
+    pub fn eval(&self) -> f64 {
+        self.iter().map(|row| row.iter()).flatten().fold(0.,  |acc, square| {
+            acc + square.as_ref().map(|piece| piece.score() * piece.color().sign() as f64).unwrap_or(0.)
+        })
     }
 }

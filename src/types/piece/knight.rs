@@ -40,8 +40,8 @@ impl Piece for Knight {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 {
-        3
+    fn score(&self) -> f64 {
+        3.
     }
     fn move_set(&self) -> IndexSet<Movement> {
         Point::new(1, 2)

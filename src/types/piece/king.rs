@@ -61,8 +61,8 @@ impl Piece for King {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 {
-        unreachable!()
+    fn score(&self) -> f64 {
+        f64::INFINITY
     } // should not be called
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)

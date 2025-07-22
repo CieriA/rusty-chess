@@ -41,8 +41,8 @@ impl Piece for Rook {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 {
-        5
+    fn score(&self) -> f64 {
+        5.
     }
     fn is_state(&self, state: State) -> bool {
         matches!(state, State::PieceState(ps) if ps == self.state)

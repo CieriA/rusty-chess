@@ -24,10 +24,10 @@ fn p_name(color: Color) -> &'static str {
 #[derive(Default)]
 pub struct Game {
     /// Score of pieces eaten by white
-    w_score: u8,
+    w_score: f64,
     /// Score of pieces eaten by black
-    b_score: u8,
-    /// Count for the 50 moves rule
+    b_score: f64,
+    /// Count for the 50-move rule
     pub move_count: u8,
     /// Chessboard
     pub board: Board,
@@ -50,13 +50,13 @@ impl Game {
     }
     /// Real score of white
     #[inline(always)]
-    const fn white_score(&self) -> i8 {
-        self.w_score as i8 - self.b_score as i8
+    const fn white_score(&self) -> f64 {
+        self.w_score - self.b_score
     }
     /// Real score of black
     #[inline(always)]
-    const fn black_score(&self) -> i8 {
-        self.b_score as i8 - self.w_score as i8
+    const fn black_score(&self) -> f64 {
+        self.b_score - self.w_score
     }
     /// A string of the scores to be printed
     fn score_str(&self) -> String {
@@ -67,7 +67,7 @@ impl Game {
         )
     }
     #[inline]
-    fn get_mut_score(&mut self, color: Color) -> &mut u8 {
+    fn get_mut_score(&mut self, color: Color) -> &mut f64 {
         if color.into() {
             &mut self.w_score
         } else {
@@ -75,7 +75,7 @@ impl Game {
         }
     }
     #[inline]
-    fn get_printable_score(&self, color: Color) -> i8 {
+    fn get_printable_score(&self, color: Color) -> f64 {
         if color.into() {
             self.white_score()
         } else {
@@ -150,7 +150,7 @@ impl Game {
                 let mut score = self.get_printable_score(self.turn.opposite()); // score clone
                 let piece_clone = piece.as_ref().map(|p| p.clone_box());
                 if let Some((new_score, ..)) = board.do_move(&movement, piece_clone) {
-                    score -= new_score as i8; // this will be seen by the losing player
+                    score -= new_score; // this will be seen by the losing player
                 }
 
                 if board.check(self.turn).is_some() {
@@ -178,7 +178,7 @@ impl Game {
                 break;
             }
 
-            // 50moves rule's count
+            // 50 moves rule's count
             if self.fifty_moves(&movement) {
                 println!("{}", self.score_str());
                 println!("{}", self.board);
@@ -200,7 +200,7 @@ impl Game {
     ///
     /// (use before doing the move)
     pub fn fifty_moves(&mut self, mov: &Movement) -> bool {
-        // 50moves rule's count
+        // 50 moves rule's count
         let from_piece = (&**self.board[mov.from].as_ref().unwrap()) as &dyn Any;
 
         if from_piece.is::<Pawn>() || self.board[mov.to].is_some() {

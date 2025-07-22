@@ -66,7 +66,7 @@ pub trait Piece: Display + Debug + Any {
 
     /// In chess, each piece has a value. This method returns that value.
     #[must_use]
-    fn score(&self) -> u8;
+    fn score(&self) -> f64;
 
     /// Returns `true` if the piece has the given state or `false` otherwise.
     /// If the piece has no state at all, `true` is returned.

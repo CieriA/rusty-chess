@@ -38,8 +38,8 @@ impl Piece for Bishop {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 {
-        3
+    fn score(&self) -> f64 {
+        3.
     }
     fn move_set(&self) -> IndexSet<Movement> {
         (1..Board::SIZE as isize)

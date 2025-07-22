@@ -48,8 +48,8 @@ impl Piece for Pawn {
         self as &dyn Any
     }
     #[inline(always)]
-    fn score(&self) -> u8 {
-        1
+    fn score(&self) -> f64 {
+        1.
     }
     #[inline(always)]
     fn is_state(&self, state: State) -> bool {
