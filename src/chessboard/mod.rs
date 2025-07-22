@@ -459,7 +459,7 @@ impl Board {
         self.check(color).is_none() && self.all_moves(color).is_empty()
     }
     pub fn eval(&self) -> f64 {
-        self.iter().map(|row| row.iter()).flatten().fold(0.,  |acc, square| {
+        self.iter().flat_map(|row| row.iter()).fold(0.,  |acc, square| {
             acc + square.as_ref().map(|piece| piece.score() * piece.color().sign() as f64).unwrap_or(0.)
         })
     }
