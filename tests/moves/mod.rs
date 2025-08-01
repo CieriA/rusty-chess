@@ -1,5 +1,4 @@
-use rusty_chess::prelude::*;
-use std::error::Error;
+use {rusty_chess::prelude::*, std::error::Error};
 
 pub fn do_move(
     game: &mut Game,

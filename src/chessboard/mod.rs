@@ -41,23 +41,13 @@ impl Default for Board {
     fn default() -> Self {
         let mut board = Self::empty();
 
-        // White pawns
-        for (x, cell) in board[1].iter_mut().enumerate() {
-            *cell = Some(Box::new(Pawn::new(Color::White, Point::new(x as isize, 1))));
-        }
-        // Black pawns
-        for (x, cell) in board[Self::SIZE - 2].iter_mut().enumerate() {
-            *cell = Some(Box::new(Pawn::new(
-                Color::Black,
-                Point::new(x as isize, Self::SIZE as isize - 2),
-            )));
-        }
+        for color in [Color::White, Color::Black] {
+            for x in 0..Board::SIZE as isize {
+                let coord = Point::new(x, color.second_row() as isize);
+                board[coord] = Some(Box::new(Pawn::new(color, coord)));
 
-        // Other pieces
-        for x in 0..Self::SIZE as isize {
-            board[Point::new(x, 0)] = placement(x, Color::White);
-
-            board[Point::new(x, Self::SIZE as isize - 1)] = placement(x, Color::Black);
+                board[Point::new(x, color.first_row() as isize)] = placement(x, color);
+            }
         }
 
         board

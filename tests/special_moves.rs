@@ -1,9 +1,11 @@
 mod assertions;
 mod moves;
-use assertions::{assert_empty, assert_presence};
 
-use rusty_chess::prelude::*;
-use std::error::Error;
+use {
+    assertions::{assert_empty, assert_presence},
+    rusty_chess::prelude::*,
+    std::error::Error,
+};
 
 #[test]
 fn promote() -> Result<(), Box<dyn Error>> {

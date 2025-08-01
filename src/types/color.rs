@@ -16,6 +16,10 @@ impl Color {
             Self::Black => Board::SIZE - 1,
         }
     }
+    #[inline]
+    pub const fn second_row(&self) -> usize {
+        (self.first_row() as isize + self.sign()) as usize
+    }
 
     /// Opposite of the current color.
     ///

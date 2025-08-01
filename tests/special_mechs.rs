@@ -1,6 +1,6 @@
 mod moves;
-use rusty_chess::prelude::*;
-use std::error::Error;
+
+use {rusty_chess::prelude::*, std::error::Error};
 
 #[test]
 fn fifty_moves() -> Result<(), Box<dyn Error>> {
