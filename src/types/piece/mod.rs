@@ -5,16 +5,18 @@ pub mod pawn;
 pub mod queen;
 pub mod rook;
 
-use crate::{
-    chessboard::Board,
-    geomath::{Point, rotation::Direction},
-    types::*,
-};
-use colored::{ColoredString, Colorize};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Debug, Display},
+use {
+    crate::{
+        chessboard::Board,
+        geomath::{Point, rotation::Direction},
+        types::*,
+    },
+    colored::{ColoredString, Colorize as _},
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{Debug, Display},
+    },
 };
 
 /// A trait representing a Chess Piece.
@@ -54,7 +56,7 @@ pub trait Piece: Display + Debug + Any {
     /// This method exists because a trait object is not [`Sized`],
     /// and so you can't cast `Box<dyn Piece>` to `&dyn Any` using `as`.
     ///
-    /// As a result, this method serve as a helper to cast `Box<dyn Piece>` to `&dyn Any`.
+    /// As a result, this method serves as a helper to cast `Box<dyn Piece>` to `&dyn Any`.
     ///
     /// > Typical `Piece::as_any` implementations look like
     /// > ```Rust
@@ -98,15 +100,15 @@ pub trait Piece: Display + Debug + Any {
         Board::in_bounds(to).then_some(Movement::new(self.pos(), to, special, direction))
     }
 
-    /// An HashSet of all the possible moves of a piece,
+    /// An HashSet of all the piece's possible moves,
     /// not considering collisions.
     /// Use the Board for that.
     #[must_use]
     fn move_set(&self) -> IndexSet<Movement>;
 
-    /// Sets the state of the piece to something else, if it has it.
+    /// Sets the state of the piece to something else if it has it.
     ///
-    /// Panics if the state is not of tha valid type.
+    /// Panics if the state is not of the valid type.
     #[allow(unused_variables)]
     fn set_state(&mut self, state: State) {}
     /// Given a &str, returns the &str colored based on [`Piece::color`].

@@ -1,9 +1,14 @@
-use crate::types::{Color, Movement, Piece};
-use crate::{chessboard::Board, geomath::Point};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Display, Formatter},
+use {
+    crate::{
+        chessboard::Board,
+        geomath::Point,
+        types::{Color, Movement, Piece},
+    },
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{self, Display},
+    },
 };
 
 /// ## Bishop piece
@@ -15,7 +20,7 @@ pub struct Bishop {
 }
 
 impl Display for Bishop {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c = "♗"; // B
         write!(f, "{}", self.to_colored_string(c))
     }

@@ -1,11 +1,13 @@
-use crate::{
-    geomath::Point,
-    types::{Color, Movement, Piece},
-};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Display, Formatter},
+use {
+    crate::{
+        geomath::Point,
+        types::{Color, Movement, Piece},
+    },
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{self, Display},
+    },
 };
 
 /// ## Knight piece
@@ -17,7 +19,7 @@ pub struct Knight {
 }
 
 impl Display for Knight {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c = "♘"; // N
         write!(f, "{}", self.to_colored_string(c))
     }

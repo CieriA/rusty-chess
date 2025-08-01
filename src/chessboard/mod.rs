@@ -1,22 +1,23 @@
 //! 8*8 classic Chessboard
 
-use crate::{
-    geomath::{Point, rotation::Direction},
-    types::*,
-};
-use colored::Colorize;
-use indexmap::IndexSet;
-use std::{
-    collections::HashSet,
-    fmt::Display,
-    ops::{Index, IndexMut},
-    slice::Iter,
+use {
+    crate::{
+        geomath::{Point, rotation::Direction},
+        types::*,
+    },
+    colored::Colorize as _,
+    indexmap::IndexSet,
+    std::{
+        collections::HashSet,
+        fmt::{self, Display},
+        ops::{Index, IndexMut},
+    },
 };
 
 #[cfg(test)]
 mod tests;
 
-pub type Square = Option<Box<dyn Piece>>; // Change to piece
+pub type Square = Option<Box<dyn Piece>>;
 pub type Row = [Square; Board::SIZE];
 pub type Grid = [Row; Board::SIZE];
 
@@ -91,7 +92,7 @@ impl IndexMut<usize> for Board {
     }
 }
 impl Display for Board {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (i, row) in self.0.iter().rev().enumerate() {
             write!(f, "{} ", Board::SIZE - i)?;
             for (j, cell) in row.iter().enumerate() {
@@ -132,16 +133,16 @@ impl Board {
     }
     #[inline]
     pub fn get(&self, point: Point) -> Option<&Square> {
-        Board::in_bounds(point).then(|| &self[point])
+        Board::in_bounds(point).then_some(&self[point])
     }
     #[inline]
-    pub fn iter(&self) -> Iter<'_, Row> {
+    pub fn iter(&self) -> impl Iterator<Item = &Row> {
         self.0.iter()
     }
     /// From the normal `.move_set()`, returns only the possible moves,
     /// filtering:
-    /// - Collisions (for bishops, pawns, rooks and queens)     **(1° .filter())**
-    /// - Impossible SpecialMoves                               **(2° .filter())**
+    /// - **(1° .filter())**: Collisions (for bishops, pawns, rooks and queens)
+    /// - **(2° .filter())**: Impossible SpecialMoves
     ///
     /// The `from` parameter is the `Movement.from` field.
     pub fn filtered_move_set(&self, from: Point) -> IndexSet<Movement> {

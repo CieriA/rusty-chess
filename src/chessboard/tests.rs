@@ -1,5 +1,4 @@
-use crate::prelude::*;
-use indexmap::IndexSet;
+use {crate::prelude::*, indexmap::IndexSet};
 // `.filtered_move_set()` tests
 
 // Pawns

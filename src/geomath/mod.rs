@@ -4,12 +4,15 @@ pub mod rotation;
 #[cfg(test)]
 mod tests;
 
-use crate::chessboard::Board;
-use crate::geomath::rotation::Direction;
-use std::collections::HashSet;
-use std::error::Error;
-use std::fmt::{Display, Formatter};
-use std::ops::{Add, AddAssign, Mul, Neg, Sub};
+use {
+    crate::{chessboard::Board, geomath::rotation::Direction},
+    std::{
+        collections::HashSet,
+        error::Error,
+        fmt::{self, Display},
+        ops::{Add, AddAssign, Mul, Neg, Sub},
+    },
+};
 
 /// A **point** (and also a **vector**) in a **2D space**.
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -138,7 +141,7 @@ impl TryFrom<&str> for Point {
             .ok_or("invalid coords")?
             .0 as isize;
 
-        let y = y.to_string().parse::<isize>()? - 1; // can't be negative because its just 1 char
+        let y = y.to_string().parse::<isize>()? - 1; // can't be negative because it's just 1 char
 
         (y < Board::SIZE as isize)
             .then_some(Point::new(x, y))
@@ -148,7 +151,7 @@ impl TryFrom<&str> for Point {
 
 impl Display for Point {
     #[inline]
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
     }
 }

@@ -1,6 +1,4 @@
-use std::error::Error;
-use crate::prelude::*;
-use indexmap::IndexSet;
+use {crate::prelude::*, indexmap::IndexSet, std::error::Error};
 
 #[test]
 fn pawn() -> Result<(), Box<dyn Error>> {
@@ -104,7 +102,7 @@ fn rook() -> Result<(), Box<dyn Error>> {
             Movement::new(start, Point::new(7, 0), None, Some(Direction::Down)),
         ])
     );
-    
+
     Ok(())
 }
 
@@ -125,7 +123,7 @@ fn knight() -> Result<(), Box<dyn Error>> {
             Movement::new(start, Point::new(1, 4), None, None),
         ])
     );
-    
+
     Ok(())
 }
 #[test]
@@ -140,7 +138,7 @@ fn starting_knight() -> Result<(), Box<dyn Error>> {
             Movement::new(start, Point::new(3, 1), None, None),
         ])
     );
-    
+
     Ok(())
 }
 
@@ -170,7 +168,7 @@ fn starting_king() -> Result<(), Box<dyn Error>> {
             ),
         ])
     );
-    
+
     Ok(())
 }
 #[test]
@@ -220,7 +218,7 @@ fn starting_queen() -> Result<(), Box<dyn Error>> {
             Movement::new(start, Point::new(0, 0), None, Some(Direction::Left)),
         ])
     );
-    
+
     Ok(())
 }
 

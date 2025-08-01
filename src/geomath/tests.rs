@@ -1,6 +1,7 @@
-use crate::prelude::*;
-use std::collections::HashSet;
-use std::error::Error;
+use {
+    crate::prelude::*,
+    std::{collections::HashSet, error::Error},
+};
 
 #[test]
 fn point() {
@@ -40,7 +41,7 @@ fn point_from_str() -> Result<(), Box<dyn Error>> {
         Point::try_from(String::from("A3").as_str())?,
         Point::new(0, 2)
     );
-    
+
     Ok(())
 }
 #[test]

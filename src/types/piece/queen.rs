@@ -1,11 +1,13 @@
-use crate::{
-    geomath::Point,
-    types::{Bishop, Color, Movement, Piece, Rook},
-};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Display, Formatter},
+use {
+    crate::{
+        geomath::Point,
+        types::{Bishop, Color, Movement, Piece, Rook},
+    },
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{self, Display},
+    },
 };
 
 /// ## Queen piece
@@ -17,7 +19,7 @@ pub struct Queen {
 }
 
 impl Display for Queen {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c = "♕"; // Q
         write!(f, "{}", self.to_colored_string(c))
     }

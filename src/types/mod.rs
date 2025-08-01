@@ -4,8 +4,8 @@ pub mod piece;
 #[cfg(test)]
 mod tests;
 
-pub use color::*;
-pub use movement::*;
-pub use piece::{
-    bishop::Bishop, king::King, knight::Knight, pawn::Pawn, queen::Queen, rook::Rook, *,
+pub use {
+    color::*,
+    movement::*,
+    piece::{bishop::Bishop, king::King, knight::Knight, pawn::Pawn, queen::Queen, rook::Rook, *},
 };

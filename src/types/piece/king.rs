@@ -1,11 +1,13 @@
-use crate::{
-    geomath::{Point, rotation::Direction},
-    types::*,
-};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Display, Formatter},
+use {
+    crate::{
+        geomath::{Point, rotation::Direction},
+        types::*,
+    },
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{self, Display},
+    },
 };
 
 /// If the inside `bool` is `false`, it means that the `King` has never been moved.
@@ -14,17 +16,16 @@ use std::{
 ///
 /// It can't go in a square where it could get eaten.
 ///
-/// If it has never been moved, the King can do a castle with one of the Rook,
-/// if it also has never been moved,
+/// If it has never been moved, the King can do a castle with one of the Rooks
 /// moving the King (2, 0) (H1 rook) or (-2, 0) (A1 rook)
-/// and the Rook next to the king in the opposite direction.
+/// and the Rook next to the king in the opposite direction (if the rook has not been moved).
 /// #### Win conditions
 /// **Check**: When the King could get eaten the next turn if not moved.
 /// - When in **check**, you must protect the King someway.
 ///
-/// **Checkmate**: When the King is in **Check** and there's no way to get it out of **Check**
+/// **Checkmate**: When the King is in **Check**, and there's no way to get it out of **Check**
 /// (it is, it can't be protected nor moved in a square where it isn't in **check**).
-/// - If it happens, the player lose.
+/// - If it happens, the player loses.
 ///
 /// **Stalemate**: The king is the only _moveable_ piece, it is **not** in **check**
 /// but all the squares it could go would put it in **check**.
@@ -37,7 +38,7 @@ pub struct King {
 }
 
 impl Display for King {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c = "♔"; // K
         write!(f, "{}", self.to_colored_string(c))
     }

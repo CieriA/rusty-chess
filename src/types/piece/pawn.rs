@@ -1,11 +1,13 @@
-use crate::{
-    geomath::{Point, rotation::Direction},
-    types::*,
-};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Display, Formatter},
+use {
+    crate::{
+        geomath::{Point, rotation::Direction},
+        types::*,
+    },
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{self, Display},
+    },
 };
 
 /// ## Pawn piece
@@ -25,7 +27,7 @@ pub struct Pawn {
 }
 
 impl Display for Pawn {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c = "♙"; // P
         write!(f, "{}", self.to_colored_string(c))
     }

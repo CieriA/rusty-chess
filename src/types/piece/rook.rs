@@ -1,12 +1,14 @@
-use crate::{
-    chessboard::Board,
-    geomath::Point,
-    types::{Color, Movement, Piece, PieceState, State},
-};
-use indexmap::IndexSet;
-use std::{
-    any::Any,
-    fmt::{Display, Formatter},
+use {
+    crate::{
+        chessboard::Board,
+        geomath::Point,
+        types::{Color, Movement, Piece, PieceState, State},
+    },
+    indexmap::IndexSet,
+    std::{
+        any::Any,
+        fmt::{self, Display},
+    },
 };
 
 /// ## Rook piece
@@ -19,7 +21,7 @@ pub struct Rook {
 }
 
 impl Display for Rook {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let c = "♖"; // R
         write!(f, "{}", self.to_colored_string(c))
     }

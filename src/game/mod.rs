@@ -1,14 +1,13 @@
-use crate::types::{Movement, piece_from_char};
-use crate::{
-    chessboard::Board,
-    geomath::Point,
-    types::{Color, Pawn},
-};
-#[cfg(not(test))]
-use std::collections::HashSet;
-use std::{
-    error::Error,
-    io::{self, Write},
+use {
+    crate::{
+        chessboard::Board,
+        geomath::Point,
+        types::{Color, Movement, Pawn, piece_from_char},
+    },
+    std::{
+        error::Error,
+        io::{self, Write},
+    },
 };
 
 const P1: &str = "White";
@@ -226,14 +225,10 @@ pub fn ask_upgrade() -> Result<char, Box<dyn Error>> {
     let mut input = String::new();
     print!("Choose a piece to upgrade: (B/N/R/Q) ");
     io::stdout().flush().unwrap();
-    io::stdin().read_line(&mut input)?;
+    io::stdin().read_line(&mut input).unwrap();
 
-    let chars = HashSet::from(["B", "N", "R", "Q"]);
-
-    let input = input.trim().to_ascii_uppercase();
-    if !chars.contains(&input.as_str()) {
-        return Err("Invalid input.".into());
+    match input.as_str() {
+        "B" | "N" | "R" | "Q" => Ok(input.chars().next().unwrap()),
+        _ => Err("Invalid input".into()),
     }
-
-    Ok(input.chars().next().unwrap())
 }
