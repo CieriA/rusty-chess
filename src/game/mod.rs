@@ -7,7 +7,6 @@ use crate::{
 #[cfg(not(test))]
 use std::collections::HashSet;
 use std::{
-    any::Any,
     error::Error,
     io::{self, Write},
 };
@@ -41,11 +40,13 @@ impl Game {
     fn print_instructions() {
         println!("Chess!\n");
         println!(
-            "To play, write the coordinates of the piece you want to move and then the coordinates where you want it to go"
+            "To play, write the coordinates of the piece you want to move and \
+            then the coordinates where you want it to go"
         );
         println!("Example:\nPiece coords: E2\nTo: E4\n\n");
         println!(
-            "To promote a Pawn, write the first letter of the piece you want to promote (B/N/R/Q)"
+            "To promote a Pawn, write the first letter of the piece you want \
+            to promote (B/N/R/Q)"
         )
     }
     /// Real score of white
@@ -92,12 +93,13 @@ impl Game {
 
             let mut from = String::new();
             print!("Piece coords: ");
-            io::stdout().flush().unwrap();
+            io::stdout().flush()?;
+            // .run() is directly returned from main, so we can use `?`
             io::stdin().read_line(&mut from)?;
 
             let mut to = String::new();
             print!("To: ");
-            io::stdout().flush().unwrap();
+            io::stdout().flush()?;
             io::stdin().read_line(&mut to)?;
 
             let from = from.trim();
@@ -201,7 +203,7 @@ impl Game {
     /// (use before doing the move)
     pub fn fifty_moves(&mut self, mov: &Movement) -> bool {
         // 50 moves rule's count
-        let from_piece = (&**self.board[mov.from].as_ref().unwrap()) as &dyn Any;
+        let from_piece = (**self.board[mov.from].as_ref().unwrap()).as_any();
 
         if from_piece.is::<Pawn>() || self.board[mov.to].is_some() {
             self.move_count = 0;

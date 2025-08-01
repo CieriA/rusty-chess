@@ -53,9 +53,7 @@ impl Direction {
 
 impl From<Point> for Option<Direction> {
     fn from(value: Point) -> Self {
-        let Point { x, y } = value;
-
-        match (x, y) {
+        match (value.x, value.y) {
             (0, 0) => None, // We need to check first that both aren't 0 or next arms won't work
 
             (0, y) =>

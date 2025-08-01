@@ -1,9 +1,10 @@
+use std::error::Error;
 use crate::prelude::*;
 use indexmap::IndexSet;
 
 #[test]
-fn pawn() {
-    let pawn = Pawn::new(Color::Black, Point::try_from("e7").unwrap());
+fn pawn() -> Result<(), Box<dyn Error>> {
+    let pawn = Pawn::new(Color::Black, Point::try_from("e7")?);
     assert_eq!(
         pawn.move_set(),
         IndexSet::from([
@@ -33,11 +34,13 @@ fn pawn() {
             )
         ])
     );
+
+    Ok(())
 }
 
 #[test]
-fn bishop() {
-    let bishop = Bishop::new(Color::White, Point::try_from("b2").unwrap());
+fn bishop() -> Result<(), Box<dyn Error>> {
+    let bishop = Bishop::new(Color::White, Point::try_from("b2")?);
     let start = Point::new(1, 1);
     assert_eq!(
         bishop.move_set(),
@@ -52,11 +55,13 @@ fn bishop() {
             Movement::new(start, Point::new(0, 0), None, Some(Direction::DownLeft)),
             Movement::new(start, Point::new(2, 0), None, Some(Direction::DownRight)),
         ])
-    )
+    );
+
+    Ok(())
 }
 #[test]
-fn bishop_reverse() {
-    let bishop = Bishop::new(Color::Black, Point::try_from("g6").unwrap());
+fn bishop_reverse() -> Result<(), Box<dyn Error>> {
+    let bishop = Bishop::new(Color::Black, Point::try_from("g6")?);
     let start = Point::new(6, 5);
     assert_eq!(
         bishop.move_set(),
@@ -72,11 +77,13 @@ fn bishop_reverse() {
             Movement::new(start, Point::new(7, 4), None, Some(Direction::DownRight)),
         ])
     );
+
+    Ok(())
 }
 
 #[test]
-fn rook() {
-    let rook = Rook::new(Color::Black, Point::try_from("h8").unwrap());
+fn rook() -> Result<(), Box<dyn Error>> {
+    let rook = Rook::new(Color::Black, Point::try_from("h8")?);
     let start = Point::new(7, 7);
     assert_eq!(
         rook.move_set(),
@@ -96,12 +103,14 @@ fn rook() {
             Movement::new(start, Point::new(7, 1), None, Some(Direction::Down)),
             Movement::new(start, Point::new(7, 0), None, Some(Direction::Down)),
         ])
-    )
+    );
+    
+    Ok(())
 }
 
 #[test]
-fn knight() {
-    let knight = Knight::new(Color::White, Point::try_from("d4").unwrap());
+fn knight() -> Result<(), Box<dyn Error>> {
+    let knight = Knight::new(Color::White, Point::try_from("d4")?);
     let start = Point::new(3, 3);
     assert_eq!(
         knight.move_set(),
@@ -115,11 +124,13 @@ fn knight() {
             Movement::new(start, Point::new(1, 2), None, None),
             Movement::new(start, Point::new(1, 4), None, None),
         ])
-    )
+    );
+    
+    Ok(())
 }
 #[test]
-fn starting_knight() {
-    let knight = Knight::new(Color::White, Point::try_from("b1").unwrap());
+fn starting_knight() -> Result<(), Box<dyn Error>> {
+    let knight = Knight::new(Color::White, Point::try_from("b1")?);
     let start = Point::new(1, 0);
     assert_eq!(
         knight.move_set(),
@@ -128,12 +139,14 @@ fn starting_knight() {
             Movement::new(start, Point::new(2, 2), None, None),
             Movement::new(start, Point::new(3, 1), None, None),
         ])
-    )
+    );
+    
+    Ok(())
 }
 
 #[test]
-fn starting_king() {
-    let king = King::new(Color::Black, Point::try_from("e8").unwrap());
+fn starting_king() -> Result<(), Box<dyn Error>> {
+    let king = King::new(Color::Black, Point::try_from("e8")?);
     let start = Point::new(4, 7);
     assert_eq!(
         king.move_set(),
@@ -156,7 +169,9 @@ fn starting_king() {
                 Some(Direction::Right)
             ),
         ])
-    )
+    );
+    
+    Ok(())
 }
 #[test]
 fn king_around() {
@@ -176,8 +191,8 @@ fn king_around() {
 }
 
 #[test]
-fn starting_queen() {
-    let queen = Queen::new(Color::White, Point::try_from("d1").unwrap());
+fn starting_queen() -> Result<(), Box<dyn Error>> {
+    let queen = Queen::new(Color::White, Point::try_from("d1")?);
     let start = Point::new(3, 0);
     assert_eq!(
         queen.move_set(),
@@ -204,7 +219,9 @@ fn starting_queen() {
             Movement::new(start, Point::new(1, 0), None, Some(Direction::Left)),
             Movement::new(start, Point::new(0, 0), None, Some(Direction::Left)),
         ])
-    )
+    );
+    
+    Ok(())
 }
 
 // `linear` tests
@@ -261,10 +278,10 @@ fn knight_non_linearity() {
 // (also test Point limits and Piece::as_any)
 #[test]
 fn pieces_from_char() {
-    piece_from_char('R', Color::White, Point::new(1, 0));
-    piece_from_char('B', Color::Black, Point::new(9, 2));
-    piece_from_char('Q', Color::Black, Point::new(3, 1));
-    piece_from_char('N', Color::White, Point::new(12, -4));
+    assert!(piece_from_char('R', Color::White, Point::new(1, 0)).is_some());
+    assert!(piece_from_char('B', Color::Black, Point::new(9, 2)).is_some());
+    assert!(piece_from_char('Q', Color::Black, Point::new(3, 1)).is_some());
+    assert!(piece_from_char('N', Color::White, Point::new(12, -4)).is_some());
 }
 
 #[test]

@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use std::collections::HashSet;
+use std::error::Error;
 
 #[test]
 fn point() {
@@ -20,25 +21,27 @@ fn point_from_tuple() {
 }
 
 #[test]
-fn point_from_str() {
+fn point_from_str() -> Result<(), Box<dyn Error>> {
     assert_eq!(
         // first
-        Point::try_from("a1").unwrap(),
+        Point::try_from("a1")?,
         Point::new(0, 0)
     );
     assert_eq!(
         // last
-        Point::try_from("h8").unwrap(),
+        Point::try_from("h8")?,
         Point::new(7, 7)
     );
 
-    assert_eq!(Point::try_from("e4").unwrap(), Point::new(4, 3));
-    assert_eq!(Point::try_from("B7").unwrap(), Point::new(1, 6));
-    assert_eq!(Point::try_from("h5").unwrap(), Point::new(7, 4));
+    assert_eq!(Point::try_from("e4")?, Point::new(4, 3));
+    assert_eq!(Point::try_from("B7")?, Point::new(1, 6));
+    assert_eq!(Point::try_from("h5")?, Point::new(7, 4));
     assert_eq!(
-        Point::try_from(String::from("A3").as_str()).unwrap(),
+        Point::try_from(String::from("A3").as_str())?,
         Point::new(0, 2)
-    )
+    );
+    
+    Ok(())
 }
 #[test]
 #[should_panic]
