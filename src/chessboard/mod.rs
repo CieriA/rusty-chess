@@ -23,12 +23,10 @@ pub struct Board(Grid);
 
 impl Clone for Board {
     fn clone(&self) -> Self {
-        let mut board = Board::empty();
+        let mut board = Self::empty();
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
-                if let Some(piece) = square {
-                    board[Point::new(x as isize, y as isize)] = Some(piece.clone_box());
-                }
+                board[Point::new(x as isize, y as isize)] = square.map(Piece::clone_box);
             }
         }
         board
