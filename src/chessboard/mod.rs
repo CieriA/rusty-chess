@@ -1,10 +1,7 @@
 //! 8*8 classic Chessboard
 
 use {
-    crate::{
-        geomath::{Point, rotation::Direction},
-        types::*,
-    },
+    crate::{geomath::Point, types::*},
     colored::Colorize as _,
     indexmap::IndexSet,
     std::{
@@ -125,7 +122,7 @@ impl Board {
     pub fn get(&self, point: Point) -> Option<&Square> {
         Board::in_bounds(point).then_some(&self[point])
     }
-    #[inline]
+    #[inline(always)]
     pub fn iter(&self) -> impl Iterator<Item = &Row> {
         self.0.iter()
     }
@@ -136,7 +133,7 @@ impl Board {
     ///
     /// The `from` parameter is the `Movement.from` field.
     pub fn filtered_move_set(&self, from: Point) -> IndexSet<Movement> {
-        let mut ignored: HashSet<Direction> = HashSet::new();
+        let mut ignored = HashSet::new();
 
         // .unwrap() checks that the piece exists
         let piece = self[from].as_ref().unwrap();
@@ -270,7 +267,7 @@ impl Board {
         self.all_pieces()
             .into_iter()
             // by using `.unwrap()` instead of `.is_some_and()` I assure `.all_pieces()` works too,
-            // and if it doesn't this fn will panic
+            // and if it doesn't this fn will panic,
             // but maybe `.is_some_and()` was more safe and better in this case.
             .filter(|point| self[*point].as_ref().unwrap().color() == color)
             .collect()
@@ -294,7 +291,7 @@ impl Board {
             piece.as_any().is::<Pawn>() && piece.color().opposite().first_row() as isize == mov.to.y
         })
     }
-    /// returns `Some` if the move is an eating move, none otherwise
+    /// Returns `Some` if the move is an eating move, none otherwise
     /// `Some` contains the points (`usize`) added to the score to the `Color` player.
     ///
     /// Also change the state of all pawns already moved.
@@ -373,7 +370,7 @@ impl Board {
         self[mov.to] = promoted.or(Some(piece));
         self[mov.to].as_mut().unwrap().set_pos(mov.to);
     }
-    /// Returns the coordinates of the King of the given color.
+    /// Returns the King's coordinates of the given color.
     fn find_king(&self, color: Color) -> Point {
         for (y, row) in self.iter().enumerate() {
             for (x, square) in row.iter().enumerate() {
@@ -439,7 +436,7 @@ impl Board {
     /// `color` is the color of the king about to be captured
     #[inline]
     pub fn checkmate(&self, color: Color) -> bool {
-        // Return is check, all around check and if check is not stoppable
+        // Return is check, all around check, and if check is not stoppable
         self.check(color).is_some()
             && self.checks_around(color)
             && self.is_check_stoppable(color).is_empty()
@@ -448,15 +445,5 @@ impl Board {
     pub fn stalemate(&self, color: Color) -> bool {
         // No moves available and not check
         self.check(color).is_none() && self.all_moves(color).is_empty()
-    }
-    pub fn eval(&self) -> f64 {
-        self.iter()
-            .flat_map(|row| row.iter())
-            .fold(0., |acc, square| {
-                acc + square
-                    .as_ref()
-                    .map(|piece| piece.score() * piece.color().sign() as f64)
-                    .unwrap_or(0.)
-            })
     }
 }
